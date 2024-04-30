@@ -4,3 +4,19 @@
 logging:
   level:
     root: DEBUG
+
+integration:
+  messaging:
+    url: http://localhost:${wiremock.server.port:}/api-messaging
+
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          messaging:
+            token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
+        registration:
+          messaging:
+            client-id: the-client-id
+            client-secret: the-client-secret

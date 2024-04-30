@@ -11,3 +11,14 @@ openapi:
 spring:
   application:
     name: api-incident-mapper
+  security:
+    oauth2:
+      client:
+        registration:
+          messaging:
+            authorization-grant-type: client_credentials
+            provider: messaging
+integration:
+  messaging:
+    connectTimeout: 5
+    readTimeout: 30

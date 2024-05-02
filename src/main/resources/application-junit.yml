@@ -8,6 +8,8 @@ logging:
 integration:
   messaging:
     url: http://messaging.url
+  pob:
+    url: http://pob.url
 
 spring:
   security:

@@ -22,3 +22,6 @@ integration:
   messaging:
     connectTimeout: 5
     readTimeout: 30
+  pob:
+    connect-timeout: 5
+    read-timeout: 30

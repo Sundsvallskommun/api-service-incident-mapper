@@ -1,0 +1,156 @@
+swagger: '2.0'
+info:
+  version: v110
+  title: Wendia POB Api
+host: pob.sundsvall.se:8086
+schemes:
+  - https
+paths: {}
+definitions:
+  PobPayload:
+    description: Represents the payload used in the POBG6 Restful API
+    type: object
+    properties:
+      Type:
+        description: "The type of the data represented by the payload.\r\nThe possible values are:\r\n[PobEntity name] - the name of the POB entity which data the payload contains\r\nlistof:[PobEntiy name] - this form is used to return the collection of the payload object instances in the Data arrray; each entry of the Data array has Type set to the [PobEntity name] and represents a single POBG6 entity instance\r\nsearchof:[PobEntity name] - this form is used to return the result of the search in data table form: each entry of the Data array has Type set to 'r'\r\nr - this form is used to return the result of search with POBG6 Search View; the Data array contains only pairs 'PropertyName':'PropertyValue'"
+        type: string
+      Links:
+        description: The array of links according to HATEAOS principle
+        type: array
+        items:
+          $ref: '#/definitions/HateoasLink'
+      Data:
+        description: "The array of name-value pairs.\r\nThe name datatype is always string\r\nThe value's type can be a simple type (integer, string, boolean, datetime) as well as a payload object"
+        type: object
+        additionalProperties:
+          type: object
+      Memo:
+        description: The array of memos associated with the object instance
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/PobMemo'
+  HateoasLink:
+    description: Represents the API link
+    type: object
+    properties:
+      Relation:
+        description: The description of the relation to the containing object
+        type: string
+      Href:
+        description: The POB G6 API link to retrieve the associated data
+        type: string
+  PobMemo:
+    description: Represents the memo payload
+    type: object
+    properties:
+      Extension:
+        description: The memo format (currently only '.txt' and '.html' are supported)
+        type: string
+      IsValidForWeb:
+        description: The memo can be exposed in WSSP
+        type: boolean
+      Style:
+        format: int32
+        description: 'Memo style: 0 - Normal; 1 - Frozen; 2 - Reversed frozen'
+        enum:
+          - 0
+          - 1
+          - 2
+        type: integer
+      Memo:
+        description: The content of the memo
+        type: string
+      HandleSeparators:
+        description: "Controls the memo header/footer appearance in the persisted memo entry \r\nIf true - the separators should be included according to POB settings"
+        type: boolean
+  ErrorInfo:
+    description: The error detailed description
+    type: object
+    properties:
+      UserMessage:
+        description: The message that is displayed in the UI
+        type: string
+      InternalMessage:
+        description: The message for the API consumers
+        type: string
+      Code:
+        format: int32
+        description: Error code
+        type: integer
+      MoreInfo:
+        description: Additional information
+        type: string
+      Data:
+        type: object
+        additionalProperties:
+          type: string
+  PobPayloadWithTriggerResults:
+    type: object
+    properties:
+      TriggerResults:
+        type: array
+        items:
+          $ref: '#/definitions/Result'
+      Type:
+        description: "The type of the data represented by the payload.\r\nThe possible values are:\r\n[PobEntity name] - the name of the POB entity which data the payload contains\r\nlistof:[PobEntiy name] - this form is used to return the collection of the payload object instances in the Data arrray; each entry of the Data array has Type set to the [PobEntity name] and represents a single POBG6 entity instance\r\nsearchof:[PobEntity name] - this form is used to return the result of the search in data table form: each entry of the Data array has Type set to 'r'\r\nr - this form is used to return the result of search with POBG6 Search View; the Data array contains only pairs 'PropertyName':'PropertyValue'"
+        type: string
+      Links:
+        description: The array of links according to HATEAOS principle
+        type: array
+        items:
+          $ref: '#/definitions/HateoasLink'
+      Data:
+        description: "The array of name-value pairs.\r\nThe name datatype is always string\r\nThe value's type can be a simple type (integer, string, boolean, datetime) as well as a payload object"
+        type: object
+        additionalProperties:
+          type: object
+      Memo:
+        description: The array of memos associated with the object instance
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/PobMemo'
+  Result:
+    type: object
+    properties:
+      Id:
+        type: string
+      Links:
+        type: array
+        items:
+          $ref: '#/definitions/HateoasLink'
+  SuspensionInfo:
+    type: object
+    properties:
+      Suspension:
+        description: Suspension category - the id of the Suspension instance
+        type: string
+      Description:
+        description: User defined explanation for suspension
+        type: string
+      Time:
+        format: date-time
+        description: The suspension end time
+        type: string
+      TimeLimitsAction:
+        format: int32
+        description: The action on existing time limits
+        enum:
+          - 0
+          - 1
+          - 2
+        type: integer
+      UsePeriod:
+        description: The period settings should be used instead of the suspension end time
+        type: boolean
+      Period:
+        format: int32
+        description: The length of the suspension defined in Units
+        type: integer
+      Units:
+        format: int32
+        description: The units of the suspension period
+        enum:
+          - 0
+          - 1
+          - 2
+        type: integer

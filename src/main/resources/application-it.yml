@@ -8,6 +8,9 @@ logging:
 integration:
   messaging:
     url: http://localhost:${wiremock.server.port:}/api-messaging
+  pob:
+    url: http://localhost:${wiremock.server.port:}/api-pob
+    pobKey: some-key
 
 spring:
   security:

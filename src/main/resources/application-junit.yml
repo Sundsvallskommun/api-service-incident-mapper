@@ -4,3 +4,19 @@
 logging:
   level:
     root: DEBUG
+
+integration:
+  messaging:
+    url: http://messaging.url
+
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          messaging:
+            token-uri: http://token.url
+        registration:
+          messaging:
+            client-id: the-client-id
+            client-secret: the-client-secret

@@ -9,4 +9,4 @@
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Sundsvallskommun_api-service-incident-mapper&metric=bugs)](https://sonarcloud.io/summary/overall?id=Sundsvallskommun_api-service-incident-mapper)
 
 ## 
-Copyright (c) 2023 Sundsvalls kommun
+Copyright (c) 2024 Sundsvalls kommun

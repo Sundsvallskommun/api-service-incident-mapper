@@ -33,4 +33,3 @@ spring:
           messaging:
             client-id: the-client-id
             client-secret: the-client-secret
-            

@@ -4,15 +4,32 @@
 logging:
   level:
     root: DEBUG
-
 integration:
   messaging:
     url: http://messaging.url
   pob:
     url: http://pob.url
     pobKey: some-key
-
 spring:
+  datasource:
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    url: jdbc:tc:mariadb:10.6.4:///
+  jpa:
+    properties:
+      hibernate:
+        hbm2ddl:
+          schema-generation:
+            script:
+              append: false
+      jakarta:
+        persistence:
+          schema-generation:
+            create-source: metadata
+            database:
+              action: update
+            scripts:
+              action: create
+              create-target: target/database/generated-schema.sql
   security:
     oauth2:
       client:

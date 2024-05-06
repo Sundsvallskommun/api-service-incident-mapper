@@ -1,15 +1,18 @@
 package se.sundsvall.incidentmapper.api;
 
+import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import se.sundsvall.incidentmapper.Application;
 import se.sundsvall.incidentmapper.api.model.IncidentRequest;
+import se.sundsvall.incidentmapper.service.IncidentService;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
@@ -20,9 +23,8 @@ class IncidentResourceTest {
 	@Autowired
 	private WebTestClient webTestClient;
 
-	// TODO: Activate this when service-class is implemented.
-	// @MockBean
-	// private IncidentService incidentServiceMock;
+	@MockBean
+	private IncidentService incidentServiceMock;
 
 	@Test
 	void postIncident() {
@@ -41,7 +43,6 @@ class IncidentResourceTest {
 			.expectBody().isEmpty();
 
 		// Assert
-		// TODO: Activate this when service-class is implemented.
-		// verifyNoInteractions(incidentServiceMock);
+		verify(incidentServiceMock).handleIncidentRequest(body);
 	}
 }

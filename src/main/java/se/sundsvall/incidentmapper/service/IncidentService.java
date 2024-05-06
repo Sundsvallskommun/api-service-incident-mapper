@@ -1,6 +1,7 @@
 package se.sundsvall.incidentmapper.service;
 
 import static java.time.OffsetDateTime.now;
+import static java.util.Arrays.asList;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.POB_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
 
@@ -18,7 +19,7 @@ import se.sundsvall.incidentmapper.integration.db.model.enums.Status;
 @Transactional
 public class IncidentService {
 
-	private static final List<Status> OPEN_FOR_MODIFICATION_STATUS_LIST = List.of(null, SYNCHRONIZED);
+	private static final List<Status> OPEN_FOR_MODIFICATION_STATUS_LIST = asList(null, SYNCHRONIZED); // Status is only modifiable if current value is one of these.
 
 	private final IncidentRepository incidentRepository;
 
@@ -36,8 +37,6 @@ public class IncidentService {
 			incidentEntity.withStatus(POB_INITIATED_EVENT);
 		}
 
-		incidentEntity.withPobIssueLastModified(now());
-
-		incidentRepository.save(incidentEntity);
+		incidentRepository.save(incidentEntity.withPobIssueLastModified(now()));
 	}
 }

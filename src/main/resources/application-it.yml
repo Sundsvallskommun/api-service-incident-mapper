@@ -1,15 +1,19 @@
 #========================================
 # Test profile settings (IT tests)
 #========================================
-logging:
-  level:
-    root: DEBUG
-
-integration:
-  messaging:
-    url: http://localhost:${wiremock.server.port:}/api-messaging
-
 spring:
+  datasource:
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    url: jdbc:tc:mariadb:10.6.4:///
+  flyway:
+    enabled: true
+  jpa:
+    properties:
+      jakarta:
+        persistence:
+          schema-generation:
+            database:
+              action: validate
   security:
     oauth2:
       client:
@@ -20,3 +24,8 @@ spring:
           messaging:
             client-id: the-client-id
             client-secret: the-client-secret
+integration:
+  messaging:
+    url: http://localhost:${wiremock.server.port:}/api-messaging
+  pob:
+    url: http://localhost:${wiremock.server.port:}/api-pob

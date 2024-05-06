@@ -1,9 +1,6 @@
 #========================================
 # Test profile settings (IT tests)
 #========================================
-logging:
-  level:
-    root: DEBUG
 integration:
   messaging:
     url: http://localhost:${wiremock.server.port:}/api-messaging

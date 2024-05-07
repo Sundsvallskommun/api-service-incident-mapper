@@ -48,3 +48,13 @@ integration:
     connect-timeout: 5
     read-timeout: 30
   jira:
+
+#========================================
+# Scheduler settings
+#
+# - To disable the scheduling, set spring cron expression to "-" or remove "cronExpression"-property.
+#========================================
+scheduler:
+  jira-polling:
+    cron: "0 * * * * *"
+    shedlock-lock-at-most-for: PT10M

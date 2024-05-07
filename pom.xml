@@ -15,13 +15,16 @@
 	<version>1.0</version>
 	<name>api-service-incident-mapper</name>
 	<properties>
-		<!-- Pipeline properties -->
 		<docker.image.name>ms-incident-mapper</docker.image.name>
 		<generated-sources-path>${project.build.directory}/generated-sources
 		</generated-sources-path>
 		<generated-sources-java-path>src/main/java</generated-sources-java-path>
+<<<<<<< HEAD
 		<jira-rest-java-client-app.version>5.2.7</jira-rest-java-client-app.version>
 		<atlassian.fugue.version>5.0.0</atlassian.fugue.version>
+=======
+		<shedlock.version>5.10.2</shedlock.version>
+>>>>>>> 7971987 (UF-8138: Implement Jira polling)
 	</properties>
 	<repositories>
 		<repository>
@@ -82,6 +85,16 @@
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-mysql</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.javacrumbs.shedlock</groupId>
+			<artifactId>shedlock-spring</artifactId>
+			<version>${shedlock.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.javacrumbs.shedlock</groupId>
+			<artifactId>shedlock-provider-jdbc-template</artifactId>
+			<version>${shedlock.version}</version>
 		</dependency>
 		<!-- Test -->
 		<dependency>

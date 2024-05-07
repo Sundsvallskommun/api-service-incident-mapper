@@ -39,4 +39,8 @@ public class IncidentService {
 
 		incidentRepository.save(incidentEntity.withPobIssueLastModified(now()));
 	}
+
+	public void pollJiraUpdates() {
+		// Implement when JIRA API is ready
+	}
 }

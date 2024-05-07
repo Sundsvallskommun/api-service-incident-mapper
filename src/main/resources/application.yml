@@ -9,6 +9,10 @@ openapi:
   title: ${spring.application.name}
   version: '@project.version@'
 spring:
+  cache:
+    cache-names: issueTypes
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=86400s
   application:
     name: api-incident-mapper
   datasource:
@@ -44,5 +48,3 @@ integration:
     connect-timeout: 5
     read-timeout: 30
   jira:
-    connect-timeout: 5
-    read-timeout: 30

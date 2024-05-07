@@ -1,22 +1,15 @@
 package se.sundsvall.incidentmapper.integration.jira;
 
-import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.StreamSupport;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.Comment;
 import com.atlassian.jira.rest.client.api.domain.Issue;
-import com.atlassian.jira.rest.client.api.domain.IssueType;
-import com.atlassian.jira.rest.client.api.domain.Transition;
 import com.atlassian.jira.rest.client.api.domain.input.AttachmentInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.api.domain.input.TransitionInput;
 import org.springframework.stereotype.Component;
-import org.zalando.problem.Problem;
 
 
 @Component
@@ -24,10 +17,11 @@ public class JiraClient {
 
 	private final JiraRestClient restClient;
 
-	private final List<IssueType> issueTypeCache = new ArrayList<>();
+	private final JiraUtil jiraUtil;
 
-	public JiraClient(final JiraRestClient restClient) {
+	public JiraClient(final JiraRestClient restClient, final JiraUtil jiraUtil) {
 		this.restClient = restClient;
+		this.jiraUtil = jiraUtil;
 	}
 
 	public Issue getIssue(final String issueKey) {
@@ -37,7 +31,7 @@ public class JiraClient {
 
 	public String createIssue(final String projectKey, final String issueType, final String issueSummary, final String description) {
 
-		final var issueTypeId = getIssueTypeByName(issueType).getId();
+		final var issueTypeId = jiraUtil.getIssueTypeByName(issueType).getId();
 
 		final var newIssue = new IssueInputBuilder()
 			.setProjectKey(projectKey)
@@ -65,7 +59,7 @@ public class JiraClient {
 
 	public void updateIssueStatus(final Issue issue, final String newStatus) {
 
-		final var transitionId = getStatusByName(issue, newStatus);
+		final var transitionId = jiraUtil.getTransitionByName(issue, newStatus);
 		restClient.getIssueClient().transition(issue, new TransitionInput(transitionId)).claim();
 	}
 
@@ -77,28 +71,5 @@ public class JiraClient {
 		restClient.getIssueClient().addComment(issue.getCommentsUri(), Comment.valueOf(commentBody));
 	}
 
-	private IssueType getIssueTypeByName(final String name) {
-
-		if (issueTypeCache.isEmpty()) {
-			final var test = restClient.getMetadataClient().getIssueTypes().claim();
-			test.forEach(issueTypeCache::add);
-		}
-		return issueTypeCache.stream()
-			.filter(issueType -> issueType.getName().equalsIgnoreCase(name))
-			.findFirst()
-			.orElseThrow(() -> Problem.valueOf(INTERNAL_SERVER_ERROR, "No issue type found with name: " + name));
-	}
-
-	private Iterable<Transition> getTransitions(final Issue issue) {
-		return restClient.getIssueClient().getTransitions(issue).claim();
-	}
-
-	private int getStatusByName(final Issue issue, final String name) {
-		return StreamSupport.stream(getTransitions(issue).spliterator(), false)
-			.filter(trans -> trans.getName().equals(name))
-			.findFirst()
-			.orElseThrow(() -> new RuntimeException("Transition not found"))
-			.getId();
-	}
 
 }

@@ -6,17 +6,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.atlassian.jira.rest.client.api.IssueRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
-import com.atlassian.jira.rest.client.api.MetadataRestClient;
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
 import com.atlassian.jira.rest.client.api.domain.Comment;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.IssueType;
-import com.atlassian.jira.rest.client.api.domain.Transition;
 import com.atlassian.jira.rest.client.api.domain.input.AttachmentInput;
 import com.atlassian.jira.rest.client.api.domain.input.TransitionInput;
 import org.junit.jupiter.api.Test;
@@ -36,25 +33,19 @@ class JiraClientTest {
 	private JiraRestClient jiraRestClientMock;
 
 	@Mock
+	private JiraUtil jiraUtilMock;
+
+	@Mock
 	private BasicIssue basicIssueMock;
 
 	@Mock
 	private Promise<BasicIssue> promiseMock;
 
 	@Mock
-	private Promise<Iterable<IssueType>> promiseIssueTypeMock;
-
-	@Mock
 	private IssueRestClient issueRestClientMock;
 
 	@Mock
-	private MetadataRestClient metadataRestClientMock;
-
-	@Mock
 	private Issue issueMock;
-
-	@Mock
-	private Transition transitionMock;
 
 	@Mock
 	private Promise<Issue> promiseIssueMock;
@@ -62,8 +53,6 @@ class JiraClientTest {
 	@Mock
 	private Promise<Void> promiseVoidMock;
 
-	@Mock
-	private Promise<Iterable<Transition>> promiseTransitionMock;
 
 	@Mock
 	private AttachmentInput attachmentInputMock;
@@ -89,8 +78,6 @@ class JiraClientTest {
 		final var description = "This is a test issue type";
 		final var iconUri = URI.create("http://example.com/icon.png");
 		final var issueType = new IssueType(self, id, name, isSubtask, description, iconUri);
-		final List<IssueType> issueTypes = new ArrayList<>();
-		issueTypes.add(issueType);
 
 		//Mock
 		when(jiraRestClientMock.getIssueClient()).thenReturn(issueRestClientMock);
@@ -98,9 +85,7 @@ class JiraClientTest {
 		when(promiseMock.claim()).thenReturn(basicIssueMock);
 		when(basicIssueMock.getKey()).thenReturn(issueKey);
 		// Mock IssueType call
-		when(jiraRestClientMock.getMetadataClient()).thenReturn(metadataRestClientMock);
-		when(metadataRestClientMock.getIssueTypes()).thenReturn(promiseIssueTypeMock);
-		when(promiseIssueTypeMock.claim()).thenReturn(issueTypes);
+		when(jiraUtilMock.getIssueTypeByName(issueTypeName)).thenReturn(issueType);
 
 		// Act
 		final var result = jiraClient.createIssue(projectKey, issueTypeName, issueSummary, issueDescription);
@@ -163,10 +148,8 @@ class JiraClientTest {
 		// Arrange
 		final var newStatus = "Done";
 
+		when(jiraUtilMock.getTransitionByName(issueMock, newStatus)).thenReturn(1);
 		when(jiraRestClientMock.getIssueClient()).thenReturn(issueRestClientMock);
-		when(jiraRestClientMock.getIssueClient().getTransitions(issueMock)).thenReturn(promiseTransitionMock);
-		when(promiseTransitionMock.claim()).thenReturn(List.of(transitionMock));
-		when(transitionMock.getName()).thenReturn(newStatus);
 		when(jiraRestClientMock.getIssueClient().transition(any(Issue.class), any(TransitionInput.class))).thenReturn(promiseVoidMock);
 
 		// Act

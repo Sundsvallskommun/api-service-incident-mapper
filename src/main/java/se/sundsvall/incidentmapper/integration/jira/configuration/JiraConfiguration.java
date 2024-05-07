@@ -17,7 +17,7 @@ public class JiraConfiguration {
 	}
 
 	@Bean
-	public JiraRestClient jiraRestClient() {
+	JiraRestClient jiraRestClient() {
 		return new AsynchronousJiraRestClientFactory()
 			.createWithBasicHttpAuthentication(getJiraUri(), jiraProperties.username(), jiraProperties.password());
 	}

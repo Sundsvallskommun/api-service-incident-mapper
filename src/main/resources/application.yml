@@ -43,3 +43,6 @@ integration:
   pob:
     connect-timeout: 5
     read-timeout: 30
+  jira:
+    connect-timeout: 5
+    read-timeout: 30

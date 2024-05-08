@@ -53,13 +53,13 @@ public class IncidentEntity implements Serializable {
 	@TimeZoneStorage(NORMALIZE)
 	private OffsetDateTime modified;
 
-	@Column(name = "jira_issue_last_modified")
+	@Column(name = "last_synchronized_jira")
 	@TimeZoneStorage(NORMALIZE)
-	private OffsetDateTime jiraIssueLastModified;
+	private OffsetDateTime lastSynchronizedJira;
 
-	@Column(name = "pob_issue_last_modified")
+	@Column(name = "last_synchronized_pob")
 	@TimeZoneStorage(NORMALIZE)
-	private OffsetDateTime pobIssueLastModified;
+	private OffsetDateTime lastSynchronizedPob;
 
 	public static IncidentEntity create() {
 		return new IncidentEntity();
@@ -143,51 +143,50 @@ public class IncidentEntity implements Serializable {
 		return this;
 	}
 
-	public OffsetDateTime getJiraIssueLastModified() {
-		return jiraIssueLastModified;
+	public OffsetDateTime getLastSynchronizedJira() {
+		return lastSynchronizedJira;
 	}
 
-	public void setJiraIssueLastModified(OffsetDateTime jiraIssueLastModified) {
-		this.jiraIssueLastModified = jiraIssueLastModified;
+	public void setLastSynchronizedJira(OffsetDateTime lastSynchronizedJira) {
+		this.lastSynchronizedJira = lastSynchronizedJira;
 	}
 
-	public IncidentEntity withJiraIssueLastModified(OffsetDateTime jiraIssueLastModified) {
-		this.jiraIssueLastModified = jiraIssueLastModified;
+	public IncidentEntity withLastSynchronizedJira(OffsetDateTime lastSynchronizedJira) {
+		this.lastSynchronizedJira = lastSynchronizedJira;
 		return this;
 	}
 
-	public OffsetDateTime getPobIssueLastModified() {
-		return pobIssueLastModified;
+	public OffsetDateTime getLastSynchronizedPob() {
+		return lastSynchronizedPob;
 	}
 
-	public void setPobIssueLastModified(OffsetDateTime pobIssueLastModified) {
-		this.pobIssueLastModified = pobIssueLastModified;
+	public void setLastSynchronizedPob(OffsetDateTime lastSynchronizedPob) {
+		this.lastSynchronizedPob = lastSynchronizedPob;
 	}
 
-	public IncidentEntity withPobIssueLastModified(OffsetDateTime pobIssueLastModified) {
-		this.pobIssueLastModified = pobIssueLastModified;
+	public IncidentEntity withLastSynchronizedPob(OffsetDateTime lastSynchronizedPob) {
+		this.lastSynchronizedPob = lastSynchronizedPob;
 		return this;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(created, id, jiraIssueKey, jiraIssueLastModified, modified, pobIssueKey, pobIssueLastModified, status);
+		return Objects.hash(created, id, jiraIssueKey, lastSynchronizedJira, lastSynchronizedPob, modified, pobIssueKey, status);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) { return true; }
 		if (!(obj instanceof final IncidentEntity other)) { return false; }
-		return Objects.equals(created, other.created) && Objects.equals(id, other.id) && Objects.equals(jiraIssueKey, other.jiraIssueKey) && Objects.equals(jiraIssueLastModified, other.jiraIssueLastModified) && Objects.equals(modified, other.modified)
-			&& Objects.equals(pobIssueKey, other.pobIssueKey) && Objects.equals(pobIssueLastModified, other.pobIssueLastModified) && (status == other.status);
+		return Objects.equals(created, other.created) && Objects.equals(id, other.id) && Objects.equals(jiraIssueKey, other.jiraIssueKey) && Objects.equals(lastSynchronizedJira, other.lastSynchronizedJira) && Objects.equals(lastSynchronizedPob,
+			other.lastSynchronizedPob) && Objects.equals(modified, other.modified) && Objects.equals(pobIssueKey, other.pobIssueKey) && (status == other.status);
 	}
 
 	@Override
 	public String toString() {
 		final StringBuilder builder = new StringBuilder();
 		builder.append("IncidentEntity [id=").append(id).append(", pobIssueKey=").append(pobIssueKey).append(", jiraIssueKey=").append(jiraIssueKey).append(", status=").append(status).append(", created=").append(created).append(", modified=").append(
-			modified).append(", jiraIssueLastModified=").append(jiraIssueLastModified).append(", pobIssueLastModified=").append(pobIssueLastModified).append("]");
+			modified).append(", lastSynchronizedJira=").append(lastSynchronizedJira).append(", lastSynchronizedPob=").append(lastSynchronizedPob).append("]");
 		return builder.toString();
 	}
-
 }

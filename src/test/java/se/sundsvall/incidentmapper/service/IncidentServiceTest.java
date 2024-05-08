@@ -1,19 +1,23 @@
 package se.sundsvall.incidentmapper.service;
 
 import static java.time.OffsetDateTime.now;
-import static java.time.temporal.ChronoUnit.SECONDS;
+import static java.util.Collections.emptyList;
 import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.within;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.POB_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -22,15 +26,24 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.atlassian.jira.rest.client.api.domain.Issue;
+
 import se.sundsvall.incidentmapper.api.model.IncidentRequest;
 import se.sundsvall.incidentmapper.integration.db.IncidentRepository;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
+import se.sundsvall.incidentmapper.integration.jira.JiraClient;
 
 @ExtendWith(MockitoExtension.class)
 class IncidentServiceTest {
 
 	@Mock
 	private IncidentRepository incidentRepositoryMock;
+
+	@Mock
+	private JiraClient jiraClientMock;
+
+	@Mock
+	private Issue jiraIssueMock;
 
 	@InjectMocks
 	private IncidentService incidentService;
@@ -57,7 +70,6 @@ class IncidentServiceTest {
 
 		final var capturedValue = incidentEntityCaptor.getValue();
 		assertThat(capturedValue.getPobIssueKey()).isEqualTo(pobIssueKey);
-		assertThat(capturedValue.getPobIssueLastModified()).isCloseTo(now(), within(2, SECONDS));
 		assertThat(capturedValue.getStatus()).isEqualTo(POB_INITIATED_EVENT);
 	}
 
@@ -86,7 +98,6 @@ class IncidentServiceTest {
 
 		final var capturedValue = incidentEntityCaptor.getValue();
 		assertThat(capturedValue.getPobIssueKey()).isEqualTo(pobIssueKey);
-		assertThat(capturedValue.getPobIssueLastModified()).isCloseTo(now(), within(2, SECONDS));
 		assertThat(capturedValue.getStatus()).isEqualTo(POB_INITIATED_EVENT);
 	}
 
@@ -115,7 +126,98 @@ class IncidentServiceTest {
 
 		final var capturedValue = incidentEntityCaptor.getValue();
 		assertThat(capturedValue.getPobIssueKey()).isEqualTo(pobIssueKey);
-		assertThat(capturedValue.getPobIssueLastModified()).isCloseTo(now(), within(2, SECONDS));
 		assertThat(capturedValue.getStatus()).isEqualTo(JIRA_INITIATED_EVENT);
+	}
+
+	@Test
+	void pollJiraUpdatesWhenUpdatesFound() {
+
+		// Arrange
+		final var jiraIssueKey = "JIR-12345";
+		final var lastSynchronizedJira = now().minusDays(1);
+		final var existingIncident = IncidentEntity.create()
+			.withJiraIssueKey(jiraIssueKey)
+			.withLastSynchronizedJira(lastSynchronizedJira)
+			.withStatus(SYNCHRONIZED);
+
+		when(incidentRepositoryMock.findByStatus(SYNCHRONIZED)).thenReturn(List.of(existingIncident));
+		when(jiraIssueMock.getUpdateDate()).thenReturn(DateTime.now());
+		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(Optional.of(jiraIssueMock));
+
+		// Act
+		incidentService.pollJiraUpdates();
+
+		// Assert
+		verify(jiraClientMock).getIssue(jiraIssueKey);
+		verify(jiraIssueMock).getUpdateDate();
+		verify(incidentRepositoryMock).findByStatus(SYNCHRONIZED);
+		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
+
+		final var capturedIncidentEntity = incidentEntityCaptor.getValue();
+		assertThat(capturedIncidentEntity).isNotNull();
+		assertThat(capturedIncidentEntity.getStatus()).isEqualTo(JIRA_INITIATED_EVENT);
+	}
+
+	@Test
+	void pollJiraUpdatesWhenUpdatesNotFound() {
+
+		// Arrange
+		final var jiraIssueKey = "JIR-12345";
+		final var lastSynchronizedJira = now().plusMinutes(1);
+		final var existingIncident = IncidentEntity.create()
+			.withJiraIssueKey(jiraIssueKey)
+			.withLastSynchronizedJira(lastSynchronizedJira)
+			.withStatus(SYNCHRONIZED);
+
+		when(incidentRepositoryMock.findByStatus(SYNCHRONIZED)).thenReturn(List.of(existingIncident));
+		when(jiraIssueMock.getUpdateDate()).thenReturn(DateTime.now());
+		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(Optional.of(jiraIssueMock));
+
+		// Act
+		incidentService.pollJiraUpdates();
+
+		// Assert
+		verify(jiraClientMock).getIssue(jiraIssueKey);
+		verify(jiraIssueMock).getUpdateDate();
+		verify(incidentRepositoryMock).findByStatus(SYNCHRONIZED);
+		verify(incidentRepositoryMock, never()).saveAndFlush(any());
+	}
+
+	@Test
+	void pollJiraUpdatesWhenJiraIssueNotFound() {
+
+		// Arrange
+		final var jiraIssueKey = "JIR-12345";
+		final var lastSynchronizedJira = now().plusMinutes(1);
+		final var existingIncident = IncidentEntity.create()
+			.withJiraIssueKey(jiraIssueKey)
+			.withLastSynchronizedJira(lastSynchronizedJira)
+			.withStatus(SYNCHRONIZED);
+
+		when(incidentRepositoryMock.findByStatus(SYNCHRONIZED)).thenReturn(List.of(existingIncident));
+		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(Optional.empty());
+
+		// Act
+		incidentService.pollJiraUpdates();
+
+		// Assert
+		verify(incidentRepositoryMock).findByStatus(SYNCHRONIZED);
+		verify(jiraClientMock).getIssue(jiraIssueKey);
+		verifyNoInteractions(jiraIssueMock);
+		verify(incidentRepositoryMock, never()).saveAndFlush(any());
+	}
+
+	@Test
+	void pollJiraUpdatesWhenIncidentMappingsNotFound() {
+
+		when(incidentRepositoryMock.findByStatus(SYNCHRONIZED)).thenReturn(emptyList());
+
+		// Act
+		incidentService.pollJiraUpdates();
+
+		// Assert
+		verifyNoInteractions(jiraClientMock, jiraIssueMock);
+		verify(incidentRepositoryMock).findByStatus(SYNCHRONIZED);
+		verify(incidentRepositoryMock, never()).saveAndFlush(any());
 	}
 }

@@ -3,10 +3,10 @@
         id varchar(255) not null,
         created datetime(6),
         jira_issue_key varchar(255),
-        jira_issue_last_modified datetime(6),
+        last_synchronized_jira datetime(6),
+        last_synchronized_pob datetime(6),
         modified datetime(6),
         pob_issue_key varchar(255),
-        pob_issue_last_modified datetime(6),
         status varchar(255),
         primary key (id)
     ) engine=InnoDB;

@@ -11,13 +11,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import se.sundsvall.incidentmapper.service.IncidentService;
 
 @ExtendWith(MockitoExtension.class)
-class JiraPollingSchedulerServiceTest {
+class SynchronizerSchedulerServiceTest {
 
 	@Mock
 	private IncidentService incidentService;
 
 	@InjectMocks
-	private JiraPollingSchedulerService jiraPollingSchedulerService;
+	private SynchronizerSchedulerService jiraPollingSchedulerService;
 
 	@Test
 	void execute() {

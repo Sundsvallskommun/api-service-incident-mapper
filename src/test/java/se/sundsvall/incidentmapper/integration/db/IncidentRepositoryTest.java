@@ -133,8 +133,8 @@ class IncidentRepositoryTest {
 		assertThat(result.getPobIssueKey()).isEqualTo(pobIssueKey);
 		assertThat(result.getCreated()).isCloseTo(now(), within(2, SECONDS));
 		assertThat(result.getModified()).isNull();
-		assertThat(result.getJiraIssueLastModified()).isNull();
-		assertThat(result.getPobIssueLastModified()).isNull();
+		assertThat(result.getLastSynchronizedJira()).isNull();
+		assertThat(result.getLastSynchronizedPob()).isNull();
 		assertThat(isValidUUID(result.getId())).isTrue();
 	}
 

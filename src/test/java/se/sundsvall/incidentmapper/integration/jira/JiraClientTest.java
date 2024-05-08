@@ -1,5 +1,6 @@
 package se.sundsvall.incidentmapper.integration.jira;
 
+import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -7,6 +8,13 @@ import static org.mockito.Mockito.when;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.atlassian.jira.rest.client.api.IssueRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
@@ -16,18 +24,11 @@ import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.IssueType;
 import com.atlassian.jira.rest.client.api.domain.input.AttachmentInput;
 import com.atlassian.jira.rest.client.api.domain.input.TransitionInput;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.atlassian.util.concurrent.Promise;
 
-
 @ExtendWith(MockitoExtension.class)
 class JiraClientTest {
-
 
 	@Mock
 	private JiraRestClient jiraRestClientMock;
@@ -53,10 +54,8 @@ class JiraClientTest {
 	@Mock
 	private Promise<Void> promiseVoidMock;
 
-
 	@Mock
 	private AttachmentInput attachmentInputMock;
-
 
 	@InjectMocks
 	private JiraClient jiraClient;
@@ -79,7 +78,7 @@ class JiraClientTest {
 		final var iconUri = URI.create("http://example.com/icon.png");
 		final var issueType = new IssueType(self, id, name, isSubtask, description, iconUri);
 
-		//Mock
+		// Mock
 		when(jiraRestClientMock.getIssueClient()).thenReturn(issueRestClientMock);
 		when(issueRestClientMock.createIssue(any())).thenReturn(promiseMock);
 		when(promiseMock.claim()).thenReturn(basicIssueMock);
@@ -105,7 +104,22 @@ class JiraClientTest {
 		final var result = jiraClient.getIssue(issueKey);
 
 		// Assert
-		assertThat(result).isNotNull().isEqualTo(issueMock);
+		assertThat(result).isNotNull().isEqualTo(Optional.of(issueMock));
+	}
+
+	@Test
+	void getIssueNotFound() {
+		// Arrange
+		final var issueKey = "TEST-1";
+		when(jiraRestClientMock.getIssueClient()).thenReturn(issueRestClientMock);
+		when(jiraRestClientMock.getIssueClient().getIssue(issueKey)).thenReturn(promiseIssueMock);
+		when(promiseIssueMock.claim()).thenThrow(new RuntimeException("Not found"));
+
+		// Act
+		final var result = jiraClient.getIssue(issueKey);
+
+		// Assert
+		assertThat(result).isNotNull().isEqualTo(empty());
 	}
 
 	@Test

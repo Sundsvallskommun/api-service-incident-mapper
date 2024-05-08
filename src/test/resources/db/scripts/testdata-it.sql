@@ -1,4 +1,4 @@
-INSERT INTO incident (created, jira_issue_last_modified, modified, pob_issue_last_modified, id, jira_issue_key, pob_issue_key, status) VALUES
+INSERT INTO incident (created, last_synchronized_jira, modified, last_synchronized_pob, id, jira_issue_key, pob_issue_key, status) VALUES
 ('2024-05-03 08:30:00.000000', '2024-05-03 10:45:00.000000', '2024-05-03 09:20:00.000000', '2024-05-03 11:00:00.000000', '22f43da1-536c-45b0-b59a-51b9fe3ecc78', 'JIR-001', 'POB-001', 'SYNCHRONIZED'),
 ('2024-05-02 10:00:00.000000', '2024-05-02 12:15:00.000000', '2024-05-02 11:30:00.000000', '2024-05-02 12:30:00.000000', 'e9c9835f-074a-40bc-867d-52d1125bdca7', 'JIR-002', 'POB-002', 'POB_INITIATED_EVENT'),
 ('2024-05-01 09:45:00.000000', '2024-05-01 11:30:00.000000', '2024-05-01 10:20:00.000000', '2024-05-01 11:45:00.000000', 'a4b0cef2-ba50-41e1-a4d2-28fb57520bf2', 'JIR-003', 'POB-003', 'JIRA_INITIATED_EVENT'),

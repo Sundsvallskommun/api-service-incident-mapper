@@ -42,30 +42,31 @@ class IncidentEntityTest {
 		final var created = now();
 		final var id = "id";
 		final var jiraIssueKey = "jiraIssueKey";
-		final var jiraIssueLastModified = now();
+		final var lastSynchronizedJira = now();
+		final var lastSynchronizedPob = now();
 		final var modified = now();
 		final var pobIssueKey = "pobIssueKey";
-		final var pobIssueLastModified = now();
+		now();
 		final var status = Status.CLOSED;
 
 		final var bean = IncidentEntity.create()
 			.withCreated(created)
 			.withId(id)
 			.withJiraIssueKey(jiraIssueKey)
-			.withJiraIssueLastModified(jiraIssueLastModified)
+			.withLastSynchronizedJira(lastSynchronizedJira)
+			.withLastSynchronizedPob(lastSynchronizedPob)
 			.withModified(modified)
 			.withPobIssueKey(pobIssueKey)
-			.withPobIssueLastModified(pobIssueLastModified)
 			.withStatus(status);
 
 		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(bean.getCreated()).isEqualTo(created);
 		assertThat(bean.getId()).isEqualTo(id);
 		assertThat(bean.getJiraIssueKey()).isEqualTo(jiraIssueKey);
-		assertThat(bean.getJiraIssueLastModified()).isEqualTo(jiraIssueLastModified);
+		assertThat(bean.getLastSynchronizedJira()).isEqualTo(lastSynchronizedJira);
+		assertThat(bean.getLastSynchronizedPob()).isEqualTo(lastSynchronizedPob);
 		assertThat(bean.getModified()).isEqualTo(modified);
 		assertThat(bean.getPobIssueKey()).isEqualTo(pobIssueKey);
-		assertThat(bean.getPobIssueLastModified()).isEqualTo(pobIssueLastModified);
 		assertThat(bean.getStatus()).isEqualTo(status);
 	}
 

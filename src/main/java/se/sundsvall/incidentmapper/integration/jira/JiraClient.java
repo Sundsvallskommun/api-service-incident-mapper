@@ -1,6 +1,11 @@
 package se.sundsvall.incidentmapper.integration.jira;
 
+import static java.util.Optional.empty;
+
 import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Component;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.Comment;
@@ -9,8 +14,6 @@ import com.atlassian.jira.rest.client.api.domain.input.AttachmentInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.api.domain.input.TransitionInput;
-import org.springframework.stereotype.Component;
-
 
 @Component
 public class JiraClient {
@@ -24,9 +27,12 @@ public class JiraClient {
 		this.jiraUtil = jiraUtil;
 	}
 
-	public Issue getIssue(final String issueKey) {
-
-		return restClient.getIssueClient().getIssue(issueKey).claim();
+	public Optional<Issue> getIssue(final String issueKey) {
+		try {
+			return Optional.of(restClient.getIssueClient().getIssue(issueKey).claim());
+		} catch (final Exception e) {
+			return empty();
+		}
 	}
 
 	public String createIssue(final String projectKey, final String issueType, final String issueSummary, final String description) {
@@ -53,7 +59,7 @@ public class JiraClient {
 		final var attachmentsArray = new AttachmentInput[attachments.size()];
 		attachments.toArray(attachmentsArray);
 
-		final var attachmentUri = getIssue(issueKey).getAttachmentsUri();
+		final var attachmentUri = getIssue(issueKey).get().getAttachmentsUri();
 		restClient.getIssueClient().addAttachments(attachmentUri, attachmentsArray).claim();
 	}
 
@@ -70,6 +76,5 @@ public class JiraClient {
 	public void addComment(final Issue issue, final String commentBody) {
 		restClient.getIssueClient().addComment(issue.getCommentsUri(), Comment.valueOf(commentBody));
 	}
-
 
 }

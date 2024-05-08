@@ -1,12 +1,20 @@
 package se.sundsvall.incidentmapper.service;
 
-import static java.time.OffsetDateTime.now;
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.ObjectUtils.anyNull;
+import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.POB_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,17 +22,22 @@ import se.sundsvall.incidentmapper.api.model.IncidentRequest;
 import se.sundsvall.incidentmapper.integration.db.IncidentRepository;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
 import se.sundsvall.incidentmapper.integration.db.model.enums.Status;
+import se.sundsvall.incidentmapper.integration.jira.JiraClient;
 
 @Service
 @Transactional
 public class IncidentService {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(IncidentService.class);
+
 	private static final List<Status> OPEN_FOR_MODIFICATION_STATUS_LIST = asList(null, SYNCHRONIZED); // Status is only modifiable if current value is one of these.
 
 	private final IncidentRepository incidentRepository;
+	private final JiraClient jiraClient;
 
-	public IncidentService(IncidentRepository incidentRepository) {
+	public IncidentService(IncidentRepository incidentRepository, JiraClient jiraClient) {
 		this.incidentRepository = incidentRepository;
+		this.jiraClient = jiraClient;
 	}
 
 	public void handleIncidentRequest(IncidentRequest request) {
@@ -37,10 +50,39 @@ public class IncidentService {
 			incidentEntity.withStatus(POB_INITIATED_EVENT);
 		}
 
-		incidentRepository.save(incidentEntity.withPobIssueLastModified(now()));
+		incidentRepository.save(incidentEntity);
 	}
 
+	/**
+	 * Poll JIRA for for updates on mapped issues.
+	 *
+	 * All incidents with status "SYNCHRONIZED" (in DB) will be compared with the last-update-timestamp on the Jira-issue.
+	 *
+	 * If the "last-updated"-timestamp in Jira is greater than the stored synchronization date (lastSynchronizedJira) in DB,
+	 * the status will be changed to "JIRA_INITIATED_EVENT". This status will make the issue a candidate for synchronization
+	 * towards POB.
+	 */
 	public void pollJiraUpdates() {
-		// Implement when JIRA API is ready
+		incidentRepository.findByStatus(SYNCHRONIZED).stream()
+			.forEach(incident -> jiraClient.getIssue(incident.getJiraIssueKey()).ifPresentOrElse(jiraIssue -> {
+				final var lastModifiedJira = toOffsetDateTime(jiraIssue.getUpdateDate());
+				final var lastSynchronizedJira = incident.getLastSynchronizedJira();
+
+				if (anyNull(lastModifiedJira, lastSynchronizedJira)) {
+					LOGGER.info("Null dates discovered. lastModifiedJira '{}', lastSynchronizedJira '{}'. Skipping record.", lastModifiedJira, lastSynchronizedJira);
+					return;
+				}
+
+				if (lastModifiedJira.isAfter(lastSynchronizedJira)) { // Issue has been updated in Jira after last synchronization.
+					LOGGER.info("Updating database. Set status to '{}' on mapping with jiraIssueType '{}'.", JIRA_INITIATED_EVENT, incident.getJiraIssueKey());
+					incidentRepository.saveAndFlush(incident.withStatus(JIRA_INITIATED_EVENT));
+				}
+			}, () -> LOGGER.warn("No jira issue with key '{}' found", incident.getJiraIssueKey())));
+	}
+
+	private OffsetDateTime toOffsetDateTime(DateTime jodaDateTime) {
+		return Optional.ofNullable(jodaDateTime)
+			.map(joda -> OffsetDateTime.ofInstant(Instant.ofEpochMilli(jodaDateTime.getMillis()), ZoneId.of(jodaDateTime.getZone().getID())))
+			.orElse(null);
 	}
 }

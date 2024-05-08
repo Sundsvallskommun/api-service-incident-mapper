@@ -55,6 +55,6 @@ integration:
 # - To disable the scheduling, set spring cron expression to "-" or remove "cronExpression"-property.
 #========================================
 scheduler:
-  jira-polling:
+  synchronizer:
     cron: "0 * * * * *"
     shedlock-lock-at-most-for: PT10M

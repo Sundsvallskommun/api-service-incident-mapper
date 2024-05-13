@@ -1,7 +1,10 @@
 package se.sundsvall.incidentmapper.service;
 
+import static java.time.OffsetDateTime.now;
+import static java.time.ZoneId.systemDefault;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.ObjectUtils.anyNull;
+import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.CLOSED;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.POB_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
@@ -30,7 +33,11 @@ public class IncidentService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(IncidentService.class);
 
-	private static final List<Status> OPEN_FOR_MODIFICATION_STATUS_LIST = asList(null, SYNCHRONIZED); // Status is only modifiable if current value is one of these.
+	private static final String LOG_MSG_CLEANING_DELETE_RANGE = "Removing all incidents with modified '{}' (or earlier) and with status matching '{}'.";
+
+	static final List<Status> OPEN_FOR_MODIFICATION_STATUS_LIST = asList(null, SYNCHRONIZED); // Status is only modifiable if current value is one of these.
+	static final List<Status> DBCLEAN_ELIGIBLE_FOR_REMOVAL_STATUS_LIST = asList(CLOSED); // Status is is only eligible for removal if one of these during dbcleaner-execution.
+	static final Integer DBCLEAN_CLOSED_INCIDENTS_TTL_IN_DAYS = 10;
 
 	private final IncidentRepository incidentRepository;
 	private final JiraClient jiraClient;
@@ -78,6 +85,15 @@ public class IncidentService {
 					incidentRepository.saveAndFlush(incident.withStatus(JIRA_INITIATED_EVENT));
 				}
 			}, () -> LOGGER.warn("No jira issue with key '{}' found", incident.getJiraIssueKey())));
+	}
+
+	public void cleanObsoleteIncidents() {
+		final var statusesEligibleForRemoval = DBCLEAN_ELIGIBLE_FOR_REMOVAL_STATUS_LIST.toArray(Status[]::new);
+		final var expiryDate = now(systemDefault()).minusDays(DBCLEAN_CLOSED_INCIDENTS_TTL_IN_DAYS);
+
+		LOGGER.info(LOG_MSG_CLEANING_DELETE_RANGE, expiryDate, statusesEligibleForRemoval);
+
+		incidentRepository.deleteByModifiedBeforeAndStatusIn(expiryDate, statusesEligibleForRemoval);
 	}
 
 	private OffsetDateTime toOffsetDateTime(DateTime jodaDateTime) {

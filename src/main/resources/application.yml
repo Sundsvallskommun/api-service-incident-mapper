@@ -58,3 +58,6 @@ scheduler:
   synchronizer:
     cron: "0 * * * * *"
     shedlock-lock-at-most-for: PT10M
+  dbcleaner:
+    cron: "0 * * * * *"
+    shedlock-lock-at-most-for: PT10M

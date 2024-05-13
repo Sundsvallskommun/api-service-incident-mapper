@@ -1,18 +1,24 @@
 package se.sundsvall.incidentmapper.service;
 
 import static java.time.OffsetDateTime.now;
+import static java.time.ZoneId.systemDefault;
+import static java.time.temporal.ChronoUnit.SECONDS;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.CLOSED;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.POB_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,6 +37,7 @@ import com.atlassian.jira.rest.client.api.domain.Issue;
 import se.sundsvall.incidentmapper.api.model.IncidentRequest;
 import se.sundsvall.incidentmapper.integration.db.IncidentRepository;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
+import se.sundsvall.incidentmapper.integration.db.model.enums.Status;
 import se.sundsvall.incidentmapper.integration.jira.JiraClient;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,6 +57,12 @@ class IncidentServiceTest {
 
 	@Captor
 	private ArgumentCaptor<IncidentEntity> incidentEntityCaptor;
+
+	@Captor
+	private ArgumentCaptor<OffsetDateTime> offsetDateTimeCaptor;
+
+	@Captor
+	private ArgumentCaptor<Status> statusCaptor;
 
 	@Test
 	void handleIncidentRequestNew() {
@@ -219,5 +232,21 @@ class IncidentServiceTest {
 		verifyNoInteractions(jiraClientMock, jiraIssueMock);
 		verify(incidentRepositoryMock).findByStatus(SYNCHRONIZED);
 		verify(incidentRepositoryMock, never()).saveAndFlush(any());
+	}
+
+	@Test
+	void cleanObsoleteIncidents() {
+
+		// Act
+		incidentService.cleanObsoleteIncidents();
+
+		// Assert
+		verify(incidentRepositoryMock).deleteByModifiedBeforeAndStatusIn(offsetDateTimeCaptor.capture(), statusCaptor.capture());
+
+		final var capturedOffsetDateTime = offsetDateTimeCaptor.getValue();
+		final var capturedStatus = statusCaptor.getAllValues();
+
+		assertThat(capturedOffsetDateTime).isCloseTo(now(systemDefault()).minusDays(10), within(2, SECONDS));
+		assertThat(capturedStatus).isEqualTo(asList(CLOSED));
 	}
 }

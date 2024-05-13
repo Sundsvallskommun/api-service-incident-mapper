@@ -12,22 +12,22 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import se.sundsvall.incidentmapper.service.IncidentService;
 
 @ExtendWith(MockitoExtension.class)
-class SynchronizerSchedulerServiceTest {
+class DatabaseCleanerSchedulerServiceTest {
 
 	@Mock
 	private IncidentService incidentService;
 
 	@InjectMocks
-	private SynchronizerSchedulerService synchronizerSchedulerService;
+	private DatabaseCleanerSchedulerService databaseCleanerSchedulerService;
 
 	@Test
 	void execute() {
 
 		// Act
-		synchronizerSchedulerService.execute();
+		databaseCleanerSchedulerService.execute();
 
 		// Assert
-		verify(incidentService).pollJiraUpdates();
+		verify(incidentService).cleanObsoleteIncidents();
 		verifyNoMoreInteractions(incidentService);
 	}
 }

@@ -63,7 +63,7 @@
 			<artifactId>jersey-common</artifactId>
 			<!-- Until jira-rest-java-client-app is updated to use jakarta
 			 this NEEDS to be 2.27. See https://ecosystem.atlassian.net/browse/JRJC-262-->
-			<version>2.27</version>
+			<version>3.1.6</version>
 		</dependency>
 		<dependency>
 			<groupId>io.atlassian.fugue</groupId>

@@ -27,9 +27,9 @@ public class SynchronizerSchedulerService {
 		incidentService.pollJiraUpdates();
 		LOGGER.info("End polling for Jira updates");
 
-		// LOGGER.info("Start Jira updates");
-		// incidentService.updateJira();
-		// LOGGER.info("End Jira updates");
+		LOGGER.info("Start Jira updates");
+		incidentService.updateJira();
+		LOGGER.info("End Jira updates");
 
 		// LOGGER.info("Start POB updates");
 		// incidentService.updatePob();

@@ -26,6 +26,7 @@ import se.sundsvall.incidentmapper.integration.db.IncidentRepository;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
 import se.sundsvall.incidentmapper.integration.db.model.enums.Status;
 import se.sundsvall.incidentmapper.integration.jira.JiraClient;
+import se.sundsvall.incidentmapper.integration.pob.POBClient;
 
 @Service
 @Transactional
@@ -41,10 +42,12 @@ public class IncidentService {
 
 	private final IncidentRepository incidentRepository;
 	private final JiraClient jiraClient;
+	private final POBClient pobClient;
 
-	public IncidentService(IncidentRepository incidentRepository, JiraClient jiraClient) {
+	public IncidentService(IncidentRepository incidentRepository, JiraClient jiraClient, POBClient pobClient) {
 		this.incidentRepository = incidentRepository;
 		this.jiraClient = jiraClient;
+		this.pobClient = pobClient;
 	}
 
 	public void handleIncidentRequest(IncidentRequest request) {
@@ -94,6 +97,10 @@ public class IncidentService {
 		LOGGER.info(LOG_MSG_CLEANING_DELETE_RANGE, expiryDate, statusesEligibleForRemoval);
 
 		incidentRepository.deleteByModifiedBeforeAndStatusIn(expiryDate, statusesEligibleForRemoval);
+	}
+
+	public void updateJira() {
+
 	}
 
 	private OffsetDateTime toOffsetDateTime(DateTime jodaDateTime) {

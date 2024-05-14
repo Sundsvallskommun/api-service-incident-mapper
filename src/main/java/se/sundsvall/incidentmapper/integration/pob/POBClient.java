@@ -27,7 +27,6 @@ public interface POBClient {
 	/**
 	 * Updates an existing case in POB.
 	 *
-	 * @param pobKey  the key to use for authorization
 	 * @param payload the object with the updated case-attributes.
 	 */
 	@PostMapping(path = "case", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)

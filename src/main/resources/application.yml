@@ -56,8 +56,10 @@ integration:
 #========================================
 scheduler:
   synchronizer:
+    # Every minute
     cron: "0 * * * * *"
     shedlock-lock-at-most-for: PT10M
   dbcleaner:
-    cron: "0 * * * * *"
+    # Every midnight
+    cron: "0 0 0 * * *"
     shedlock-lock-at-most-for: PT10M

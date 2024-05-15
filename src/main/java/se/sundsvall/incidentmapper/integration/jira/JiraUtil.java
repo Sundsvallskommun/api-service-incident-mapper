@@ -4,13 +4,14 @@ import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
 
 import java.util.stream.StreamSupport;
 
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Component;
+import org.zalando.problem.Problem;
+
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.IssueType;
 import com.atlassian.jira.rest.client.api.domain.Transition;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Component;
-import org.zalando.problem.Problem;
 
 @Component
 class JiraUtil {
@@ -38,10 +39,8 @@ class JiraUtil {
 			.getId();
 	}
 
-
 	private Iterable<Transition> getTransitions(final Issue issue) {
 		return restClient.getIssueClient().getTransitions(issue).claim();
 	}
-
 
 }

@@ -6,7 +6,12 @@ integration:
     url: http://localhost:${wiremock.server.port:}/api-messaging
   pob:
     url: http://localhost:${wiremock.server.port:}/api-pob
-    pobKey: some-key
+    apiKey: some-key
+  jira:
+    password: some-password
+    username: some-username
+    url: http://jira.url
+    projectKey: PROJECT-KEY
 spring:
   datasource:
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver

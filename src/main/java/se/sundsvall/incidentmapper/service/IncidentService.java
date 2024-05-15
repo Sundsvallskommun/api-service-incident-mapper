@@ -8,16 +8,20 @@ import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.CLOS
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.POB_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
+import static se.sundsvall.incidentmapper.service.ServiceUtil.inputStreamToBase64;
+import static se.sundsvall.incidentmapper.service.ServiceUtil.stripHtmlTags;
+import static se.sundsvall.incidentmapper.service.ServiceUtil.toOffsetDateTime;
 
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.stream.StreamSupport;
 
-import org.joda.time.DateTime;
+import com.atlassian.jira.rest.client.api.domain.Attachment;
+import com.atlassian.jira.rest.client.api.domain.Comment;
+import com.atlassian.jira.rest.client.api.domain.Issue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,29 +32,66 @@ import se.sundsvall.incidentmapper.integration.db.model.enums.Status;
 import se.sundsvall.incidentmapper.integration.jira.JiraClient;
 import se.sundsvall.incidentmapper.integration.pob.POBClient;
 
+import generated.se.sundsvall.pob.PobMemo;
+import generated.se.sundsvall.pob.PobPayload;
+
 @Service
 @Transactional
 public class IncidentService {
+
+	public static final String PROBLEM = "Problem";
+
+	public static final String SCOPE_ALL = "all";
+
+	public static final String DESCRIPTION = "description";
+
+	public static final String ID = "id";
+
+	public static final String BINARY_DATA = "BinaryData";
+
+	public static final String FILE_DATA = "FileData";
+
+	public static final String EXTENSION = ".txt";
+
+	public static final String RESPONSIBLE = "Responsible";
+
+	public static final String RESPONSIBLE_GROUP = "ResponsibleGroup";
+
+	public static final String IT_SUPPORT = "IT Support";
+
+	static final List<Status> OPEN_FOR_MODIFICATION_STATUS_LIST = asList(null, SYNCHRONIZED); // Status is only modifiable if current value is one of these.
+
+	static final List<Status> DBCLEAN_ELIGIBLE_FOR_REMOVAL_STATUS_LIST = List.of(CLOSED); // Status is only eligible for removal if one of these during dbcleaner-execution.
+
+	static final Integer DBCLEAN_CLOSED_INCIDENTS_TTL_IN_DAYS = 10;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(IncidentService.class);
 
 	private static final String LOG_MSG_CLEANING_DELETE_RANGE = "Removing all incidents with modified '{}' (or earlier) and with status matching '{}'.";
 
-	static final List<Status> OPEN_FOR_MODIFICATION_STATUS_LIST = asList(null, SYNCHRONIZED); // Status is only modifiable if current value is one of these.
-	static final List<Status> DBCLEAN_ELIGIBLE_FOR_REMOVAL_STATUS_LIST = asList(CLOSED); // Status is is only eligible for removal if one of these during dbcleaner-execution.
-	static final Integer DBCLEAN_CLOSED_INCIDENTS_TTL_IN_DAYS = 10;
+	private static final String DATA_URL_FORMAT = "data:%s;base64,%s";
+
+	private static final String CASE_INTERNAL_NOTES_CUSTOM = "CaseInternalNotesCustom";
+
+	private static final List<String> JIRA_CLOSED_STATUSES = List.of("Closed", "Done", "Won't Do");
 
 	private final IncidentRepository incidentRepository;
+
 	private final JiraClient jiraClient;
+
 	private final POBClient pobClient;
 
-	public IncidentService(IncidentRepository incidentRepository, JiraClient jiraClient, POBClient pobClient) {
+	@Value("${integration.jira.username}")
+	public String systemUser;
+
+	public IncidentService(final IncidentRepository incidentRepository, final JiraClient jiraClient, final POBClient pobClient) {
 		this.incidentRepository = incidentRepository;
 		this.jiraClient = jiraClient;
 		this.pobClient = pobClient;
 	}
 
-	public void handleIncidentRequest(IncidentRequest request) {
+
+	public void handleIncidentRequest(final IncidentRequest request) {
 
 		final var issueKey = request.getIncidentKey();
 		final var incidentEntity = incidentRepository.findByPobIssueKey(issueKey)
@@ -64,16 +105,16 @@ public class IncidentService {
 	}
 
 	/**
-	 * Poll JIRA for for updates on mapped issues.
-	 *
+	 * Poll JIRA  for updates on mapped issues.
+	 * <p>
 	 * All incidents with status "SYNCHRONIZED" (in DB) will be compared with the last-update-timestamp on the Jira-issue.
-	 *
+	 * <p>
 	 * If the "last-updated"-timestamp in Jira is greater than the stored synchronization date (lastSynchronizedJira) in DB,
 	 * the status will be changed to "JIRA_INITIATED_EVENT". This status will make the issue a candidate for synchronization
-	 * towards POB.
+	 * towards Pob.
 	 */
 	public void pollJiraUpdates() {
-		incidentRepository.findByStatus(SYNCHRONIZED).stream()
+		incidentRepository.findByStatus(SYNCHRONIZED)
 			.forEach(incident -> jiraClient.getIssue(incident.getJiraIssueKey()).ifPresentOrElse(jiraIssue -> {
 				final var lastModifiedJira = toOffsetDateTime(jiraIssue.getUpdateDate());
 				final var lastSynchronizedJira = incident.getLastSynchronizedJira();
@@ -100,12 +141,88 @@ public class IncidentService {
 	}
 
 	public void updateJira() {
-
+		// Will be implemented soon
 	}
 
-	private OffsetDateTime toOffsetDateTime(DateTime jodaDateTime) {
-		return Optional.ofNullable(jodaDateTime)
-			.map(joda -> OffsetDateTime.ofInstant(Instant.ofEpochMilli(jodaDateTime.getMillis()), ZoneId.of(jodaDateTime.getZone().getID())))
-			.orElse(null);
+	public void updatePob() {
+		incidentRepository.findByStatus(JIRA_INITIATED_EVENT)
+			.forEach(entity -> {
+				final var jiraIssue = jiraClient.getIssue(entity.getJiraIssueKey()).orElseThrow();
+				final var pobAttachments = pobClient.getAttachments(entity.getPobIssueKey());
+				updatePob(entity, jiraIssue, pobAttachments);
+			});
 	}
+
+	private void updatePob(final IncidentEntity entity, final Issue jiraIssue, final PobPayload pobAttachments) {
+		checkJiraStatus(entity, jiraIssue);
+		updatePobComment(entity, jiraIssue);
+		updatePobDescription(entity, jiraIssue);
+		updatePobAttachments(entity, jiraIssue.getAttachments(), pobAttachments);
+		entity.setLastSynchronizedPob(now(systemDefault()));
+		incidentRepository.saveAndFlush(entity);
+	}
+
+	private void checkJiraStatus(final IncidentEntity entity, final Issue jiraIssue) {
+		final var statusName = jiraIssue.getStatus().getName();
+		if (JIRA_CLOSED_STATUSES.contains(statusName)) {
+			entity.setStatus(CLOSED);
+			updatePobUser(entity);
+		} else {
+			entity.setStatus(SYNCHRONIZED);
+		}
+	}
+
+	private void updatePobUser(final IncidentEntity entity) {
+		final Map<String, Object> data = Map.of(ID, entity.getId(), RESPONSIBLE, "", RESPONSIBLE_GROUP, IT_SUPPORT);
+		final var payload = new PobPayload()
+			.data(data);
+		pobClient.updateCase(payload);
+	}
+
+	private void updatePobComment(final IncidentEntity entity, final Issue jiraIssue) {
+		StreamSupport.stream(jiraIssue.getComments().spliterator(), false)
+			.filter(comment -> toOffsetDateTime(comment.getCreationDate()).isAfter(entity.getLastSynchronizedPob()))
+			.filter(comment -> comment.getAuthor() != null)
+			.filter(comment -> !comment.getAuthor().getName().equals(systemUser))
+			.forEach(comment -> updatePobWithComment(entity, comment));
+	}
+
+	private void updatePobWithComment(final IncidentEntity entity, final Comment comment) {
+		final Map<String, Object> data = Map.of(ID, entity.getId());
+		final var payload = new PobPayload()
+			.data(data)
+			.memo(Map.of(CASE_INTERNAL_NOTES_CUSTOM, new PobMemo()
+				.extension(EXTENSION)
+				.memo(comment.getBody())));
+		pobClient.updateCase(payload);
+	}
+
+	private void updatePobDescription(final IncidentEntity entity, final Issue jiraIssue) {
+		final var pobDescription = stripHtmlTags(String.valueOf(pobClient.getMemo(entity.getPobIssueKey(), PROBLEM, SCOPE_ALL).getMemo().get(PROBLEM).getMemo()));
+		final var jiraDescription = jiraIssue.getDescription();
+
+		if (jiraDescription != null && !jiraDescription.equals(pobDescription)) {
+			pobClient.updateCase(new PobPayload().data(Map.of(ID, entity.getId(), DESCRIPTION, jiraDescription)));
+		}
+	}
+
+	private void updatePobAttachments(final IncidentEntity entity, final Iterable<Attachment> jiraAttachments, final PobPayload pobAttachments) {
+		jiraAttachments.forEach(jiraAttachment -> updatePobAttachment(entity, pobAttachments, jiraAttachment));
+	}
+
+	private void updatePobAttachment(final IncidentEntity entity, final PobPayload pobAttachments, final Attachment jiraAttachment) {
+
+		final boolean attachmentExists = pobAttachments.getLinks().stream()
+			.anyMatch(pobAttachment -> pobAttachment.getRelation().equals(jiraAttachment.getFilename()));
+
+		if (!attachmentExists) {
+			final var base64String = inputStreamToBase64(jiraClient.getAttachment(jiraAttachment.getContentUri()));
+			final var payload = new PobPayload()
+				.type(BINARY_DATA)
+				.data(Map.of(FILE_DATA, DATA_URL_FORMAT.formatted(jiraAttachment.getFilename(), base64String)));
+
+			pobClient.createAttachment(entity.getPobIssueKey(), payload);
+		}
+	}
+
 }

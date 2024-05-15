@@ -6,15 +6,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.atlassian.jira.rest.client.api.IssueRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
@@ -24,6 +19,11 @@ import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.IssueType;
 import com.atlassian.jira.rest.client.api.domain.input.AttachmentInput;
 import com.atlassian.jira.rest.client.api.domain.input.TransitionInput;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.atlassian.util.concurrent.Promise;
 
@@ -41,6 +41,12 @@ class JiraClientTest {
 
 	@Mock
 	private Promise<BasicIssue> promiseMock;
+
+	@Mock
+	private Promise<InputStream> promiseInputStreamMock;
+
+	@Mock
+	private InputStream inputStreamMock;
 
 	@Mock
 	private IssueRestClient issueRestClientMock;
@@ -201,6 +207,23 @@ class JiraClientTest {
 
 		// Assert
 		verify(jiraRestClientMock.getIssueClient()).addComment(issueMock.getCommentsUri(), Comment.valueOf(commentBody));
+	}
+
+	@Test
+	void getAttachment() {
+
+		// Arrange
+		final var attachmentUri = URI.create("https://example.com");
+		when(jiraRestClientMock.getIssueClient()).thenReturn(issueRestClientMock);
+		when(jiraRestClientMock.getIssueClient().getAttachment(attachmentUri)).thenReturn(promiseInputStreamMock);
+		when(promiseInputStreamMock.claim()).thenReturn(inputStreamMock);
+
+		// Act
+		final var result = jiraClient.getAttachment(attachmentUri);
+
+		// Assert
+		verify(jiraRestClientMock.getIssueClient()).getAttachment(attachmentUri);
+		assertThat(result).isNotNull().isSameAs(inputStreamMock);
 	}
 
 }

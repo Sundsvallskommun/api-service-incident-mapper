@@ -249,4 +249,10 @@ class IncidentServiceTest {
 		assertThat(capturedOffsetDateTime).isCloseTo(now(systemDefault()).minusDays(10), within(2, SECONDS));
 		assertThat(capturedStatus).isEqualTo(asList(CLOSED));
 	}
+
+	@Test
+	void updateJiraWhenIssueDoesNotExistInJira() {
+
+		// TODO
+	}
 }

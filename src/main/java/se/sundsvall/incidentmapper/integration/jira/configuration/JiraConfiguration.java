@@ -2,10 +2,11 @@ package se.sundsvall.incidentmapper.integration.jira.configuration;
 
 import java.net.URI;
 
-import com.atlassian.jira.rest.client.api.JiraRestClient;
-import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.atlassian.jira.rest.client.api.JiraRestClient;
+import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 
 @Configuration
 public class JiraConfiguration {
@@ -25,5 +26,4 @@ public class JiraConfiguration {
 	private URI getJiraUri() {
 		return URI.create(jiraProperties.url());
 	}
-
 }

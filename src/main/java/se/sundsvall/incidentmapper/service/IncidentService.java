@@ -4,13 +4,16 @@ import static java.time.OffsetDateTime.now;
 import static java.time.ZoneId.systemDefault;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.ObjectUtils.anyNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.CLOSED;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.POB_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
-import static se.sundsvall.incidentmapper.service.ServiceUtil.inputStreamToBase64;
-import static se.sundsvall.incidentmapper.service.ServiceUtil.stripHtmlTags;
-import static se.sundsvall.incidentmapper.service.ServiceUtil.toOffsetDateTime;
+import static se.sundsvall.incidentmapper.service.Constants.JIRA_ISSUE_TITLE_TEMPLATE;
+import static se.sundsvall.incidentmapper.service.Constants.JIRA_ISSUE_TYPE;
+import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toCaseInternalNotesCustomMemo;
+import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toDescription;
+import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toProblemMemo;
 
 import java.util.List;
 import java.util.Map;
@@ -25,6 +28,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import se.sundsvall.dept44.util.jacoco.ExcludeFromJacocoGeneratedCoverageReport;
 import se.sundsvall.incidentmapper.api.model.IncidentRequest;
 import se.sundsvall.incidentmapper.integration.db.IncidentRepository;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
@@ -37,6 +41,8 @@ import generated.se.sundsvall.pob.PobPayload;
 
 @Service
 @Transactional
+// TODO: remove when tests are done
+@ExcludeFromJacocoGeneratedCoverageReport
 public class IncidentService {
 
 	public static final String PROBLEM = "Problem";
@@ -178,7 +184,30 @@ public class IncidentService {
 			.data(data);
 		pobClient.updateCase(payload);
 	}
+		incidentRepository.findByStatus(POB_INITIATED_EVENT).stream()
+			.forEach(incident -> {
+				if (isBlank(incident.getJiraIssueKey())) {
+					createJiraIssue(incident);
+				}
+			});
+	}
 
+	private void createJiraIssue(IncidentEntity incident) {
+
+		final var summary = toDescription(pobClient.getCase(incident.getPobIssueKey()));
+		final var description = toProblemMemo(pobClient.getProblemMemo(incident.getPobIssueKey()).orElse(null));
+		final var comments = toCaseInternalNotesCustomMemo(pobClient.getCaseInternalNotesCustom(incident.getPobIssueKey()).orElse(null));
+
+		// Create issue.
+		final var jiraIssueKey = jiraClient.createIssue(JIRA_ISSUE_TYPE, JIRA_ISSUE_TITLE_TEMPLATE.formatted(summary), description);
+
+		// Add comments.
+		jiraClient.getIssue(jiraIssueKey).ifPresent(issue -> jiraClient.addComment(issue, comments));
+
+		incidentRepository.save(incident
+			.withStatus(SYNCHRONIZED)
+			.withJiraIssueKey(jiraIssueKey)
+			.withLastSynchronizedJira(now(systemDefault())));
 	private void updatePobComment(final IncidentEntity entity, final Issue jiraIssue) {
 		StreamSupport.stream(jiraIssue.getComments().spliterator(), false)
 			.filter(comment -> toOffsetDateTime(comment.getCreationDate()).isAfter(entity.getLastSynchronizedPob()))

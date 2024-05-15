@@ -11,21 +11,23 @@ import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.Comment;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.input.AttachmentInput;
-import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.api.domain.input.TransitionInput;
 import org.springframework.stereotype.Component;
+
+import se.sundsvall.incidentmapper.integration.jira.configuration.JiraProperties;
 
 @Component
 public class JiraClient {
 
 	private final JiraRestClient restClient;
-
 	private final JiraUtil jiraUtil;
+	private final JiraProperties jiraProperties;
 
-	public JiraClient(final JiraRestClient restClient, final JiraUtil jiraUtil) {
+	public JiraClient(final JiraRestClient restClient, final JiraUtil jiraUtil, JiraProperties jiraProperties) {
 		this.restClient = restClient;
 		this.jiraUtil = jiraUtil;
+		this.jiraProperties = jiraProperties;
 	}
 
 	public Optional<Issue> getIssue(final String issueKey) {
@@ -36,10 +38,12 @@ public class JiraClient {
 		}
 	}
 
+	public String createIssue(final String issueType, final String issueSummary, final String description) {
+		return createIssue(jiraProperties.projectKey(), issueType, issueSummary, description);
+	}
+
 	public String createIssue(final String projectKey, final String issueType, final String issueSummary, final String description) {
-
 		final var issueTypeId = jiraUtil.getIssueTypeByName(issueType).getId();
-
 		final var newIssue = new IssueInputBuilder()
 			.setProjectKey(projectKey)
 			.setIssueTypeId(issueTypeId)
@@ -51,7 +55,7 @@ public class JiraClient {
 	}
 
 	public void updateIssueDescription(final String issueKey, final String newDescription) {
-		final IssueInput input = new IssueInputBuilder().setDescription(newDescription).build();
+		final var input = new IssueInputBuilder().setDescription(newDescription).build();
 		restClient.getIssueClient().updateIssue(issueKey, input).claim();
 	}
 
@@ -60,7 +64,6 @@ public class JiraClient {
 	}
 
 	public void updateIssueWithAttachments(final String issueKey, final List<AttachmentInput> attachments) {
-
 		final var attachmentsArray = new AttachmentInput[attachments.size()];
 		attachments.toArray(attachmentsArray);
 
@@ -69,7 +72,6 @@ public class JiraClient {
 	}
 
 	public void updateIssueStatus(final Issue issue, final String newStatus) {
-
 		final var transitionId = jiraUtil.getTransitionByName(issue, newStatus);
 		restClient.getIssueClient().transition(issue, new TransitionInput(transitionId)).claim();
 	}
@@ -81,5 +83,4 @@ public class JiraClient {
 	public void addComment(final Issue issue, final String commentBody) {
 		restClient.getIssueClient().addComment(issue.getCommentsUri(), Comment.valueOf(commentBody));
 	}
-
 }

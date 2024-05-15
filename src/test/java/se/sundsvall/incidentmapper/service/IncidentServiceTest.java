@@ -317,4 +317,10 @@ class IncidentServiceTest {
 
 	}
 
+
+	@Test
+	void updateJiraWhenIssueDoesNotExistInJira() {
+
+		// TODO
+	}
 }

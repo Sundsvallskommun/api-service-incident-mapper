@@ -6,11 +6,12 @@ integration:
     url: http://messaging.url
   pob:
     url: http://pob.url
-    pobKey: some-key
+    apiKey: some-key
   jira:
     password: some-password
     username: some-username
     url: http://jira.url
+    projectKey: PROJECT-KEY
 spring:
   datasource:
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver

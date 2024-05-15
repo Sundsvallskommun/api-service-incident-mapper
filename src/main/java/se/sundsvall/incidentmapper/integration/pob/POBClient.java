@@ -5,6 +5,7 @@ import static se.sundsvall.incidentmapper.integration.pob.configuration.POBConfi
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -23,7 +24,7 @@ import generated.se.sundsvall.pob.SuspensionInfo;
 
 // TODO: These are the endpoints used in SupportCenter. They should be updated to match the endpoints
 // TODO: we will use in IncidentMapper. When we get documentation from POB, we should update these endpoints.
-@FeignClient(name = CLIENT_ID, url = "${integration.pob.url}", configuration = POBConfiguration.class)
+@FeignClient(name = CLIENT_ID, url = "${integration.pob.url}", configuration = POBConfiguration.class, dismiss404 = true)
 public interface POBClient {
 
 	/**
@@ -47,10 +48,28 @@ public interface POBClient {
 	 * Get an existing case in POB.
 	 *
 	 * @param caseId the ID of the case.
-	 * @return The case
+	 * @return The pobPayload
 	 */
 	@GetMapping(path = "case/{caseId}", produces = APPLICATION_JSON_VALUE)
 	PobPayload getCase(@PathVariable("caseId") String caseId);
+
+	/**
+	 * Get problem memo (i.e. error description) for an existing case in POB.
+	 *
+	 * @param  caseId the ID of the case.
+	 * @return        The pobPayload
+	 */
+	@GetMapping(path = "case/{caseId}/memo?type=Problem&scope=all", produces = APPLICATION_JSON_VALUE)
+	Optional<PobPayload> getProblemMemo(@PathVariable("caseId") String caseId);
+
+	/**
+	 * Get case internal notes (i.e. internal notes) for an existing case in POB.
+	 *
+	 * @param  caseId the ID of the case.
+	 * @return        The pobPayload
+	 */
+	@GetMapping(path = "case/{caseId}/memo?type=CaseInternalNotesCustom&scope=all", produces = APPLICATION_JSON_VALUE)
+	Optional<PobPayload> getCaseInternalNotesCustom(@PathVariable("caseId") String caseId);
 
 	/**
 	 * Returns a list of all available case-categories.

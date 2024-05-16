@@ -131,6 +131,7 @@ public class IncidentService {
 	}
 
 	public void updateJiraIssue(final IncidentEntity incident) {
+		// TODO: Implement this.
 
 	}
 

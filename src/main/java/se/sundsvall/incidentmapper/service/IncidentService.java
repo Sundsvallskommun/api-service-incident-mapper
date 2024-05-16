@@ -132,15 +132,6 @@ public class IncidentService {
 
 	public void updateJiraIssue(final IncidentEntity incident) {
 
-		jiraIncidentClient.getIssue(incident.getJiraIssueKey()).orElseThrow();
-
-		// Update issue.
-		// jiraClient.updateIssue(jiraIssue.getKey(), summary, description);
-
-		incidentRepository.save(incident
-			.withStatus(SYNCHRONIZED)
-			// .withJiraIssueKey(jiraIssueKey)
-			.withLastSynchronizedJira(now(systemDefault())));
 	}
 
 	public void createJiraIssue(final IncidentEntity incident) {

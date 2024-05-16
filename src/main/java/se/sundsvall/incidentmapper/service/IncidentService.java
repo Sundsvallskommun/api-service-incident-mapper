@@ -4,10 +4,16 @@ import static java.time.OffsetDateTime.now;
 import static java.time.ZoneId.systemDefault;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.ObjectUtils.anyNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.CLOSED;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.POB_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
+import static se.sundsvall.incidentmapper.service.Constants.JIRA_ISSUE_TITLE_TEMPLATE;
+import static se.sundsvall.incidentmapper.service.Constants.JIRA_ISSUE_TYPE;
+import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toCaseInternalNotesCustomMemo;
+import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toDescription;
+import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toProblemMemo;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -100,7 +106,30 @@ public class IncidentService {
 	}
 
 	public void updateJira() {
+		incidentRepository.findByStatus(POB_INITIATED_EVENT).stream()
+			.forEach(incident -> {
+				if (isBlank(incident.getJiraIssueKey())) {
+					createJiraIssue(incident);
+				}
+			});
+	}
 
+	private void createJiraIssue(IncidentEntity incident) {
+
+		final var summary = toDescription(pobClient.getCase(incident.getPobIssueKey()));
+		final var description = toProblemMemo(pobClient.getProblemMemo(incident.getPobIssueKey()).orElse(null));
+		final var comments = toCaseInternalNotesCustomMemo(pobClient.getCaseInternalNotesCustom(incident.getPobIssueKey()).orElse(null));
+
+		// Create issue.
+		final var jiraIssueKey = jiraClient.createIssue(JIRA_ISSUE_TYPE, JIRA_ISSUE_TITLE_TEMPLATE.formatted(summary), description);
+
+		// Add comments.
+		jiraClient.getIssue(jiraIssueKey).ifPresent(issue -> jiraClient.addComment(issue, comments));
+
+		incidentRepository.save(incident
+			.withStatus(SYNCHRONIZED)
+			.withJiraIssueKey(jiraIssueKey)
+			.withLastSynchronizedJira(now(systemDefault())));
 	}
 
 	private OffsetDateTime toOffsetDateTime(DateTime jodaDateTime) {

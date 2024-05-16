@@ -21,6 +21,7 @@ class JiraPropertiesTest {
 		assertThat(properties.password()).isEqualTo("some-password");
 		assertThat(properties.username()).isEqualTo("some-username");
 		assertThat(properties.url()).isEqualTo("http://jira.url");
+		assertThat(properties.projectKey()).isEqualTo("PROJECT-KEY");
 	}
 
 }

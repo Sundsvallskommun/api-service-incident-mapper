@@ -20,7 +20,7 @@ class POBPropertiesTest {
 	void testProperties() {
 		assertThat(properties.connectTimeout()).isEqualTo(5);
 		assertThat(properties.readTimeout()).isEqualTo(30);
-		assertThat(properties.pobKey()).isEqualTo("some-key");
+		assertThat(properties.apiKey()).isEqualTo("some-key");
 	}
 
 }

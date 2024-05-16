@@ -13,6 +13,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static se.sundsvall.dept44.test.annotation.resource.Load.ResourceType.JSON;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.CLOSED;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.POB_INITIATED_EVENT;
@@ -34,13 +35,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.atlassian.jira.rest.client.api.domain.Issue;
 
+import generated.se.sundsvall.pob.PobPayload;
+import se.sundsvall.dept44.test.annotation.resource.Load;
+import se.sundsvall.dept44.test.extension.ResourceLoaderExtension;
 import se.sundsvall.incidentmapper.api.model.IncidentRequest;
 import se.sundsvall.incidentmapper.integration.db.IncidentRepository;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
 import se.sundsvall.incidentmapper.integration.db.model.enums.Status;
 import se.sundsvall.incidentmapper.integration.jira.JiraClient;
+import se.sundsvall.incidentmapper.integration.pob.POBClient;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({ MockitoExtension.class, ResourceLoaderExtension.class })
 class IncidentServiceTest {
 
 	@Mock
@@ -48,6 +53,9 @@ class IncidentServiceTest {
 
 	@Mock
 	private JiraClient jiraClientMock;
+
+	@Mock
+	private POBClient pobClientMock;
 
 	@Mock
 	private Issue jiraIssueMock;
@@ -248,5 +256,46 @@ class IncidentServiceTest {
 
 		assertThat(capturedOffsetDateTime).isCloseTo(now(systemDefault()).minusDays(10), within(2, SECONDS));
 		assertThat(capturedStatus).isEqualTo(asList(CLOSED));
+	}
+
+	@Test
+	void updateJiraWhenIssueDoesNotExistInJira(
+		@Load(value = "/IncidentServiceTest/pobPayloadCase.json", as = JSON) PobPayload pobPayload,
+		@Load(value = "/IncidentServiceTest/pobPayloadCaseInternalNotesCustomMemo.json", as = JSON) PobPayload pobPayloadCaseInternalNotesCustomMemo,
+		@Load(value = "/IncidentServiceTest/pobPayloadProblemMemo.json", as = JSON) PobPayload pobPayloadProblemMemo) {
+
+		// Arrange
+		final var pobIssueKey = "POB-12345";
+		final var jiraIssueKey = "JIR-12345";
+
+		when(jiraClientMock.createIssue(any(), any(), any())).thenReturn(jiraIssueKey);
+		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(Optional.of(jiraIssueMock));
+		when(pobClientMock.getCase(pobIssueKey)).thenReturn(pobPayload);
+		when(pobClientMock.getCaseInternalNotesCustom(pobIssueKey)).thenReturn(Optional.of(pobPayloadCaseInternalNotesCustomMemo));
+		when(pobClientMock.getProblemMemo(pobIssueKey)).thenReturn(Optional.of(pobPayloadProblemMemo));
+		when(incidentRepositoryMock.findByStatus(POB_INITIATED_EVENT)).thenReturn(List.of(
+			IncidentEntity.create()
+				.withId(UUID.randomUUID().toString())
+				.withPobIssueKey(pobIssueKey)
+				.withStatus(POB_INITIATED_EVENT)));
+
+		// Act
+		incidentService.updateJira();
+
+		// Assert
+		verify(incidentRepositoryMock).save(incidentEntityCaptor.capture());
+		verify(jiraClientMock).createIssue("Bug", "Supportärende (This works!).", "This is a description");
+		verify(jiraClientMock).getIssue(jiraIssueKey);
+		verify(jiraClientMock).addComment(jiraIssueMock, "2024-05-08 14:09 Kommentar");
+		verify(pobClientMock).getCase(pobIssueKey);
+		verify(pobClientMock).getCaseInternalNotesCustom(pobIssueKey);
+		verify(pobClientMock).getProblemMemo(pobIssueKey);
+
+		final var capturedIncidentEntity = incidentEntityCaptor.getValue();
+		assertThat(capturedIncidentEntity).isNotNull();
+		assertThat(capturedIncidentEntity.getStatus()).isEqualTo(SYNCHRONIZED);
+		assertThat(capturedIncidentEntity.getPobIssueKey()).isEqualTo(pobIssueKey);
+		assertThat(capturedIncidentEntity.getJiraIssueKey()).isEqualTo(jiraIssueKey);
+		assertThat(capturedIncidentEntity.getLastSynchronizedJira()).isCloseTo(now(), within(2, SECONDS));
 	}
 }

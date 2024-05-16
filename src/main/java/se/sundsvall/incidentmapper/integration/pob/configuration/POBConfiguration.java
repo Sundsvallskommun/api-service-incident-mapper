@@ -29,7 +29,7 @@ public class POBConfiguration {
 	@Bean
 	FeignBuilderCustomizer feignBuilderCustomizer(final POBProperties pobProperties) {
 		return FeignMultiCustomizer.create()
-			.withRequestInterceptor(requestInterceptor(pobProperties.pobKey()))
+			.withRequestInterceptor(requestInterceptor(pobProperties.apiKey()))
 			.withErrorDecoder(errorDecoder())
 			.withRequestTimeoutsInSeconds(pobProperties.connectTimeout(), pobProperties.readTimeout())
 			.composeCustomizersToOne();

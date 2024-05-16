@@ -17,7 +17,9 @@ import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toDescription
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toProblemMemo;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toResponsibleGroupPayload;
 
+import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import com.chavaillaz.client.jira.domain.Attachment;
 import com.chavaillaz.client.jira.domain.Issue;
@@ -194,10 +196,16 @@ public class IncidentService {
 
 	private void updatePobComment(final IncidentEntity entity, final Issue jiraIssue) {
 		jiraIssue.getFields().getComments().stream()
-			.filter(comment -> comment.getCreated().isAfter(entity.getLastSynchronizedPob()))
+			.filter(comment -> isAfter(comment.getCreated(), entity.getLastSynchronizedPob()))
 			.filter(comment -> comment.getAuthor() != null)
 			.filter(comment -> !comment.getAuthor().getName().equals(systemUser))
 			.forEach(comment -> updatePobWithComment(entity, comment.getBody()));
+	}
+
+	private boolean isAfter(final OffsetDateTime created, final OffsetDateTime lastSynchronizedPob) {
+		return Optional.ofNullable(lastSynchronizedPob)
+			.map(created::isAfter)
+			.orElse(true);
 	}
 
 	private void updatePobWithComment(final IncidentEntity entity, final String comment) {

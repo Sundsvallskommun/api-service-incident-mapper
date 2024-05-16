@@ -332,7 +332,7 @@ class IncidentServiceTest {
 
 		when(jiraClientMock.createIssue(any(), any(), any())).thenReturn(jiraIssueKey);
 		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(Optional.of(jiraIssueMock));
-		when(pobClientMock.getCase(pobIssueKey)).thenReturn(pobPayload);
+		when(pobClientMock.getCase(pobIssueKey)).thenReturn(Optional.ofNullable(pobPayload));
 		when(pobClientMock.getCaseInternalNotesCustom(pobIssueKey)).thenReturn(Optional.of(pobPayloadCaseInternalNotesCustomMemo));
 		when(pobClientMock.getProblemMemo(pobIssueKey)).thenReturn(Optional.of(pobPayloadProblemMemo));
 		when(incidentRepositoryMock.findByStatus(POB_INITIATED_EVENT)).thenReturn(List.of(

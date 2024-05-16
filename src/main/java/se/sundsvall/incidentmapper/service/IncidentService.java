@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import se.sundsvall.dept44.util.jacoco.ExcludeFromJacocoGeneratedCoverageReport;
 import se.sundsvall.incidentmapper.api.model.IncidentRequest;
 import se.sundsvall.incidentmapper.integration.db.IncidentRepository;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
@@ -37,8 +36,6 @@ import se.sundsvall.incidentmapper.integration.pob.POBClient;
 
 @Service
 @Transactional
-// TODO: remove when tests are done
-@ExcludeFromJacocoGeneratedCoverageReport
 public class IncidentService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(IncidentService.class);

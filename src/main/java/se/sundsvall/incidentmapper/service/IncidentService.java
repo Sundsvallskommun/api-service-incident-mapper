@@ -21,14 +21,16 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import com.chavaillaz.client.jira.domain.Attachment;
-import com.chavaillaz.client.jira.domain.Issue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.chavaillaz.client.jira.domain.Attachment;
+import com.chavaillaz.client.jira.domain.Issue;
+
+import generated.se.sundsvall.pob.PobPayload;
 import se.sundsvall.incidentmapper.api.model.IncidentRequest;
 import se.sundsvall.incidentmapper.integration.db.IncidentRepository;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
@@ -36,8 +38,6 @@ import se.sundsvall.incidentmapper.integration.db.model.enums.Status;
 import se.sundsvall.incidentmapper.integration.jira.JiraIncidentClient;
 import se.sundsvall.incidentmapper.integration.pob.POBClient;
 import se.sundsvall.incidentmapper.service.mapper.PobMapper;
-
-import generated.se.sundsvall.pob.PobPayload;
 
 @Service
 @Transactional

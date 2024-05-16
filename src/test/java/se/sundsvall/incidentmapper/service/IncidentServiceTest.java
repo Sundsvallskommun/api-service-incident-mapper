@@ -369,5 +369,4 @@ class IncidentServiceTest {
 		assertThat(capturedIncidentEntity.getJiraIssueKey()).isEqualTo(jiraIssueKey);
 		assertThat(capturedIncidentEntity.getLastSynchronizedJira()).isCloseTo(now(), within(2, SECONDS));
 	}
-
 }

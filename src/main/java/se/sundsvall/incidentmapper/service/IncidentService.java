@@ -11,12 +11,15 @@ import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.POB_
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
 import static se.sundsvall.incidentmapper.service.Constants.JIRA_ISSUE_TITLE_TEMPLATE;
 import static se.sundsvall.incidentmapper.service.Constants.JIRA_ISSUE_TYPE;
+import static se.sundsvall.incidentmapper.service.ServiceUtil.inputStreamToBase64;
+import static se.sundsvall.incidentmapper.service.ServiceUtil.toOffsetDateTime;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toCaseInternalNotesCustomMemo;
+import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toCaseInternalNotesCustomMemoPayload;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toDescription;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toProblemMemo;
+import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toResponsibleGroupPayload;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.StreamSupport;
 
 import com.atlassian.jira.rest.client.api.domain.Attachment;
@@ -34,33 +37,14 @@ import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
 import se.sundsvall.incidentmapper.integration.db.model.enums.Status;
 import se.sundsvall.incidentmapper.integration.jira.JiraClient;
 import se.sundsvall.incidentmapper.integration.pob.POBClient;
+import se.sundsvall.incidentmapper.service.mapper.PobMapper;
 
-import generated.se.sundsvall.pob.PobMemo;
 import generated.se.sundsvall.pob.PobPayload;
 
 @Service
 @Transactional
 public class IncidentService {
 
-	public static final String PROBLEM = "Problem";
-
-	public static final String SCOPE_ALL = "all";
-
-	public static final String DESCRIPTION = "description";
-
-	public static final String ID = "id";
-
-	public static final String BINARY_DATA = "BinaryData";
-
-	public static final String FILE_DATA = "FileData";
-
-	public static final String EXTENSION = ".txt";
-
-	public static final String RESPONSIBLE = "Responsible";
-
-	public static final String RESPONSIBLE_GROUP = "ResponsibleGroup";
-
-	public static final String IT_SUPPORT = "IT Support";
 
 	static final List<Status> OPEN_FOR_MODIFICATION_STATUS_LIST = asList(null, SYNCHRONIZED); // Status is only modifiable if current value is one of these.
 
@@ -71,10 +55,6 @@ public class IncidentService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(IncidentService.class);
 
 	private static final String LOG_MSG_CLEANING_DELETE_RANGE = "Removing all incidents with modified '{}' (or earlier) and with status matching '{}'.";
-
-	private static final String DATA_URL_FORMAT = "data:%s;base64,%s";
-
-	private static final String CASE_INTERNAL_NOTES_CUSTOM = "CaseInternalNotesCustom";
 
 	private static final List<String> JIRA_CLOSED_STATUSES = List.of("Closed", "Done", "Won't Do");
 
@@ -144,14 +124,38 @@ public class IncidentService {
 	}
 
 	public void updateJira() {
-		// Will be implemented soon
+		incidentRepository.findByStatus(POB_INITIATED_EVENT)
+			.forEach(incident -> {
+				if (isBlank(incident.getJiraIssueKey())) {
+					createJiraIssue(incident);
+				}
+			});
+	}
+
+	private void createJiraIssue(final IncidentEntity incident) {
+
+		final var summary = toDescription(pobClient.getCase(incident.getPobIssueKey()));
+		final var description = toProblemMemo(pobClient.getProblemMemo(incident.getPobIssueKey()).orElse(null));
+		final var comments = toCaseInternalNotesCustomMemo(pobClient.getCaseInternalNotesCustom(incident.getPobIssueKey()).orElse(null));
+
+		// Create issue.
+		final var jiraIssueKey = jiraClient.createIssue(JIRA_ISSUE_TYPE, JIRA_ISSUE_TITLE_TEMPLATE.formatted(summary), description);
+
+		// Add comments.
+		jiraClient.getIssue(jiraIssueKey).ifPresent(issue -> jiraClient.addComment(issue, comments));
+
+		incidentRepository.save(incident
+			.withStatus(SYNCHRONIZED)
+			.withJiraIssueKey(jiraIssueKey)
+			.withLastSynchronizedJira(now(systemDefault())));
+
 	}
 
 	public void updatePob() {
 		incidentRepository.findByStatus(JIRA_INITIATED_EVENT)
 			.forEach(entity -> {
-				final var jiraIssue = jiraClient.getIssue(entity.getJiraIssueKey()).orElseThrow();
-				final var pobAttachments = pobClient.getAttachments(entity.getPobIssueKey());
+				final var jiraIssue = jiraClient.getIssue(entity.getJiraIssueKey()).orElse(null);
+				final var pobAttachments = pobClient.getAttachments(entity.getPobIssueKey()).orElse(null);
 				updatePob(entity, jiraIssue, pobAttachments);
 			});
 	}
@@ -176,35 +180,9 @@ public class IncidentService {
 	}
 
 	private void updatePobUser(final IncidentEntity entity) {
-		final Map<String, Object> data = Map.of(ID, entity.getId(), RESPONSIBLE, "", RESPONSIBLE_GROUP, IT_SUPPORT);
-		final var payload = new PobPayload()
-			.data(data);
-		pobClient.updateCase(payload);
-	}
-		incidentRepository.findByStatus(POB_INITIATED_EVENT).stream()
-			.forEach(incident -> {
-				if (isBlank(incident.getJiraIssueKey())) {
-					createJiraIssue(incident);
-				}
-			});
+		pobClient.updateCase(toResponsibleGroupPayload(entity));
 	}
 
-	private void createJiraIssue(IncidentEntity incident) {
-
-		final var summary = toDescription(pobClient.getCase(incident.getPobIssueKey()));
-		final var description = toProblemMemo(pobClient.getProblemMemo(incident.getPobIssueKey()).orElse(null));
-		final var comments = toCaseInternalNotesCustomMemo(pobClient.getCaseInternalNotesCustom(incident.getPobIssueKey()).orElse(null));
-
-		// Create issue.
-		final var jiraIssueKey = jiraClient.createIssue(JIRA_ISSUE_TYPE, JIRA_ISSUE_TITLE_TEMPLATE.formatted(summary), description);
-
-		// Add comments.
-		jiraClient.getIssue(jiraIssueKey).ifPresent(issue -> jiraClient.addComment(issue, comments));
-
-		incidentRepository.save(incident
-			.withStatus(SYNCHRONIZED)
-			.withJiraIssueKey(jiraIssueKey)
-			.withLastSynchronizedJira(now(systemDefault())));
 	private void updatePobComment(final IncidentEntity entity, final Issue jiraIssue) {
 		StreamSupport.stream(jiraIssue.getComments().spliterator(), false)
 			.filter(comment -> toOffsetDateTime(comment.getCreationDate()).isAfter(entity.getLastSynchronizedPob()))
@@ -214,21 +192,15 @@ public class IncidentService {
 	}
 
 	private void updatePobWithComment(final IncidentEntity entity, final Comment comment) {
-		final Map<String, Object> data = Map.of(ID, entity.getId());
-		final var payload = new PobPayload()
-			.data(data)
-			.memo(Map.of(CASE_INTERNAL_NOTES_CUSTOM, new PobMemo()
-				.extension(EXTENSION)
-				.memo(comment.getBody())));
-		pobClient.updateCase(payload);
+		pobClient.updateCase(toCaseInternalNotesCustomMemoPayload(entity, comment));
 	}
 
 	private void updatePobDescription(final IncidentEntity entity, final Issue jiraIssue) {
-		final var pobDescription = stripHtmlTags(String.valueOf(pobClient.getMemo(entity.getPobIssueKey(), PROBLEM, SCOPE_ALL).getMemo().get(PROBLEM).getMemo()));
+		final var pobDescription = toProblemMemo(pobClient.getProblemMemo(entity.getPobIssueKey()).orElse(null));
 		final var jiraDescription = jiraIssue.getDescription();
 
 		if (jiraDescription != null && !jiraDescription.equals(pobDescription)) {
-			pobClient.updateCase(new PobPayload().data(Map.of(ID, entity.getId(), DESCRIPTION, jiraDescription)));
+			pobClient.updateCase(PobMapper.toDescriptionPayload(entity, jiraDescription));
 		}
 	}
 
@@ -243,12 +215,10 @@ public class IncidentService {
 
 		if (!attachmentExists) {
 			final var base64String = inputStreamToBase64(jiraClient.getAttachment(jiraAttachment.getContentUri()));
-			final var payload = new PobPayload()
-				.type(BINARY_DATA)
-				.data(Map.of(FILE_DATA, DATA_URL_FORMAT.formatted(jiraAttachment.getFilename(), base64String)));
-
+			final var payload = PobMapper.toAttachmentPayload(jiraAttachment, base64String);
 			pobClient.createAttachment(entity.getPobIssueKey(), payload);
 		}
 	}
+
 
 }

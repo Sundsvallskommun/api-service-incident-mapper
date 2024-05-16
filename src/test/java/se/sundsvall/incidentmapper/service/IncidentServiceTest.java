@@ -18,8 +18,6 @@ import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.CLOS
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.POB_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
-import static se.sundsvall.incidentmapper.service.IncidentService.PROBLEM;
-import static se.sundsvall.incidentmapper.service.IncidentService.SCOPE_ALL;
 
 import java.net.URI;
 import java.time.OffsetDateTime;
@@ -41,9 +39,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.atlassian.jira.rest.client.api.domain.Issue;
-
-import generated.se.sundsvall.pob.PobPayload;
 import se.sundsvall.dept44.test.annotation.resource.Load;
 import se.sundsvall.dept44.test.extension.ResourceLoaderExtension;
 import se.sundsvall.incidentmapper.api.model.IncidentRequest;
@@ -52,12 +47,11 @@ import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
 import se.sundsvall.incidentmapper.integration.db.model.enums.Status;
 import se.sundsvall.incidentmapper.integration.jira.JiraClient;
 import se.sundsvall.incidentmapper.integration.pob.POBClient;
-import se.sundsvall.incidentmapper.integration.pob.POBClient;
 
 import generated.se.sundsvall.pob.PobMemo;
 import generated.se.sundsvall.pob.PobPayload;
 
-@ExtendWith({ MockitoExtension.class, ResourceLoaderExtension.class })
+@ExtendWith({MockitoExtension.class, ResourceLoaderExtension.class})
 class IncidentServiceTest {
 
 	@Mock
@@ -71,9 +65,6 @@ class IncidentServiceTest {
 
 	@Mock
 	private Issue jiraIssueMock;
-
-	@Mock
-	private POBClient pobClientMock;
 
 	@Mock
 	private Attachment attachmentMock;
@@ -284,6 +275,7 @@ class IncidentServiceTest {
 
 	@Test
 	void updatePob() {
+
 		// Arrange
 		final var incidentEntity = IncidentEntity.create()
 			.withId(UUID.randomUUID().toString())
@@ -294,7 +286,7 @@ class IncidentServiceTest {
 
 		final var pobAttachments = new PobPayload();
 		final var jiraAttachments = List.of(attachmentMock);
-		final var memoPayload = new PobPayload().memo(Map.of(PROBLEM, new PobMemo()));
+		final var memoPayload = new PobPayload().memo(Map.of("Problem", new PobMemo()));
 
 		when(incidentRepositoryMock.findByStatus(JIRA_INITIATED_EVENT)).thenReturn(List.of(incidentEntity));
 		when(jiraClientMock.getIssue(incidentEntity.getJiraIssueKey())).thenReturn(Optional.of(jiraIssueMock));
@@ -310,8 +302,8 @@ class IncidentServiceTest {
 		when(commentMock.getAuthor()).thenReturn(new BasicUser(URI.create("self"), "notSystem", "notSystem"));
 		when(commentMock.getBody()).thenReturn("SomeComment");
 
-		when(pobClientMock.getAttachments(incidentEntity.getPobIssueKey())).thenReturn(pobAttachments);
-		when(pobClientMock.getMemo(incidentEntity.getPobIssueKey(), PROBLEM, SCOPE_ALL)).thenReturn(memoPayload);
+		when(pobClientMock.getAttachments(incidentEntity.getPobIssueKey())).thenReturn(Optional.of(pobAttachments));
+		when(pobClientMock.getProblemMemo(incidentEntity.getPobIssueKey())).thenReturn(Optional.of(memoPayload));
 
 		// Act
 		incidentService.updatePob();
@@ -320,7 +312,7 @@ class IncidentServiceTest {
 		verify(incidentRepositoryMock).findByStatus(JIRA_INITIATED_EVENT);
 		verify(jiraClientMock).getIssue(incidentEntity.getJiraIssueKey());
 		verify(pobClientMock).getAttachments(incidentEntity.getPobIssueKey());
-		verify(pobClientMock).getMemo(incidentEntity.getPobIssueKey(), PROBLEM, SCOPE_ALL);
+		verify(pobClientMock).getProblemMemo(incidentEntity.getPobIssueKey());
 		verify(pobClientMock, times(3)).updateCase(any());
 		verify(pobClientMock).createAttachment(any(), any());
 		verify(incidentRepositoryMock).saveAndFlush(incidentEntity);
@@ -330,9 +322,9 @@ class IncidentServiceTest {
 
 	@Test
 	void updateJiraWhenIssueDoesNotExistInJira(
-		@Load(value = "/IncidentServiceTest/pobPayloadCase.json", as = JSON) PobPayload pobPayload,
-		@Load(value = "/IncidentServiceTest/pobPayloadCaseInternalNotesCustomMemo.json", as = JSON) PobPayload pobPayloadCaseInternalNotesCustomMemo,
-		@Load(value = "/IncidentServiceTest/pobPayloadProblemMemo.json", as = JSON) PobPayload pobPayloadProblemMemo) {
+		@Load(value = "/IncidentServiceTest/pobPayloadCase.json", as = JSON) final PobPayload pobPayload,
+		@Load(value = "/IncidentServiceTest/pobPayloadCaseInternalNotesCustomMemo.json", as = JSON) final PobPayload pobPayloadCaseInternalNotesCustomMemo,
+		@Load(value = "/IncidentServiceTest/pobPayloadProblemMemo.json", as = JSON) final PobPayload pobPayloadProblemMemo) {
 
 		// Arrange
 		final var pobIssueKey = "POB-12345";
@@ -368,4 +360,5 @@ class IncidentServiceTest {
 		assertThat(capturedIncidentEntity.getJiraIssueKey()).isEqualTo(jiraIssueKey);
 		assertThat(capturedIncidentEntity.getLastSynchronizedJira()).isCloseTo(now(), within(2, SECONDS));
 	}
+
 }

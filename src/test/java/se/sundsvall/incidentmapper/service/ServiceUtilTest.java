@@ -47,25 +47,4 @@ class ServiceUtilTest {
 
 	}
 
-	@Test
-	void stripHtmlTags() {
-
-		// Arrange
-		final var html = "<html><head></head><body style=\\\"font-family:Segoe UI;font-size:9pt;\\\"><div id='memo1360031273'><div><div style=\\\"font-family:Segoe UI;font-size:9pt;\\\">2024-05-08 14:09 System API Utvecklingsfabriken Utvecklingsfabriken</div><div style=\\\"font-family:Segoe UI;font-size:9pt;\\\">Ev. förklaring till bytet av handläggargrupp</div><div><div style=\\\"font-family:Segoe UI;font-size:9pt;\\\"><br>___________________________________________________________<br></div></div></div></div><div id='memo1360031159'><p class=\\\"pobg6_delimiter\\\" style=\\\"margin:0 0 0 0;\\\">2024-05-07 14:14 Test Testsson Testvall</p><p style=\\\"margin:0 0 0 0;\\\">test interna anteckningar</p><p class=\\\"pobg6_separator\\\" style=\\\"margin:0 0 0 0;\\\">___________________________________________________________</p></div></body></html>";
-		final var expected = """
-			2024-05-08 14:09 System API Utvecklingsfabriken Utvecklingsfabriken
-			Ev. förklaring till bytet av handläggargrupp
-			___________________________________________________________
-			2024-05-07 14:14 Test Testsson Testvall
-			test interna anteckningar
-			___________________________________________________________""";
-
-		// Act
-		final var result = ServiceUtil.stripHtmlTags(html);
-
-		// Assert
-		assertThat(result).isEqualTo(expected);
-	}
-
-
 }

@@ -3,8 +3,7 @@ package se.sundsvall.incidentmapper.service.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.dept44.test.annotation.resource.Load.ResourceType.JSON;
 
-import com.atlassian.jira.rest.client.api.domain.Attachment;
-import com.atlassian.jira.rest.client.api.domain.Comment;
+import com.chavaillaz.client.jira.domain.Attachment;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -20,7 +19,8 @@ class PobMapperTest {
 	@Test
 	void testToAttachmentPayload() {
 		// Arrange
-		final var attachment = new Attachment(null, "testFile", null, null, 0, null, null, null);
+		final var attachment = new Attachment();
+		attachment.setFilename("testFile");
 		final var base64String = "testBase64String";
 		// Act
 		final var result = PobMapper.toAttachmentPayload(attachment, base64String);
@@ -58,7 +58,7 @@ class PobMapperTest {
 	void testToCaseInternalNotesCustomMemoPayload() {
 		// Arrange
 		final var entity = new IncidentEntity().withId("testId");
-		final var comment = new Comment(null, "testComment", null, null, null, null, null, null);
+		final var comment = "testComment";
 		// Act
 		final PobPayload result = PobMapper.toCaseInternalNotesCustomMemoPayload(entity, comment);
 		// Assert

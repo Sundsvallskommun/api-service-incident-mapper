@@ -29,6 +29,8 @@ class SynchronizerSchedulerServiceTest {
 		// Assert
 		verify(incidentService).pollJiraUpdates();
 		verify(incidentService).updateJira();
+		verify(incidentService).updatePob();
 		verifyNoMoreInteractions(incidentService);
 	}
+
 }

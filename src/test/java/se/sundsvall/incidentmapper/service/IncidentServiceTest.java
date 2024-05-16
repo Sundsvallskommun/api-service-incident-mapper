@@ -3,13 +3,13 @@ package se.sundsvall.incidentmapper.service;
 import static java.time.OffsetDateTime.now;
 import static java.time.ZoneId.systemDefault;
 import static java.time.temporal.ChronoUnit.SECONDS;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -19,11 +19,17 @@ import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.POB_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
 
+import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.atlassian.jira.rest.client.api.domain.Attachment;
+import com.atlassian.jira.rest.client.api.domain.BasicUser;
+import com.atlassian.jira.rest.client.api.domain.Comment;
+import com.atlassian.jira.rest.client.api.domain.Issue;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,9 +39,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.atlassian.jira.rest.client.api.domain.Issue;
-
-import generated.se.sundsvall.pob.PobPayload;
 import se.sundsvall.dept44.test.annotation.resource.Load;
 import se.sundsvall.dept44.test.extension.ResourceLoaderExtension;
 import se.sundsvall.incidentmapper.api.model.IncidentRequest;
@@ -45,7 +48,10 @@ import se.sundsvall.incidentmapper.integration.db.model.enums.Status;
 import se.sundsvall.incidentmapper.integration.jira.JiraClient;
 import se.sundsvall.incidentmapper.integration.pob.POBClient;
 
-@ExtendWith({ MockitoExtension.class, ResourceLoaderExtension.class })
+import generated.se.sundsvall.pob.PobMemo;
+import generated.se.sundsvall.pob.PobPayload;
+
+@ExtendWith({MockitoExtension.class, ResourceLoaderExtension.class})
 class IncidentServiceTest {
 
 	@Mock
@@ -59,6 +65,15 @@ class IncidentServiceTest {
 
 	@Mock
 	private Issue jiraIssueMock;
+
+	@Mock
+	private Attachment attachmentMock;
+
+	@Mock
+	private Comment commentMock;
+
+	@Mock
+	private com.atlassian.jira.rest.client.api.domain.Status statusMock;
 
 	@InjectMocks
 	private IncidentService incidentService;
@@ -255,14 +270,61 @@ class IncidentServiceTest {
 		final var capturedStatus = statusCaptor.getAllValues();
 
 		assertThat(capturedOffsetDateTime).isCloseTo(now(systemDefault()).minusDays(10), within(2, SECONDS));
-		assertThat(capturedStatus).isEqualTo(asList(CLOSED));
+		assertThat(capturedStatus).isEqualTo(List.of(CLOSED));
 	}
 
 	@Test
+	void updatePob() {
+
+		// Arrange
+		final var incidentEntity = IncidentEntity.create()
+			.withId(UUID.randomUUID().toString())
+			.withJiraIssueKey("JIR-12345")
+			.withPobIssueKey("POB-12345")
+			.withLastSynchronizedPob(now().minusDays(1))
+			.withStatus(JIRA_INITIATED_EVENT);
+
+		final var pobAttachments = new PobPayload();
+		final var jiraAttachments = List.of(attachmentMock);
+		final var memoPayload = new PobPayload().memo(Map.of("Problem", new PobMemo()));
+
+		when(incidentRepositoryMock.findByStatus(JIRA_INITIATED_EVENT)).thenReturn(List.of(incidentEntity));
+		when(jiraClientMock.getIssue(incidentEntity.getJiraIssueKey())).thenReturn(Optional.of(jiraIssueMock));
+		when(jiraClientMock.getAttachment(attachmentMock.getContentUri())).thenReturn(new java.io.ByteArrayInputStream("test".getBytes()));
+
+		when(jiraIssueMock.getAttachments()).thenReturn(jiraAttachments);
+		when(jiraIssueMock.getStatus()).thenReturn(statusMock);
+		when(statusMock.getName()).thenReturn("Done");
+
+		when(jiraIssueMock.getDescription()).thenReturn("SomeDescription");
+		when(jiraIssueMock.getComments()).thenReturn(List.of(commentMock));
+		when(commentMock.getCreationDate()).thenReturn(DateTime.now());
+		when(commentMock.getAuthor()).thenReturn(new BasicUser(URI.create("self"), "notSystem", "notSystem"));
+		when(commentMock.getBody()).thenReturn("SomeComment");
+
+		when(pobClientMock.getAttachments(incidentEntity.getPobIssueKey())).thenReturn(Optional.of(pobAttachments));
+		when(pobClientMock.getProblemMemo(incidentEntity.getPobIssueKey())).thenReturn(Optional.of(memoPayload));
+
+		// Act
+		incidentService.updatePob();
+
+		// Assert
+		verify(incidentRepositoryMock).findByStatus(JIRA_INITIATED_EVENT);
+		verify(jiraClientMock).getIssue(incidentEntity.getJiraIssueKey());
+		verify(pobClientMock).getAttachments(incidentEntity.getPobIssueKey());
+		verify(pobClientMock).getProblemMemo(incidentEntity.getPobIssueKey());
+		verify(pobClientMock, times(3)).updateCase(any());
+		verify(pobClientMock).createAttachment(any(), any());
+		verify(incidentRepositoryMock).saveAndFlush(incidentEntity);
+
+	}
+
+
+	@Test
 	void updateJiraWhenIssueDoesNotExistInJira(
-		@Load(value = "/IncidentServiceTest/pobPayloadCase.json", as = JSON) PobPayload pobPayload,
-		@Load(value = "/IncidentServiceTest/pobPayloadCaseInternalNotesCustomMemo.json", as = JSON) PobPayload pobPayloadCaseInternalNotesCustomMemo,
-		@Load(value = "/IncidentServiceTest/pobPayloadProblemMemo.json", as = JSON) PobPayload pobPayloadProblemMemo) {
+		@Load(value = "/IncidentServiceTest/pobPayloadCase.json", as = JSON) final PobPayload pobPayload,
+		@Load(value = "/IncidentServiceTest/pobPayloadCaseInternalNotesCustomMemo.json", as = JSON) final PobPayload pobPayloadCaseInternalNotesCustomMemo,
+		@Load(value = "/IncidentServiceTest/pobPayloadProblemMemo.json", as = JSON) final PobPayload pobPayloadProblemMemo) {
 
 		// Arrange
 		final var pobIssueKey = "POB-12345";
@@ -298,4 +360,5 @@ class IncidentServiceTest {
 		assertThat(capturedIncidentEntity.getJiraIssueKey()).isEqualTo(jiraIssueKey);
 		assertThat(capturedIncidentEntity.getLastSynchronizedJira()).isCloseTo(now(), within(2, SECONDS));
 	}
+
 }

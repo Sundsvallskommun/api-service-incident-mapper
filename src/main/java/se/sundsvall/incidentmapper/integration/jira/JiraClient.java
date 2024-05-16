@@ -2,10 +2,10 @@ package se.sundsvall.incidentmapper.integration.jira;
 
 import static java.util.Optional.empty;
 
+import java.io.InputStream;
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
-
-import org.springframework.stereotype.Component;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.Comment;
@@ -13,6 +13,7 @@ import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.input.AttachmentInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.api.domain.input.TransitionInput;
+import org.springframework.stereotype.Component;
 
 import se.sundsvall.incidentmapper.integration.jira.configuration.JiraProperties;
 
@@ -56,6 +57,10 @@ public class JiraClient {
 	public void updateIssueDescription(final String issueKey, final String newDescription) {
 		final var input = new IssueInputBuilder().setDescription(newDescription).build();
 		restClient.getIssueClient().updateIssue(issueKey, input).claim();
+	}
+
+	public InputStream getAttachment(final URI attachmentURI) {
+		return restClient.getIssueClient().getAttachment(attachmentURI).claim();
 	}
 
 	public void updateIssueWithAttachments(final String issueKey, final List<AttachmentInput> attachments) {

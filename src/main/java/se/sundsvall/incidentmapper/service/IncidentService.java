@@ -196,16 +196,10 @@ public class IncidentService {
 
 	private void updatePobComment(final IncidentEntity entity, final Issue jiraIssue) {
 		jiraIssue.getFields().getComments().stream()
-			.filter(comment -> isAfter(comment.getCreated(), entity.getLastSynchronizedPob()))
+			.filter(comment -> comment.getCreated().isAfter(Optional.ofNullable(entity.getLastSynchronizedPob()).orElse(OffsetDateTime.MIN)))
 			.filter(comment -> comment.getAuthor() != null)
 			.filter(comment -> !comment.getAuthor().getName().equals(systemUser))
 			.forEach(comment -> updatePobWithComment(entity, comment.getBody()));
-	}
-
-	private boolean isAfter(final OffsetDateTime created, final OffsetDateTime lastSynchronizedPob) {
-		return Optional.ofNullable(lastSynchronizedPob)
-			.map(created::isAfter)
-			.orElse(true);
 	}
 
 	private void updatePobWithComment(final IncidentEntity entity, final String comment) {

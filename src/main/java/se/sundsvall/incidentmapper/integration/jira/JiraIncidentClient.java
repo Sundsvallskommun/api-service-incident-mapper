@@ -33,6 +33,7 @@ public class JiraIncidentClient {
 		try {
 			return Optional.of(jiraClient.getIssueApi().getIssue(issueKey).get());
 		} catch (final Exception e) {
+			Thread.currentThread().interrupt();
 			return empty();
 		}
 	}
@@ -49,7 +50,7 @@ public class JiraIncidentClient {
 		try {
 			return jiraClient.getIssueApi().addIssue(issue).get().getKey();
 		} catch (final Exception e) {
-			e.printStackTrace();
+			Thread.currentThread().interrupt();
 			throw Problem.valueOf(BAD_REQUEST, e.getMessage());
 		}
 	}
@@ -60,6 +61,10 @@ public class JiraIncidentClient {
 
 	public void addComment(String issueKey, String commentBody) {
 		jiraClient.getIssueApi().addComment(issueKey, Comment.from(commentBody));
+	}
+
+	public void deleteComment(String issueKey, String commentId) {
+		jiraClient.getIssueApi().deleteComment(issueKey, commentId);
 	}
 
 	public String getAttachment(String attachmentId) {

@@ -1,15 +1,12 @@
 package se.sundsvall.incidentmapper.integration.jira;
 
-import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.InputStream;
-import java.net.URI;
-import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,51 +14,57 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.chavaillaz.client.jira.domain.BasicIssue;
+import com.chavaillaz.client.jira.JiraClient;
+import com.chavaillaz.client.jira.api.IssueApi;
+import com.chavaillaz.client.jira.domain.Attachment;
+import com.chavaillaz.client.jira.domain.Comment;
+import com.chavaillaz.client.jira.domain.Fields;
+import com.chavaillaz.client.jira.domain.Identity;
 import com.chavaillaz.client.jira.domain.Issue;
 import com.chavaillaz.client.jira.domain.IssueType;
+import com.chavaillaz.client.jira.domain.Project;
+
+import se.sundsvall.incidentmapper.integration.jira.configuration.JiraProperties;
 
 @ExtendWith(MockitoExtension.class)
 class JiraIncidentClientTest {
 
 	@Mock
-	private JiraRestClient jiraRestClientMock;
-
-	@Mock
-	private JiraUtil jiraUtilMock;
-
-	@Mock
-	private BasicIssue basicIssueMock;
-
-	@Mock
-	private Promise<BasicIssue> promiseMock;
-
-	@Mock
-	private Promise<InputStream> promiseInputStreamMock;
-
-	@Mock
-	private InputStream inputStreamMock;
-
-	@Mock
-	private IssueRestClient issueRestClientMock;
-
-	@Mock
 	private Issue issueMock;
 
 	@Mock
-	private Promise<Issue> promiseIssueMock;
+	private IssueApi<Issue> issueApiMock;
 
 	@Mock
-	private Promise<Void> promiseVoidMock;
+	private JiraClient<Issue> jiraClientMock;
 
 	@Mock
-	private AttachmentInput attachmentInputMock;
+	private JiraProperties jiraPropertiesMock;
+
+	@Mock
+	private CompletableFuture<Identity> completableFutureIdentityMock;
+
+	@Mock
+	private CompletableFuture<Issue> completableFutureIssueMock;
+
+	@Mock
+	private CompletableFuture<Attachment> completableFutureAttachmentMock;
 
 	@InjectMocks
 	private JiraIncidentClient jiraClient;
 
 	@Test
-	void createIssue() {
+	void getProperties() {
+
+		// Act
+		final var result = jiraClient.getProperties();
+
+		// Assert
+		assertThat(result).isEqualTo(jiraPropertiesMock);
+	}
+
+	@Test
+	void createIssue() throws Exception {
 
 		// Arrange
 		final var projectKey = "TEST";
@@ -70,154 +73,146 @@ class JiraIncidentClientTest {
 		final var issueDescription = "Test description";
 		final var issueKey = "TEST-1";
 
-		final var self = URI.create("http://example.com");
-		final var id = 1L;
-		final var name = "Bug";
-		final var isSubtask = false;
-		final var description = "This is a test issue type";
-		final var iconUri = URI.create("http://example.com/icon.png");
-		final var issueType = new IssueType(self, id, name, isSubtask, description, iconUri);
-
-		// Mock
-		when(jiraRestClientMock.getIssueClient()).thenReturn(issueRestClientMock);
-		when(issueRestClientMock.createIssue(any())).thenReturn(promiseMock);
-		when(promiseMock.claim()).thenReturn(basicIssueMock);
-		when(basicIssueMock.getKey()).thenReturn(issueKey);
-		// Mock IssueType call
-		when(jiraUtilMock.getIssueTypeByName(issueTypeName)).thenReturn(issueType);
+		when(issueMock.getKey()).thenReturn(issueKey);
+		when(jiraClientMock.getIssueApi()).thenReturn(issueApiMock);
+		when(issueApiMock.addIssue(any())).thenReturn(completableFutureIdentityMock);
+		when(completableFutureIdentityMock.get()).thenReturn(issueMock);
 
 		// Act
 		final var result = jiraClient.createIssue(projectKey, issueTypeName, issueSummary, issueDescription);
+
 		// Assert
 		assertThat(result).isNotNull().isEqualTo(issueKey);
+
+		verify(jiraClientMock).getIssueApi();
+		verify(issueMock).getKey();
+		verify(issueApiMock).addIssue(any(Issue.class));
+		verify(completableFutureIdentityMock).get();
 	}
 
 	@Test
-	void getIssue() {
+	void getIssue() throws InterruptedException, ExecutionException {
+
 		// Arrange
+		final var projectKey = "TEST";
+		final var issueTypeName = "Bug";
+		final var issueDescription = "Test description";
 		final var issueKey = "TEST-1";
-		when(jiraRestClientMock.getIssueClient()).thenReturn(issueRestClientMock);
-		when(jiraRestClientMock.getIssueClient().getIssue(issueKey)).thenReturn(promiseIssueMock);
-		when(promiseIssueMock.claim()).thenReturn(issueMock);
+
+		final var fields = new Fields();
+		fields.setProject(Project.fromKey(projectKey));
+		fields.setIssueType(IssueType.fromName(issueTypeName));
+		fields.setDescription(issueDescription);
+
+		when(issueMock.getKey()).thenReturn(issueKey);
+		when(issueMock.getFields()).thenReturn(fields);
+		when(jiraClientMock.getIssueApi()).thenReturn(issueApiMock);
+		when(issueApiMock.getIssue(issueKey)).thenReturn(completableFutureIssueMock);
+		when(completableFutureIssueMock.get()).thenReturn(issueMock);
 
 		// Act
 		final var result = jiraClient.getIssue(issueKey);
 
 		// Assert
-		assertThat(result).isNotNull().isEqualTo(Optional.of(issueMock));
+		assertThat(result).isPresent();
+		assertThat(result.get().getKey()).isEqualTo(issueKey);
+		assertThat(result.get().getFields()).isEqualTo(fields);
+
+		verify(jiraClientMock).getIssueApi();
+		verify(issueMock).getKey();
+		verify(issueApiMock).getIssue(issueKey);
+		verify(completableFutureIssueMock).get();
 	}
 
 	@Test
-	void getIssueNotFound() {
+	void getIssueWhenNotFound() {
+
 		// Arrange
 		final var issueKey = "TEST-1";
-		when(jiraRestClientMock.getIssueClient()).thenReturn(issueRestClientMock);
-		when(jiraRestClientMock.getIssueClient().getIssue(issueKey)).thenReturn(promiseIssueMock);
-		when(promiseIssueMock.claim()).thenThrow(new RuntimeException("Not found"));
+
+		when(jiraClientMock.getIssueApi()).thenThrow(new RuntimeException("Error occured"));
 
 		// Act
 		final var result = jiraClient.getIssue(issueKey);
 
 		// Assert
-		assertThat(result).isNotNull().isEqualTo(empty());
+		assertThat(result).isEmpty();
+		verify(jiraClientMock).getIssueApi();
 	}
 
 	@Test
-	void updateIssueDescription() {
+	void updateIssue() {
+
 		// Arrange
-		final var issueKey = "TEST-1";
-		final var newDescription = "New description";
+		final var projectKey = "TEST";
+		final var issueTypeName = "Bug";
+		final var issueSummary = "Test issue";
+		final var issue = Issue.from(issueTypeName, projectKey, issueSummary);
 
-		when(jiraRestClientMock.getIssueClient()).thenReturn(issueRestClientMock);
-		when(jiraRestClientMock.getIssueClient().updateIssue(any(), any())).thenReturn(promiseVoidMock);
-		// Act
-		jiraClient.updateIssueDescription(issueKey, newDescription);
-
-		// Assert
-		verify(jiraRestClientMock.getIssueClient()).updateIssue(any(), any());
-	}
-
-	@Test
-	void updateIssueWithAttachments() {
-		// Arrange
-		final var issueKey = "TEST-1";
-		final var attachments = List.of(attachmentInputMock);
-		final var attachmentUri = URI.create("http://example.com");
-
-		when(jiraRestClientMock.getIssueClient()).thenReturn(issueRestClientMock);
-		when(jiraRestClientMock.getIssueClient().getIssue(issueKey)).thenReturn(promiseIssueMock);
-		when(promiseIssueMock.claim()).thenReturn(issueMock);
-		when(issueMock.getAttachmentsUri()).thenReturn(attachmentUri);
-		when(jiraRestClientMock.getIssueClient().addAttachments(any(URI.class), any(AttachmentInput.class))).thenReturn(promiseVoidMock);
+		when(jiraClientMock.getIssueApi()).thenReturn(issueApiMock);
 
 		// Act
-		jiraClient.updateIssueWithAttachments(issueKey, attachments);
+		jiraClient.updateIssue(issue);
 
 		// Assert
-		verify(jiraRestClientMock.getIssueClient()).addAttachments(any(URI.class), any(AttachmentInput.class));
-	}
-
-	@Test
-	void updateIssueStatus() {
-		// Arrange
-		final var newStatus = "Done";
-
-		when(jiraUtilMock.getTransitionByName(issueMock, newStatus)).thenReturn(1);
-		when(jiraRestClientMock.getIssueClient()).thenReturn(issueRestClientMock);
-		when(jiraRestClientMock.getIssueClient().transition(any(Issue.class), any(TransitionInput.class))).thenReturn(promiseVoidMock);
-
-		// Act
-		jiraClient.updateIssueStatus(issueMock, newStatus);
-
-		// Assert
-		verify(jiraRestClientMock.getIssueClient()).transition(any(Issue.class), any(TransitionInput.class));
-	}
-
-	@Test
-	void deleteIssue() {
-		// Arrange
-		final var issueKey = "TEST-1";
-		final var deleteSubtasks = true;
-
-		when(jiraRestClientMock.getIssueClient()).thenReturn(issueRestClientMock);
-		when(jiraRestClientMock.getIssueClient().deleteIssue(issueKey, deleteSubtasks)).thenReturn(promiseVoidMock);
-
-		// Act
-		jiraClient.deleteIssue(issueKey, deleteSubtasks);
-
-		// Assert
-		verify(jiraRestClientMock.getIssueClient()).deleteIssue(issueKey, deleteSubtasks);
+		verify(jiraClientMock).getIssueApi();
+		verify(issueApiMock).updateIssue(issue);
 	}
 
 	@Test
 	void addComment() {
+
 		// Arrange
 		final var commentBody = "Test comment";
-		when(jiraRestClientMock.getIssueClient()).thenReturn(issueRestClientMock);
-		when(jiraRestClientMock.getIssueClient().addComment(issueMock.getCommentsUri(), Comment.valueOf(commentBody))).thenReturn(promiseVoidMock);
+		final var issueKey = "TEST-1";
+
+		when(jiraClientMock.getIssueApi()).thenReturn(issueApiMock);
 
 		// Act
-		jiraClient.addComment(issueMock, commentBody);
+		jiraClient.addComment(issueKey, commentBody);
 
 		// Assert
-		verify(jiraRestClientMock.getIssueClient()).addComment(issueMock.getCommentsUri(), Comment.valueOf(commentBody));
+		verify(jiraClientMock).getIssueApi();
+		verify(issueApiMock).addComment(issueKey, Comment.from(commentBody));
 	}
 
 	@Test
-	void getAttachment() {
+	void deleteComment() {
 
 		// Arrange
-		final var attachmentUri = URI.create("https://example.com");
-		when(jiraRestClientMock.getIssueClient()).thenReturn(issueRestClientMock);
-		when(jiraRestClientMock.getIssueClient().getAttachment(attachmentUri)).thenReturn(promiseInputStreamMock);
-		when(promiseInputStreamMock.claim()).thenReturn(inputStreamMock);
+		final var commentId = "666";
+		final var issueKey = "TEST-1";
+
+		when(jiraClientMock.getIssueApi()).thenReturn(issueApiMock);
 
 		// Act
-		final var result = jiraClient.getAttachment(attachmentUri);
+		jiraClient.deleteComment(issueKey, commentId);
 
 		// Assert
-		verify(jiraRestClientMock.getIssueClient()).getAttachment(attachmentUri);
-		assertThat(result).isNotNull().isSameAs(inputStreamMock);
+		verify(jiraClientMock).getIssueApi();
+		verify(issueApiMock).deleteComment(issueKey, commentId);
 	}
 
+	@Test
+	void getAttachment() throws InterruptedException, ExecutionException {
+
+		final var content = "content";
+		final var attachmentId = "666";
+		final var attachment = new Attachment();
+		attachment.setContent(content);
+
+		when(jiraClientMock.getIssueApi()).thenReturn(issueApiMock);
+		when(issueApiMock.getAttachment(attachmentId)).thenReturn(completableFutureAttachmentMock);
+		when(completableFutureAttachmentMock.get()).thenReturn(attachment);
+
+		// Act
+		final var result = jiraClient.getAttachment(attachmentId);
+
+		// Assert
+		assertThat(result).isNotNull().isEqualTo(content);
+
+		verify(jiraClientMock).getIssueApi();
+		verify(issueApiMock).getAttachment(attachmentId);
+		verify(completableFutureIssueMock).get();
+	}
 }

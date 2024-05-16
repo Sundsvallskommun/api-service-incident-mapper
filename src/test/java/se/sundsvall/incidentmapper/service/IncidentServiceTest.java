@@ -26,11 +26,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.atlassian.jira.rest.client.api.domain.Attachment;
-import com.atlassian.jira.rest.client.api.domain.BasicUser;
-import com.atlassian.jira.rest.client.api.domain.Comment;
-import com.atlassian.jira.rest.client.api.domain.Issue;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -39,26 +34,29 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.chavaillaz.client.jira.domain.Attachment;
+import com.chavaillaz.client.jira.domain.Comment;
+import com.chavaillaz.client.jira.domain.Issue;
+
+import generated.se.sundsvall.pob.PobMemo;
+import generated.se.sundsvall.pob.PobPayload;
 import se.sundsvall.dept44.test.annotation.resource.Load;
 import se.sundsvall.dept44.test.extension.ResourceLoaderExtension;
 import se.sundsvall.incidentmapper.api.model.IncidentRequest;
 import se.sundsvall.incidentmapper.integration.db.IncidentRepository;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
 import se.sundsvall.incidentmapper.integration.db.model.enums.Status;
-import se.sundsvall.incidentmapper.integration.jira.JiraClient;
+import se.sundsvall.incidentmapper.integration.jira.JiraIncidentClient;
 import se.sundsvall.incidentmapper.integration.pob.POBClient;
 
-import generated.se.sundsvall.pob.PobMemo;
-import generated.se.sundsvall.pob.PobPayload;
-
-@ExtendWith({MockitoExtension.class, ResourceLoaderExtension.class})
+@ExtendWith({ MockitoExtension.class, ResourceLoaderExtension.class })
 class IncidentServiceTest {
 
 	@Mock
 	private IncidentRepository incidentRepositoryMock;
 
 	@Mock
-	private JiraClient jiraClientMock;
+	private JiraIncidentClient jiraClientMock;
 
 	@Mock
 	private POBClient pobClientMock;
@@ -73,7 +71,7 @@ class IncidentServiceTest {
 	private Comment commentMock;
 
 	@Mock
-	private com.atlassian.jira.rest.client.api.domain.Status statusMock;
+	private Status statusMock;
 
 	@InjectMocks
 	private IncidentService incidentService;
@@ -177,7 +175,7 @@ class IncidentServiceTest {
 			.withStatus(SYNCHRONIZED);
 
 		when(incidentRepositoryMock.findByStatus(SYNCHRONIZED)).thenReturn(List.of(existingIncident));
-		when(jiraIssueMock.getUpdateDate()).thenReturn(DateTime.now());
+		when(jiraIssueMock.getFields().getUpdated()).thenReturn(now());
 		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(Optional.of(jiraIssueMock));
 
 		// Act
@@ -185,7 +183,7 @@ class IncidentServiceTest {
 
 		// Assert
 		verify(jiraClientMock).getIssue(jiraIssueKey);
-		verify(jiraIssueMock).getUpdateDate();
+		verify(jiraIssueMock).getFields().getUpdated();
 		verify(incidentRepositoryMock).findByStatus(SYNCHRONIZED);
 		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
 
@@ -206,7 +204,7 @@ class IncidentServiceTest {
 			.withStatus(SYNCHRONIZED);
 
 		when(incidentRepositoryMock.findByStatus(SYNCHRONIZED)).thenReturn(List.of(existingIncident));
-		when(jiraIssueMock.getUpdateDate()).thenReturn(DateTime.now());
+		when(jiraIssueMock.getFields().getUpdated()).thenReturn(now());
 		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(Optional.of(jiraIssueMock));
 
 		// Act
@@ -214,7 +212,7 @@ class IncidentServiceTest {
 
 		// Assert
 		verify(jiraClientMock).getIssue(jiraIssueKey);
-		verify(jiraIssueMock).getUpdateDate();
+		verify(jiraIssueMock).getFields().getUpdated();
 		verify(incidentRepositoryMock).findByStatus(SYNCHRONIZED);
 		verify(incidentRepositoryMock, never()).saveAndFlush(any());
 	}
@@ -318,7 +316,6 @@ class IncidentServiceTest {
 		verify(incidentRepositoryMock).saveAndFlush(incidentEntity);
 
 	}
-
 
 	@Test
 	void updateJiraWhenIssueDoesNotExistInJira(

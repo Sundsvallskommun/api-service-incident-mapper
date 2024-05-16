@@ -68,11 +68,10 @@ class PobMapperTest {
 				2024-05-08 14:09 System API Utvecklingsfabriken Utvecklingsfabriken
 				Ev. förklaring till bytet av handläggargrupp
 
-
 				___________________________________________________________
 
 
-				2024-05-07 14:14 Samy Lidner Accero
+				2024-05-07 14:14 Joe Doe
 				test interna anteckningar
 				___________________________________________________________""");
 	}

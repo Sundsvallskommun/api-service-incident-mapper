@@ -21,6 +21,7 @@
 		<jira-rest-java-client-app.version>5.2.7</jira-rest-java-client-app.version>
 		<atlassian.fugue.version>5.0.0</atlassian.fugue.version>
 		<shedlock.version>5.13.0</shedlock.version>
+		<jsoup.version>1.17.2</jsoup.version>
 	</properties>
 	<repositories>
 		<repository>
@@ -50,7 +51,7 @@
 		<dependency>
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-			<version>1.17.2</version>
+			<version>${jsoup.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.atlassian.jira</groupId>

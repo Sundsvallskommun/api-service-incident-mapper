@@ -28,7 +28,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import se.sundsvall.dept44.util.jacoco.ExcludeFromJacocoGeneratedCoverageReport;
 import se.sundsvall.incidentmapper.api.model.IncidentRequest;
 import se.sundsvall.incidentmapper.integration.db.IncidentRepository;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
@@ -41,8 +40,6 @@ import generated.se.sundsvall.pob.PobPayload;
 
 @Service
 @Transactional
-// TODO: remove when tests are done
-@ExcludeFromJacocoGeneratedCoverageReport
 public class IncidentService {
 
 	public static final String PROBLEM = "Problem";

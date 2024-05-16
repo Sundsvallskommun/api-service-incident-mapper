@@ -48,10 +48,8 @@ public final class PobMapper {
 	}
 
 	private static String removeHTML(String source) {
-
 		return Optional.ofNullable(source)
 			.map(string -> {
-
 				final var outputSettings = new Document.OutputSettings()
 					.prettyPrint(false);
 
@@ -65,7 +63,6 @@ public final class PobMapper {
 				return Jsoup.clean(parsedText, "", Safelist.none(), outputSettings).trim();
 			})
 			.orElse(null);
-
 	}
 
 	/**

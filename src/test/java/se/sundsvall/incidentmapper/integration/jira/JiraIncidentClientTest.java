@@ -11,24 +11,18 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
-import com.atlassian.jira.rest.client.api.IssueRestClient;
-import com.atlassian.jira.rest.client.api.JiraRestClient;
-import com.atlassian.jira.rest.client.api.domain.BasicIssue;
-import com.atlassian.jira.rest.client.api.domain.Comment;
-import com.atlassian.jira.rest.client.api.domain.Issue;
-import com.atlassian.jira.rest.client.api.domain.IssueType;
-import com.atlassian.jira.rest.client.api.domain.input.AttachmentInput;
-import com.atlassian.jira.rest.client.api.domain.input.TransitionInput;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import io.atlassian.util.concurrent.Promise;
+import com.chavaillaz.client.jira.domain.BasicIssue;
+import com.chavaillaz.client.jira.domain.Issue;
+import com.chavaillaz.client.jira.domain.IssueType;
 
 @ExtendWith(MockitoExtension.class)
-class JiraClientTest {
+class JiraIncidentClientTest {
 
 	@Mock
 	private JiraRestClient jiraRestClientMock;
@@ -64,7 +58,7 @@ class JiraClientTest {
 	private AttachmentInput attachmentInputMock;
 
 	@InjectMocks
-	private JiraClient jiraClient;
+	private JiraIncidentClient jiraClient;
 
 	@Test
 	void createIssue() {

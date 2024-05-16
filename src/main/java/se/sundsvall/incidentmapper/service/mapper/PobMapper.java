@@ -9,18 +9,17 @@ import static java.util.Objects.nonNull;
 import java.util.Map;
 import java.util.Optional;
 
-import com.atlassian.jira.rest.client.api.domain.Attachment;
-import com.atlassian.jira.rest.client.api.domain.Comment;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.safety.Safelist;
 
-import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
+import com.chavaillaz.client.jira.domain.Attachment;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import generated.se.sundsvall.pob.PobMemo;
 import generated.se.sundsvall.pob.PobPayload;
+import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
 
 public final class PobMapper {
 
@@ -52,7 +51,6 @@ public final class PobMapper {
 
 	private static final String CASE_INTERNAL_NOTES_CUSTOM = "CaseInternalNotesCustom";
 
-
 	private PobMapper() {
 		// No instantiation allowed.
 	}
@@ -73,13 +71,13 @@ public final class PobMapper {
 			.data(data);
 	}
 
-	public static PobPayload toCaseInternalNotesCustomMemoPayload(final IncidentEntity entity, final Comment comment) {
+	public static PobPayload toCaseInternalNotesCustomMemoPayload(final IncidentEntity entity, final String comment) {
 		final Map<String, Object> data = Map.of(ID, entity.getId());
 		return new PobPayload()
 			.data(data)
 			.memo(Map.of(CASE_INTERNAL_NOTES_CUSTOM, new PobMemo()
 				.extension(EXTENSION)
-				.memo(comment.getBody())));
+				.memo(comment)));
 	}
 
 	public static String toDescription(final PobPayload pobPayload) {
@@ -122,9 +120,9 @@ public final class PobMapper {
 	/**
 	 * Checks if the key denoted by the provided jsonPath exists and has a value that is not null.
 	 *
-	 * @param pobPayload the payload to use
-	 * @param jsonPath the path to verify existance of
-	 * @return true if the key exist and has a non-null value.
+	 * @param  pobPayload the payload to use
+	 * @param  jsonPath   the path to verify existance of
+	 * @return            true if the key exist and has a non-null value.
 	 */
 	private static boolean jsonPathExists(final PobPayload pobPayload, final String jsonPath) {
 		final var parsedJson = parse(GSON.toJson(pobPayload), defaultConfiguration().addOptions(SUPPRESS_EXCEPTIONS));
@@ -134,14 +132,13 @@ public final class PobMapper {
 	/**
 	 * Extracts the value denoted by the provided jsonPath.
 	 *
-	 * @param pobPayload the payload to use
-	 * @param jsonPath the path extract value from
-	 * @param suppressExceptions whether to suppress exceptions for invalid paths, or not.
-	 * @return the value that corresponds to the provided jsonPath.
+	 * @param  pobPayload         the payload to use
+	 * @param  jsonPath           the path extract value from
+	 * @param  suppressExceptions whether to suppress exceptions for invalid paths, or not.
+	 * @return                    the value that corresponds to the provided jsonPath.
 	 */
 	private static String extractValueFromJsonPath(final PobPayload pobPayload, final String jsonPath, final boolean suppressExceptions) {
 		final var parsedJson = parse(GSON.toJson(pobPayload), suppressExceptions ? defaultConfiguration().addOptions(SUPPRESS_EXCEPTIONS) : defaultConfiguration());
 		return parsedJson.read(jsonPath);
 	}
-
 }

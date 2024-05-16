@@ -22,15 +22,17 @@ import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toResponsible
 import java.util.List;
 import java.util.stream.StreamSupport;
 
-import com.atlassian.jira.rest.client.api.domain.Attachment;
-import com.atlassian.jira.rest.client.api.domain.Comment;
-import com.atlassian.jira.rest.client.api.domain.Issue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.atlassian.jira.rest.client.api.domain.Attachment;
+import com.atlassian.jira.rest.client.api.domain.Comment;
+import com.atlassian.jira.rest.client.api.domain.Issue;
+
+import generated.se.sundsvall.pob.PobPayload;
 import se.sundsvall.incidentmapper.api.model.IncidentRequest;
 import se.sundsvall.incidentmapper.integration.db.IncidentRepository;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
@@ -39,29 +41,20 @@ import se.sundsvall.incidentmapper.integration.jira.JiraClient;
 import se.sundsvall.incidentmapper.integration.pob.POBClient;
 import se.sundsvall.incidentmapper.service.mapper.PobMapper;
 
-import generated.se.sundsvall.pob.PobPayload;
-
 @Service
 @Transactional
 public class IncidentService {
 
-
 	static final List<Status> OPEN_FOR_MODIFICATION_STATUS_LIST = asList(null, SYNCHRONIZED); // Status is only modifiable if current value is one of these.
-
 	static final List<Status> DBCLEAN_ELIGIBLE_FOR_REMOVAL_STATUS_LIST = List.of(CLOSED); // Status is only eligible for removal if one of these during dbcleaner-execution.
-
 	static final Integer DBCLEAN_CLOSED_INCIDENTS_TTL_IN_DAYS = 10;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(IncidentService.class);
-
 	private static final String LOG_MSG_CLEANING_DELETE_RANGE = "Removing all incidents with modified '{}' (or earlier) and with status matching '{}'.";
-
 	private static final List<String> JIRA_CLOSED_STATUSES = List.of("Closed", "Done", "Won't Do");
 
 	private final IncidentRepository incidentRepository;
-
 	private final JiraClient jiraClient;
-
 	private final POBClient pobClient;
 
 	@Value("${integration.jira.username}")
@@ -72,7 +65,6 @@ public class IncidentService {
 		this.jiraClient = jiraClient;
 		this.pobClient = pobClient;
 	}
-
 
 	public void handleIncidentRequest(final IncidentRequest request) {
 
@@ -88,7 +80,7 @@ public class IncidentService {
 	}
 
 	/**
-	 * Poll JIRA  for updates on mapped issues.
+	 * Poll JIRA for updates on mapped issues.
 	 * <p>
 	 * All incidents with status "SYNCHRONIZED" (in DB) will be compared with the last-update-timestamp on the Jira-issue.
 	 * <p>
@@ -128,11 +120,31 @@ public class IncidentService {
 			.forEach(incident -> {
 				if (isBlank(incident.getJiraIssueKey())) {
 					createJiraIssue(incident);
+					return;
 				}
+				updateJiraIssue(incident);
 			});
 	}
 
-	private void createJiraIssue(final IncidentEntity incident) {
+	public void updateJiraIssue(IncidentEntity incident) {
+
+		toDescription(pobClient.getCase(incident.getPobIssueKey()));
+		toProblemMemo(pobClient.getProblemMemo(incident.getPobIssueKey()).orElse(null));
+		final var comments = toCaseInternalNotesCustomMemo(pobClient.getCaseInternalNotesCustom(incident.getPobIssueKey()).orElse(null));
+
+		// Create issue.
+		final var jiraIssueKey = "";// jiraClient.
+
+		// Add comments.
+		jiraClient.getIssue(jiraIssueKey).ifPresent(issue -> jiraClient.addComment(issue, comments));
+
+		incidentRepository.save(incident
+			.withStatus(SYNCHRONIZED)
+			.withJiraIssueKey(jiraIssueKey)
+			.withLastSynchronizedJira(now(systemDefault())));
+	}
+
+	public void createJiraIssue(IncidentEntity incident) {
 
 		final var summary = toDescription(pobClient.getCase(incident.getPobIssueKey()));
 		final var description = toProblemMemo(pobClient.getProblemMemo(incident.getPobIssueKey()).orElse(null));
@@ -199,7 +211,7 @@ public class IncidentService {
 		final var pobDescription = toProblemMemo(pobClient.getProblemMemo(entity.getPobIssueKey()).orElse(null));
 		final var jiraDescription = jiraIssue.getDescription();
 
-		if (jiraDescription != null && !jiraDescription.equals(pobDescription)) {
+		if ((jiraDescription != null) && !jiraDescription.equals(pobDescription)) {
 			pobClient.updateCase(PobMapper.toDescriptionPayload(entity, jiraDescription));
 		}
 	}
@@ -219,6 +231,4 @@ public class IncidentService {
 			pobClient.createAttachment(entity.getPobIssueKey(), payload);
 		}
 	}
-
-
 }

@@ -54,6 +54,19 @@ public class JiraClient {
 		return restClient.getIssueClient().createIssue(newIssue).claim().getKey();
 	}
 
+	public void updateIssueSummary(final String issueKey, final String newSummary) {
+		final var input = new IssueInputBuilder().setSummary(newSummary).build();
+		restClient.getIssueClient().updateIssue(issueKey, input).claim();
+	}
+
+	public void updateIssue(final String issueKey, final String newSummary, final String newDescription) {
+		final var input = new IssueInputBuilder()
+			.setSummary(newSummary)
+			.setDescription(newDescription)
+			.build();
+		restClient.getIssueClient().updateIssue(issueKey, input).claim();
+	}
+
 	public void updateIssueDescription(final String issueKey, final String newDescription) {
 		final var input = new IssueInputBuilder().setDescription(newDescription).build();
 		restClient.getIssueClient().updateIssue(issueKey, input).claim();
@@ -67,7 +80,8 @@ public class JiraClient {
 		final var attachmentsArray = new AttachmentInput[attachments.size()];
 		attachments.toArray(attachmentsArray);
 
-		final var attachmentUri = getIssue(issueKey).get().getAttachmentsUri();
+		final var issue = getIssue(issueKey).orElseThrow();
+		final var attachmentUri = issue.getAttachmentsUri();
 		restClient.getIssueClient().addAttachments(attachmentUri, attachmentsArray).claim();
 	}
 

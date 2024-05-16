@@ -73,7 +73,6 @@ public class IncidentService {
 		this.pobClient = pobClient;
 	}
 
-
 	public void handleIncidentRequest(final IncidentRequest request) {
 
 		final var issueKey = request.getIncidentKey();
@@ -134,7 +133,7 @@ public class IncidentService {
 
 	private void createJiraIssue(final IncidentEntity incident) {
 
-		final var summary = toDescription(pobClient.getCase(incident.getPobIssueKey()));
+		final var summary = toDescription(pobClient.getCase(incident.getPobIssueKey()).orElse(null));
 		final var description = toProblemMemo(pobClient.getProblemMemo(incident.getPobIssueKey()).orElse(null));
 		final var comments = toCaseInternalNotesCustomMemo(pobClient.getCaseInternalNotesCustom(incident.getPobIssueKey()).orElse(null));
 

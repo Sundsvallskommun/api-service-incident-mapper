@@ -18,17 +18,11 @@
 		<docker.image.name>ms-incident-mapper</docker.image.name>
 		<generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
 		<generated-sources-java-path>src/main/java</generated-sources-java-path>
-		<jira-rest-java-client-app.version>5.2.7</jira-rest-java-client-app.version>
-		<atlassian.fugue.version>5.0.0</atlassian.fugue.version>
 		<shedlock.version>5.13.0</shedlock.version>
 		<jsoup.version>1.17.2</jsoup.version>
+		<jira-client.version>2.2.0</jira-client.version>
+		<faux-pas.version>0.9.0</faux-pas.version>
 	</properties>
-	<repositories>
-		<repository>
-			<id>atlassian-public</id>
-			<url>https://packages.atlassian.com/maven/repository/public</url>
-		</repository>
-	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -54,27 +48,14 @@
 			<version>${jsoup.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.atlassian.jira</groupId>
-			<artifactId>jira-rest-java-client-core</artifactId>
-			<version>${jira-rest-java-client-app.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.glassfish.jersey.core</groupId>
-					<artifactId>jersey-common</artifactId>
-				</exclusion>
-			</exclusions>
+			<groupId>org.zalando</groupId>
+			<artifactId>faux-pas</artifactId>
+			<version>${faux-pas.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.glassfish.jersey.core</groupId>
-			<artifactId>jersey-common</artifactId>
-			<!-- Until jira-rest-java-client-app is updated to use jakarta
-			 this NEEDS to be 2.27. See https://ecosystem.atlassian.net/browse/JRJC-262-->
-			<version>2.27</version>
-		</dependency>
-		<dependency>
-			<groupId>io.atlassian.fugue</groupId>
-			<artifactId>fugue</artifactId>
-			<version>${atlassian.fugue.version}</version>
+			<groupId>com.chavaillaz</groupId>
+			<artifactId>jira-client</artifactId>
+			<version>${jira-client.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

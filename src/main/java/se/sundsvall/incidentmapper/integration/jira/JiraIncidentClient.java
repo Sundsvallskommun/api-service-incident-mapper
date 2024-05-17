@@ -1,14 +1,13 @@
 package se.sundsvall.incidentmapper.integration.jira;
 
 import static java.util.Optional.empty;
-import static org.zalando.problem.Status.BAD_REQUEST;
 
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
-import org.zalando.problem.Problem;
 
 import com.chavaillaz.client.jira.JiraClient;
+import com.chavaillaz.client.jira.domain.Attachment;
 import com.chavaillaz.client.jira.domain.Comment;
 import com.chavaillaz.client.jira.domain.Issue;
 
@@ -51,7 +50,7 @@ public class JiraIncidentClient {
 			return jiraClient.getIssueApi().addIssue(issue).get().getKey();
 		} catch (final Exception e) {
 			Thread.currentThread().interrupt();
-			throw Problem.valueOf(BAD_REQUEST, e.getMessage());
+			throw new JiraIntegrationException(e);
 		}
 	}
 
@@ -67,12 +66,12 @@ public class JiraIncidentClient {
 		jiraClient.getIssueApi().deleteComment(issueKey, commentId);
 	}
 
-	public String getAttachment(String attachmentId) {
+	public Attachment getAttachment(String attachmentId) {
 		try {
-			return jiraClient.getIssueApi().getAttachment(attachmentId).get().getContent();
+			return jiraClient.getIssueApi().getAttachment(attachmentId).get();
 		} catch (final Exception e) {
 			Thread.currentThread().interrupt();
-			throw Problem.valueOf(BAD_REQUEST, e.getMessage());
+			throw new JiraIntegrationException(e);
 		}
 	}
 }

@@ -1,6 +1,7 @@
 package se.sundsvall.incidentmapper.integration.jira;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -88,6 +89,54 @@ class JiraIncidentClientTest {
 		verify(issueMock).getKey();
 		verify(issueApiMock).addIssue(any(Issue.class));
 		verify(completableFutureIdentityMock).get();
+	}
+
+	@Test
+	void createIssueUsingImplicitProjectKey() throws Exception {
+
+		final var issueTypeName = "Bug";
+		final var issueSummary = "Test issue";
+		final var issueDescription = "Test description";
+		final var issueKey = "TEST-1";
+
+		when(issueMock.getKey()).thenReturn(issueKey);
+		when(jiraClientMock.getIssueApi()).thenReturn(issueApiMock);
+		when(issueApiMock.addIssue(any())).thenReturn(completableFutureIdentityMock);
+		when(completableFutureIdentityMock.get()).thenReturn(issueMock);
+
+		// Act
+		final var result = jiraClient.createIssue(issueTypeName, issueSummary, issueDescription);
+
+		// Assert
+		assertThat(result).isNotNull().isEqualTo(issueKey);
+
+		verify(jiraClientMock).getIssueApi();
+		verify(issueMock).getKey();
+		verify(issueApiMock).addIssue(any(Issue.class));
+		verify(completableFutureIdentityMock).get();
+	}
+
+	@Test
+	void createIssueThrowsException() throws Exception {
+
+		// Arrange
+		final var projectKey = "TEST";
+		final var issueTypeName = "Bug";
+		final var issueSummary = "Test issue";
+		final var issueDescription = "Test description";
+
+		when(jiraClientMock.getIssueApi()).thenReturn(issueApiMock);
+		when(issueApiMock.addIssue(any())).thenThrow(new RuntimeException("Error"));
+
+		// Act
+		final var exception = assertThrows(JiraIntegrationException.class, () -> jiraClient.createIssue(projectKey, issueTypeName, issueSummary, issueDescription));
+
+		// Assert
+		assertThat(exception).isNotNull();
+		assertThat(exception.getMessage()).isEqualTo("java.lang.RuntimeException: Error");
+
+		verify(jiraClientMock).getIssueApi();
+		verify(issueApiMock).addIssue(any(Issue.class));
 	}
 
 	@Test
@@ -209,10 +258,32 @@ class JiraIncidentClientTest {
 		final var result = jiraClient.getAttachment(attachmentId);
 
 		// Assert
-		assertThat(result).isNotNull().isEqualTo(content);
+		assertThat(result).isNotNull().isEqualTo(attachment);
 
 		verify(jiraClientMock).getIssueApi();
 		verify(issueApiMock).getAttachment(attachmentId);
-		verify(completableFutureIssueMock).get();
+		verify(completableFutureAttachmentMock).get();
+	}
+
+	@Test
+	void getAttachmentThrowsException() throws InterruptedException, ExecutionException {
+
+		final var content = "content";
+		final var attachmentId = "666";
+		final var attachment = new Attachment();
+		attachment.setContent(content);
+
+		when(jiraClientMock.getIssueApi()).thenReturn(issueApiMock);
+		when(issueApiMock.getAttachment(attachmentId)).thenThrow(new RuntimeException("Error"));
+
+		// Act
+		final var exception = assertThrows(JiraIntegrationException.class, () -> jiraClient.getAttachment(attachmentId));
+
+		// Assert
+		assertThat(exception).isNotNull();
+		assertThat(exception.getMessage()).isEqualTo("java.lang.RuntimeException: Error");
+
+		verify(jiraClientMock).getIssueApi();
+		verify(issueApiMock).getAttachment(attachmentId);
 	}
 }

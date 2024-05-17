@@ -21,6 +21,7 @@
 		<shedlock.version>5.13.0</shedlock.version>
 		<jsoup.version>1.17.2</jsoup.version>
 		<jira-client.version>2.2.0</jira-client.version>
+		<faux-pas.version>0.9.0</faux-pas.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -45,6 +46,11 @@
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
 			<version>${jsoup.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.zalando</groupId>
+			<artifactId>faux-pas</artifactId>
+			<version>${faux-pas.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.chavaillaz</groupId>

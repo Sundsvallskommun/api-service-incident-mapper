@@ -1,5 +1,6 @@
 package se.sundsvall.incidentmapper.service;
 
+import static java.time.OffsetDateTime.MIN;
 import static java.time.OffsetDateTime.now;
 import static java.time.ZoneId.systemDefault;
 import static java.util.Arrays.asList;
@@ -11,13 +12,13 @@ import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.POB_
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
 import static se.sundsvall.incidentmapper.service.Constants.JIRA_ISSUE_TITLE_TEMPLATE;
 import static se.sundsvall.incidentmapper.service.Constants.JIRA_ISSUE_TYPE;
+import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toAttachmentPayload;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toCaseInternalNotesCustomMemo;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toCaseInternalNotesCustomMemoPayload;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toDescription;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toProblemMemo;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toResponsibleGroupPayload;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,21 +45,15 @@ import se.sundsvall.incidentmapper.service.mapper.PobMapper;
 public class IncidentService {
 
 	static final List<Status> OPEN_FOR_MODIFICATION_STATUS_LIST = asList(null, SYNCHRONIZED); // Status is only modifiable if current value is one of these.
-
 	static final List<Status> DBCLEAN_ELIGIBLE_FOR_REMOVAL_STATUS_LIST = List.of(CLOSED); // Status is only eligible for removal if one of these during dbcleaner-execution.
-
 	static final Integer DBCLEAN_CLOSED_INCIDENTS_TTL_IN_DAYS = 10;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(IncidentService.class);
-
 	private static final String LOG_MSG_CLEANING_DELETE_RANGE = "Removing all incidents with modified '{}' (or earlier) and with status matching '{}'.";
-
 	private static final List<String> JIRA_CLOSED_STATUSES = List.of("Closed", "Done", "Won't Do");
 
 	private final IncidentRepository incidentRepository;
-
 	private final JiraIncidentClient jiraIncidentClient;
-
 	private final POBClient pobClient;
 
 	@Value("${integration.jira.username}")
@@ -151,7 +146,6 @@ public class IncidentService {
 			.withStatus(SYNCHRONIZED)
 			.withJiraIssueKey(jiraIssueKey)
 			.withLastSynchronizedJira(now(systemDefault())));
-
 	}
 
 	public void updatePob() {
@@ -188,7 +182,7 @@ public class IncidentService {
 
 	private void updatePobComment(final IncidentEntity entity, final Issue jiraIssue) {
 		jiraIssue.getFields().getComments().stream()
-			.filter(comment -> comment.getCreated().isAfter(Optional.ofNullable(entity.getLastSynchronizedPob()).orElse(OffsetDateTime.MIN)))
+			.filter(comment -> comment.getCreated().isAfter(Optional.ofNullable(entity.getLastSynchronizedPob()).orElse(MIN)))
 			.filter(comment -> comment.getAuthor() != null)
 			.filter(comment -> !comment.getAuthor().getName().equals(systemUser))
 			.forEach(comment -> updatePobWithComment(entity, comment.getBody()));
@@ -212,15 +206,13 @@ public class IncidentService {
 	}
 
 	private void updatePobAttachment(final IncidentEntity entity, final PobPayload pobAttachments, final Attachment jiraAttachment) {
-
 		final boolean attachmentExists = pobAttachments.getLinks().stream()
 			.anyMatch(pobAttachment -> pobAttachment.getRelation().equals(jiraAttachment.getFilename()));
 
 		if (!attachmentExists) {
-			final var base64String = jiraIncidentClient.getAttachment(jiraAttachment.getId());
-			final var payload = PobMapper.toAttachmentPayload(jiraAttachment, base64String);
+			final var base64String = jiraAttachment.getContent();
+			final var payload = toAttachmentPayload(jiraAttachment, base64String);
 			pobClient.createAttachment(entity.getPobIssueKey(), payload);
 		}
 	}
-
 }

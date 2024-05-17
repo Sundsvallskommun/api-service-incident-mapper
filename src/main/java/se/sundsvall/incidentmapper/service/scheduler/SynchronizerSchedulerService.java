@@ -5,9 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import se.sundsvall.incidentmapper.service.IncidentService;
-
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import se.sundsvall.incidentmapper.service.IncidentService;
 
 @Component
 public class SynchronizerSchedulerService {
@@ -36,5 +35,4 @@ public class SynchronizerSchedulerService {
 		incidentService.updatePob();
 		LOGGER.info("End POB updates");
 	}
-
 }

@@ -50,6 +50,7 @@ import se.sundsvall.incidentmapper.integration.db.IncidentRepository;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
 import se.sundsvall.incidentmapper.integration.db.model.enums.Status;
 import se.sundsvall.incidentmapper.integration.jira.JiraIncidentClient;
+import se.sundsvall.incidentmapper.integration.jira.configuration.JiraProperties;
 import se.sundsvall.incidentmapper.integration.pob.POBClient;
 
 @ExtendWith({ MockitoExtension.class, ResourceLoaderExtension.class })
@@ -76,6 +77,9 @@ class IncidentServiceTest {
 	@Captor
 	private ArgumentCaptor<Status> statusCaptor;
 
+	@Captor
+	private ArgumentCaptor<Issue> jiraIssueCaptor;
+
 	@Test
 	void handleIncidentRequestNew() {
 
@@ -91,7 +95,7 @@ class IncidentServiceTest {
 
 		// Assert
 		verify(incidentRepositoryMock).findByPobIssueKey(pobIssueKey);
-		verify(incidentRepositoryMock).save(incidentEntityCaptor.capture());
+		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
 
 		final var capturedValue = incidentEntityCaptor.getValue();
 		assertThat(capturedValue.getPobIssueKey()).isEqualTo(pobIssueKey);
@@ -119,7 +123,7 @@ class IncidentServiceTest {
 
 		// Assert
 		verify(incidentRepositoryMock).findByPobIssueKey(pobIssueKey);
-		verify(incidentRepositoryMock).save(incidentEntityCaptor.capture());
+		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
 
 		final var capturedValue = incidentEntityCaptor.getValue();
 		assertThat(capturedValue.getPobIssueKey()).isEqualTo(pobIssueKey);
@@ -147,7 +151,7 @@ class IncidentServiceTest {
 
 		// Assert
 		verify(incidentRepositoryMock).findByPobIssueKey(pobIssueKey);
-		verify(incidentRepositoryMock).save(incidentEntityCaptor.capture());
+		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
 
 		final var capturedValue = incidentEntityCaptor.getValue();
 		assertThat(capturedValue.getPobIssueKey()).isEqualTo(pobIssueKey);
@@ -159,16 +163,14 @@ class IncidentServiceTest {
 
 		// Arrange
 		final var jiraIssueKey = "JIR-12345";
-		final var lastSynchronizedJira = now().minusDays(1);
+		final var lastSynchronizedPob = now().minusDays(1);
 		final var existingIncident = IncidentEntity.create()
 			.withJiraIssueKey(jiraIssueKey)
-			.withLastSynchronizedJira(lastSynchronizedJira)
+			.withLastSynchronizedPob(lastSynchronizedPob)
 			.withStatus(SYNCHRONIZED);
 
-		final var fields = new Fields();
-		fields.setUpdated(now());
-		final var jiraIssue = new Issue();
-		jiraIssue.setFields(fields);
+		final var jiraIssue = Issue.fromKey(jiraIssueKey);
+		jiraIssue.getFields().setUpdated(now());
 
 		when(incidentRepositoryMock.findByStatus(SYNCHRONIZED)).thenReturn(List.of(existingIncident));
 		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(Optional.of(jiraIssue));
@@ -310,6 +312,7 @@ class IncidentServiceTest {
 
 		when(incidentRepositoryMock.findByStatus(JIRA_INITIATED_EVENT)).thenReturn(List.of(incidentEntity));
 		when(jiraClientMock.getIssue(incidentEntity.getJiraIssueKey())).thenReturn(Optional.of(jiraIssue));
+		when(jiraClientMock.getProperties()).thenReturn(new JiraProperties("user", null, null, null));
 
 		when(pobClientMock.getAttachments(incidentEntity.getPobIssueKey())).thenReturn(Optional.of(pobAttachments));
 		when(pobClientMock.getProblemMemo(incidentEntity.getPobIssueKey())).thenReturn(Optional.of(memoPayload));
@@ -319,13 +322,62 @@ class IncidentServiceTest {
 
 		// Assert
 		verify(incidentRepositoryMock).findByStatus(JIRA_INITIATED_EVENT);
-		verify(jiraClientMock).getIssue(incidentEntity.getJiraIssueKey());
+		verify(jiraClientMock, times(2)).getIssue(incidentEntity.getJiraIssueKey());
 		verify(pobClientMock).getAttachments(incidentEntity.getPobIssueKey());
-		verify(pobClientMock).getProblemMemo(incidentEntity.getPobIssueKey());
+		verify(pobClientMock, times(2)).getProblemMemo(incidentEntity.getPobIssueKey());
 		verify(pobClientMock, times(3)).updateCase(any());
 		verify(pobClientMock).createAttachment(any(), any());
-		verify(incidentRepositoryMock).saveAndFlush(incidentEntity);
+		verify(incidentRepositoryMock, times(2)).saveAndFlush(incidentEntity);
+	}
 
+	@Test
+	void updateJira(
+		@Load(value = "/IncidentServiceTest/pobPayloadCase.json", as = JSON) final PobPayload pobPayload,
+		@Load(value = "/IncidentServiceTest/pobPayloadCaseInternalNotesCustomMemo.json", as = JSON) final PobPayload pobPayloadCaseInternalNotesCustomMemo,
+		@Load(value = "/IncidentServiceTest/pobPayloadProblemMemo.json", as = JSON) final PobPayload pobPayloadProblemMemo) {
+
+		// Arrange
+		final var pobIssueKey = "POB-12345";
+		final var jiraIssueKey = "JIR-12345";
+		final var jiraIssue = Issue.fromKey(jiraIssueKey);
+		jiraIssue.getFields().setComments(new Comments());
+
+		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(Optional.of(jiraIssue));
+		when(pobClientMock.getCase(pobIssueKey)).thenReturn(Optional.ofNullable(pobPayload));
+		when(pobClientMock.getCaseInternalNotesCustom(pobIssueKey)).thenReturn(Optional.of(pobPayloadCaseInternalNotesCustomMemo));
+		when(pobClientMock.getProblemMemo(pobIssueKey)).thenReturn(Optional.of(pobPayloadProblemMemo));
+		when(incidentRepositoryMock.findByStatus(POB_INITIATED_EVENT)).thenReturn(List.of(
+			IncidentEntity.create()
+				.withId(UUID.randomUUID().toString())
+				.withPobIssueKey(pobIssueKey)
+				.withJiraIssueKey(jiraIssueKey)
+				.withStatus(POB_INITIATED_EVENT)));
+
+		// Act
+		incidentService.updateJira();
+
+		// Assert
+		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
+		verify(jiraClientMock, never()).createIssue(any(), any(), any());
+		verify(jiraClientMock).updateIssue(jiraIssueCaptor.capture());
+		verify(jiraClientMock).getIssue(jiraIssueKey);
+		verify(jiraClientMock).addComment("JIR-12345", "2024-05-08 14:09 Kommentar");
+		verify(pobClientMock).getCase(pobIssueKey);
+		verify(pobClientMock).getCaseInternalNotesCustom(pobIssueKey);
+		verify(pobClientMock).getProblemMemo(pobIssueKey);
+
+		final var capturedIncidentEntity = incidentEntityCaptor.getValue();
+		assertThat(capturedIncidentEntity).isNotNull();
+		assertThat(capturedIncidentEntity.getStatus()).isEqualTo(SYNCHRONIZED);
+		assertThat(capturedIncidentEntity.getPobIssueKey()).isEqualTo(pobIssueKey);
+		assertThat(capturedIncidentEntity.getJiraIssueKey()).isEqualTo(jiraIssueKey);
+		assertThat(capturedIncidentEntity.getLastSynchronizedJira()).isCloseTo(now(), within(2, SECONDS));
+
+		final var capturedJiraIssuey = jiraIssueCaptor.getValue();
+		assertThat(capturedJiraIssuey).isNotNull();
+		assertThat(capturedJiraIssuey.getFields()).hasAllNullFieldsOrPropertiesExcept("description", "summary", "customFields");
+		assertThat(capturedJiraIssuey.getFields().getDescription()).isEqualTo("This is a description");
+		assertThat(capturedJiraIssuey.getFields().getSummary()).isEqualTo("This works!");
 	}
 
 	@Test
@@ -354,7 +406,7 @@ class IncidentServiceTest {
 		incidentService.updateJira();
 
 		// Assert
-		verify(incidentRepositoryMock).save(incidentEntityCaptor.capture());
+		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
 		verify(jiraClientMock).createIssue("Bug", "Supportärende (This works!).", "This is a description");
 		verify(jiraClientMock).getIssue(jiraIssueKey);
 		verify(jiraClientMock).addComment("JIR-12345", "2024-05-08 14:09 Kommentar");

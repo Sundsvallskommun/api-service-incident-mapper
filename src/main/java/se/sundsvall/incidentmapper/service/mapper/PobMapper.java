@@ -23,33 +23,27 @@ import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
 
 public final class PobMapper {
 
-	public static final String DESCRIPTION = "description";
+	// Fields
+	static final String DESCRIPTION = "description";
+	static final String BINARY_DATA_TYPE = "BinaryData";
+	static final String ID = "Id";
+	static final String CASE_TYPE = "Case";
+	static final String FILE_DATA = "FileData";
+	static final String RESPONSIBLE = "Responsible";
+	static final String RESPONSIBLE_GROUP = "ResponsibleGroup";
 
-	public static final String BINARY_DATA = "BinaryData";
-
-	public static final String FILE_DATA = "FileData";
-
+	// Field values
 	private static final String DATA_URL_FORMAT = "data:%s;base64,%s";
-
-	private static final String RESPONSIBLE = "Responsible";
-
-	private static final String RESPONSIBLE_GROUP = "ResponsibleGroup";
-
 	private static final String IT_SUPPORT = "IT Support";
-
 	private static final String EXTENSION = ".txt";
 
-	private static final String ID = "id";
-
-	private static final Gson GSON = new GsonBuilder().setFieldNamingPolicy(UPPER_CAMEL_CASE).create();
-
+	// Json paths
+	private static final String CASE_INTERNAL_NOTES_CUSTOM = "CaseInternalNotesCustom";
 	private static final String JSON_PATH_DATA_DESCRIPTION = "$['Data']['Description']";
-
 	private static final String JSON_PATH_MEMO_PROBLEM_MEMO = "$['Memo']['Problem']['Memo']";
-
 	private static final String JSON_PATH_MEMO_CASE_INTERNAL_NOTES_CUSTOM_MEMO = "$['Memo']['CaseInternalNotesCustom']['Memo']";
 
-	private static final String CASE_INTERNAL_NOTES_CUSTOM = "CaseInternalNotesCustom";
+	private static final Gson GSON = new GsonBuilder().setFieldNamingPolicy(UPPER_CAMEL_CASE).create();
 
 	private PobMapper() {
 		// No instantiation allowed.
@@ -57,23 +51,28 @@ public final class PobMapper {
 
 	public static PobPayload toAttachmentPayload(final Attachment jiraAttachment, final String base64String) {
 		return new PobPayload()
-			.type(BINARY_DATA)
+			.type(BINARY_DATA_TYPE)
 			.data(Map.of(FILE_DATA, DATA_URL_FORMAT.formatted(jiraAttachment.getFilename(), base64String)));
 	}
 
 	public static PobPayload toDescriptionPayload(final IncidentEntity entity, final String jiraDescription) {
-		return new PobPayload().data(Map.of(ID, entity.getId(), DESCRIPTION, jiraDescription));
+		final Map<String, Object> data = Map.of(ID, entity.getPobIssueKey(), DESCRIPTION, jiraDescription);
+		return new PobPayload()
+			.type(CASE_TYPE)
+			.data(data);
 	}
 
 	public static PobPayload toResponsibleGroupPayload(final IncidentEntity entity) {
-		final Map<String, Object> data = Map.of(ID, entity.getId(), RESPONSIBLE, "", RESPONSIBLE_GROUP, IT_SUPPORT);
+		final Map<String, Object> data = Map.of(ID, entity.getPobIssueKey(), RESPONSIBLE, "", RESPONSIBLE_GROUP, IT_SUPPORT);
 		return new PobPayload()
+			.type(CASE_TYPE)
 			.data(data);
 	}
 
 	public static PobPayload toCaseInternalNotesCustomMemoPayload(final IncidentEntity entity, final String comment) {
-		final Map<String, Object> data = Map.of(ID, entity.getId());
+		final Map<String, Object> data = Map.of(ID, entity.getPobIssueKey());
 		return new PobPayload()
+			.type(CASE_TYPE)
 			.data(data)
 			.memo(Map.of(CASE_INTERNAL_NOTES_CUSTOM, new PobMemo()
 				.extension(EXTENSION)

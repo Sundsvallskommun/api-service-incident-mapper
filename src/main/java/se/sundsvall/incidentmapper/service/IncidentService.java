@@ -24,7 +24,6 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,9 +55,6 @@ public class IncidentService {
 	private final JiraIncidentClient jiraIncidentClient;
 	private final POBClient pobClient;
 
-	@Value("${integration.jira.username}")
-	public String systemUser;
-
 	public IncidentService(final IncidentRepository incidentRepository, final JiraIncidentClient jiraClient, final POBClient pobClient) {
 		this.incidentRepository = incidentRepository;
 		this.jiraIncidentClient = jiraClient;
@@ -75,7 +71,7 @@ public class IncidentService {
 			incidentEntity.withStatus(POB_INITIATED_EVENT);
 		}
 
-		incidentRepository.save(incidentEntity);
+		incidentRepository.saveAndFlush(incidentEntity);
 	}
 
 	/**
@@ -91,14 +87,14 @@ public class IncidentService {
 		incidentRepository.findByStatus(SYNCHRONIZED)
 			.forEach(incident -> jiraIncidentClient.getIssue(incident.getJiraIssueKey()).ifPresentOrElse(jiraIssue -> {
 				final var lastModifiedJira = jiraIssue.getFields().getUpdated();
-				final var lastSynchronizedJira = incident.getLastSynchronizedJira();
+				final var lastSynchronizedPob = incident.getLastSynchronizedPob();
 
-				if (anyNull(lastModifiedJira, lastSynchronizedJira)) {
-					LOGGER.info("Null dates discovered. lastModifiedJira '{}', lastSynchronizedJira '{}'. Skipping record.", lastModifiedJira, lastSynchronizedJira);
+				if (anyNull(lastModifiedJira, lastSynchronizedPob)) {
+					LOGGER.info("Null dates discovered. lastModifiedJira '{}', lastSynchronizedPob '{}'. Skipping record.", lastModifiedJira, lastSynchronizedPob);
 					return;
 				}
 
-				if (lastModifiedJira.isAfter(lastSynchronizedJira)) { // Issue has been updated in Jira after last synchronization.
+				if (lastModifiedJira.isAfter(lastSynchronizedPob)) { // Issue has been updated in Jira after last synchronization towards POB.
 					LOGGER.info("Updating database. Set status to '{}' on mapping with jiraIssueType '{}'.", JIRA_INITIATED_EVENT, incident.getJiraIssueKey());
 					incidentRepository.saveAndFlush(incident.withStatus(JIRA_INITIATED_EVENT));
 				}
@@ -121,28 +117,66 @@ public class IncidentService {
 					createJiraIssue(incident);
 					return;
 				}
-				updateJiraIssue(incident);
+				updateJira(incident);
 			});
 	}
 
-	public void updateJiraIssue(final IncidentEntity incident) {
-		// TODO: Implement this.
+	public void updateJira(final IncidentEntity incident) {
 
-	}
-
-	public void createJiraIssue(final IncidentEntity incident) {
-
+		// Fetch from POB.
 		final var summary = toDescription(pobClient.getCase(incident.getPobIssueKey()).orElse(null));
 		final var description = toProblemMemo(pobClient.getProblemMemo(incident.getPobIssueKey()).orElse(null));
 		final var comments = toCaseInternalNotesCustomMemo(pobClient.getCaseInternalNotesCustom(incident.getPobIssueKey()).orElse(null));
 
-		// Create issue.
+		// Fetch from Jira.
+		final var jiraIssueKey = incident.getJiraIssueKey();
+		final var jiraIssue = jiraIncidentClient.getIssue(jiraIssueKey);
+
+		// Update comments (remove all + add existing from POB).
+		jiraIssue.ifPresentOrElse(issue -> {
+
+			// Update issue in Jira
+			final var updateIssue = Issue.fromKey(jiraIssueKey);
+			updateIssue.getFields().setDescription(description);
+			updateIssue.getFields().setSummary(summary);
+			jiraIncidentClient.updateIssue(updateIssue);
+
+			// Delete all existing comments in Jira.
+			issue.getFields().getComments().stream()
+				.forEach(comment -> jiraIncidentClient.deleteComment(jiraIssueKey, comment.getId()));
+
+			// Add new comment (with data from POB).
+			jiraIncidentClient.addComment(jiraIssueKey, comments);
+
+			// Save state in DB
+			incidentRepository.saveAndFlush(incident
+				.withStatus(SYNCHRONIZED)
+				.withLastSynchronizedJira(now(systemDefault())));
+
+		}, () -> // Issue is not present in Jira.
+
+		// Save the mapping as POB_INITIATED_EVENT with empty jiraIssueKey (this will trigger a create).
+		incidentRepository.saveAndFlush(incident
+			.withStatus(POB_INITIATED_EVENT)
+			.withJiraIssueKey(null)
+			.withLastSynchronizedJira(null)));
+	}
+
+	public void createJiraIssue(final IncidentEntity incident) {
+
+		// Fetch from POB.
+		final var summary = toDescription(pobClient.getCase(incident.getPobIssueKey()).orElse(null));
+		final var description = toProblemMemo(pobClient.getProblemMemo(incident.getPobIssueKey()).orElse(null));
+		final var comments = toCaseInternalNotesCustomMemo(pobClient.getCaseInternalNotesCustom(incident.getPobIssueKey()).orElse(null));
+
+		// Create issue in Jira.
 		final var jiraIssueKey = jiraIncidentClient.createIssue(JIRA_ISSUE_TYPE, JIRA_ISSUE_TITLE_TEMPLATE.formatted(summary), description);
 
-		// Add comments.
+		// Add comments in Jira.
 		jiraIncidentClient.getIssue(jiraIssueKey).ifPresent(issue -> jiraIncidentClient.addComment(jiraIssueKey, comments));
 
-		incidentRepository.save(incident
+		// Save state in DB
+		incidentRepository.saveAndFlush(incident
 			.withStatus(SYNCHRONIZED)
 			.withJiraIssueKey(jiraIssueKey)
 			.withLastSynchronizedJira(now(systemDefault())));
@@ -162,8 +196,8 @@ public class IncidentService {
 		updatePobComment(entity, jiraIssue);
 		updatePobDescription(entity, jiraIssue);
 		updatePobAttachments(entity, jiraIssue.getFields().getAttachments().getAttachments(), pobAttachments);
-		entity.setLastSynchronizedPob(now(systemDefault()));
-		incidentRepository.saveAndFlush(entity);
+		updateJira(entity);
+		incidentRepository.saveAndFlush(entity.withLastSynchronizedPob(now(systemDefault())));
 	}
 
 	private void checkJiraStatus(final IncidentEntity entity, final Issue jiraIssue) {
@@ -184,7 +218,7 @@ public class IncidentService {
 		jiraIssue.getFields().getComments().stream()
 			.filter(comment -> comment.getCreated().isAfter(Optional.ofNullable(entity.getLastSynchronizedPob()).orElse(MIN)))
 			.filter(comment -> comment.getAuthor() != null)
-			.filter(comment -> !comment.getAuthor().getName().equals(systemUser))
+			.filter(comment -> !comment.getAuthor().getName().equals(jiraIncidentClient.getProperties().username()))
 			.forEach(comment -> updatePobWithComment(entity, comment.getBody()));
 	}
 

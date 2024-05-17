@@ -3,27 +3,30 @@ package se.sundsvall.incidentmapper.service.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.dept44.test.annotation.resource.Load.ResourceType.JSON;
 
-import com.chavaillaz.client.jira.domain.Attachment;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import com.chavaillaz.client.jira.domain.Attachment;
+
+import generated.se.sundsvall.pob.PobPayload;
 import se.sundsvall.dept44.test.annotation.resource.Load;
 import se.sundsvall.dept44.test.extension.ResourceLoaderExtension;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
-
-import generated.se.sundsvall.pob.PobPayload;
 
 @ExtendWith(ResourceLoaderExtension.class)
 class PobMapperTest {
 
 	@Test
 	void testToAttachmentPayload() {
+
 		// Arrange
 		final var attachment = new Attachment();
 		attachment.setFilename("testFile");
 		final var base64String = "testBase64String";
+
 		// Act
 		final var result = PobMapper.toAttachmentPayload(attachment, base64String);
+
 		// Assert
 		assertThat(result).isNotNull();
 		assertThat(result.getData()).containsEntry("FileData", "data:testFile;base64,testBase64String");
@@ -31,42 +34,51 @@ class PobMapperTest {
 
 	@Test
 	void testToDescriptionPayload() {
+
 		// Arrange
-		final var entity = new IncidentEntity().withId("testId");
+		final var entity = new IncidentEntity().withPobIssueKey("testId");
 		final String jiraDescription = "testDescription";
+
 		// Act
-		final PobPayload result = PobMapper.toDescriptionPayload(entity, jiraDescription);
+		final var result = PobMapper.toDescriptionPayload(entity, jiraDescription);
+
 		// Assert
 		assertThat(result).isNotNull();
-		assertThat(result.getData()).containsEntry("id", "testId");
+		assertThat(result.getData()).containsEntry("Id", "testId");
 		assertThat(result.getData()).containsEntry("description", "testDescription");
 	}
 
 	@Test
 	void testToResponsibleGroupPayload() {
+
 		// Arrange
-		final var entity = new IncidentEntity().withId("testId");
+		final var entity = new IncidentEntity()
+			.withPobIssueKey("testId");
+
 		// Act
-		final PobPayload result = PobMapper.toResponsibleGroupPayload(entity);
+		final var result = PobMapper.toResponsibleGroupPayload(entity);
+
 		// Assert
 		assertThat(result).isNotNull();
-		assertThat(result.getData()).containsEntry("id", "testId");
+		assertThat(result.getData()).containsEntry("Id", "testId");
 		assertThat(result.getData()).containsEntry("ResponsibleGroup", "IT Support");
 	}
 
 	@Test
 	void testToCaseInternalNotesCustomMemoPayload() {
+
 		// Arrange
-		final var entity = new IncidentEntity().withId("testId");
+		final var entity = new IncidentEntity().withPobIssueKey("testId");
 		final var comment = "testComment";
+
 		// Act
-		final PobPayload result = PobMapper.toCaseInternalNotesCustomMemoPayload(entity, comment);
+		final var result = PobMapper.toCaseInternalNotesCustomMemoPayload(entity, comment);
+
 		// Assert
 		assertThat(result).isNotNull();
-		assertThat(result.getData()).containsEntry("id", "testId");
+		assertThat(result.getData()).containsEntry("Id", "testId");
 		assertThat(result.getMemo().get("CaseInternalNotesCustom").getMemo()).isEqualTo("testComment");
 	}
-
 
 	@Test
 	void toDescription(@Load(value = "/PobMapperTest/pobPayloadCase.json", as = JSON) final PobPayload pobPayload) {

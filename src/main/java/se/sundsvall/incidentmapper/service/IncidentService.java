@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.chavaillaz.client.jira.domain.Attachment;
+import com.chavaillaz.client.jira.domain.Comment;
 import com.chavaillaz.client.jira.domain.Issue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -225,11 +226,12 @@ public class IncidentService {
 			.filter(comment -> comment.getCreated().isAfter(Optional.ofNullable(entity.getLastSynchronizedPob()).orElse(MIN)))
 			.filter(comment -> comment.getAuthor() != null)
 			.filter(comment -> !comment.getAuthor().getName().equals(jiraIncidentClient.getProperties().username()))
-			.forEach(comment -> updatePobWithComment(entity, comment.getBody()));
+			.forEach(comment -> updatePobWithComment(entity, comment));
 	}
 
-	private void updatePobWithComment(final IncidentEntity entity, final String comment) {
-		pobClient.updateCase(toCaseInternalNotesCustomMemoPayload(entity, comment));
+	private void updatePobWithComment(final IncidentEntity entity, final Comment comment) {
+		pobClient.updateCase(toCaseInternalNotesCustomMemoPayload(entity, comment.getBody()));
+		jiraIncidentClient.deleteComment(entity.getJiraIssueKey(), comment.getId());
 	}
 
 	private void updatePobDescription(final IncidentEntity entity, final Issue jiraIssue) {

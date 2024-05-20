@@ -3,15 +3,15 @@ package se.sundsvall.incidentmapper.service.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.dept44.test.annotation.resource.Load.ResourceType.JSON;
 
+import com.chavaillaz.client.jira.domain.Attachment;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import com.chavaillaz.client.jira.domain.Attachment;
-
-import generated.se.sundsvall.pob.PobPayload;
 import se.sundsvall.dept44.test.annotation.resource.Load;
 import se.sundsvall.dept44.test.extension.ResourceLoaderExtension;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
+
+import generated.se.sundsvall.pob.PobPayload;
 
 @ExtendWith(ResourceLoaderExtension.class)
 class PobMapperTest {
@@ -40,12 +40,12 @@ class PobMapperTest {
 		final String jiraDescription = "testDescription";
 
 		// Act
-		final var result = PobMapper.toDescriptionPayload(entity, jiraDescription);
+		final var result = PobMapper.toProblemPayload(entity, jiraDescription);
 
 		// Assert
 		assertThat(result).isNotNull();
 		assertThat(result.getData()).containsEntry("Id", "testId");
-		assertThat(result.getData()).containsEntry("description", "testDescription");
+		assertThat(result.getMemo().get("Problem").getMemo()).isEqualTo("testDescription");
 	}
 
 	@Test

@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -35,7 +37,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.util.ResourceUtils;
 
 import com.chavaillaz.client.jira.domain.Attachment;
 import com.chavaillaz.client.jira.domain.Attachments;
@@ -86,6 +87,19 @@ class IncidentServiceTest {
 
 	@Captor
 	private ArgumentCaptor<Issue> jiraIssueCaptor;
+
+	private File file;
+
+	@BeforeEach
+	void before() throws Exception {
+		file = new File("test.png");
+		file.createNewFile();
+	}
+
+	@AfterEach
+	void after() {
+		file.delete();
+	}
 
 	@Test
 	void handleIncidentRequestNew() {
@@ -316,7 +330,6 @@ class IncidentServiceTest {
 		when(incidentRepositoryMock.findByStatus(JIRA_INITIATED_EVENT)).thenReturn(List.of(incidentEntity));
 		when(jiraClientMock.getIssue(incidentEntity.getJiraIssueKey())).thenReturn(Optional.of(jiraIssue));
 		when(jiraClientMock.getProperties()).thenReturn(new JiraProperties("user", null, null, null));
-
 		when(pobClientMock.getAttachments(incidentEntity.getPobIssueKey())).thenReturn(Optional.of(pobAttachments));
 		when(pobClientMock.getProblemMemo(incidentEntity.getPobIssueKey())).thenReturn(Optional.of(memoPayload));
 
@@ -357,7 +370,7 @@ class IncidentServiceTest {
 		when(pobClientMock.getProblemMemo(pobIssueKey)).thenReturn(Optional.of(pobPayloadProblemMemo));
 		when(pobClientMock.getAttachments(pobIssueKey)).thenReturn(Optional.ofNullable(pobPayloadAttachments));
 		when(pobClientMock.getAttachment(pobIssueKey, "1628120")).thenReturn(inputStreamResourceMock);
-		when(inputStreamResourceMock.getInputStream()).thenReturn(new FileInputStream(ResourceUtils.getFile("classpath:IncidentServiceTest/happy_dog.png")));
+		when(inputStreamResourceMock.getInputStream()).thenReturn(new FileInputStream(file));
 		when(incidentRepositoryMock.findByStatus(POB_INITIATED_EVENT)).thenReturn(List.of(
 			IncidentEntity.create()
 				.withId(UUID.randomUUID().toString())
@@ -396,10 +409,11 @@ class IncidentServiceTest {
 	}
 
 	@Test
-	void updateJiraWhenIssueDoesNotExistInJira(
+	void createJiraIssue(
 		@Load(value = "/IncidentServiceTest/pobPayloadCase.json", as = JSON) final PobPayload pobPayload,
 		@Load(value = "/IncidentServiceTest/pobPayloadCaseInternalNotesCustomMemo.json", as = JSON) final PobPayload pobPayloadCaseInternalNotesCustomMemo,
-		@Load(value = "/IncidentServiceTest/pobPayloadProblemMemo.json", as = JSON) final PobPayload pobPayloadProblemMemo) {
+		@Load(value = "/IncidentServiceTest/pobPayloadProblemMemo.json", as = JSON) final PobPayload pobPayloadProblemMemo,
+		@Load(value = "/IncidentServiceTest/pobPayloadAttachments.json", as = JSON) final PobPayload pobPayloadAttachments) throws Exception {
 
 		// Arrange
 		final var pobIssueKey = "POB-12345";
@@ -411,6 +425,9 @@ class IncidentServiceTest {
 		when(pobClientMock.getCase(pobIssueKey)).thenReturn(Optional.ofNullable(pobPayload));
 		when(pobClientMock.getCaseInternalNotesCustom(pobIssueKey)).thenReturn(Optional.of(pobPayloadCaseInternalNotesCustomMemo));
 		when(pobClientMock.getProblemMemo(pobIssueKey)).thenReturn(Optional.of(pobPayloadProblemMemo));
+		when(pobClientMock.getAttachments(pobIssueKey)).thenReturn(Optional.ofNullable(pobPayloadAttachments));
+		when(pobClientMock.getAttachment(pobIssueKey, "1628120")).thenReturn(inputStreamResourceMock);
+		when(inputStreamResourceMock.getInputStream()).thenReturn(new FileInputStream(file));
 		when(incidentRepositoryMock.findByStatus(POB_INITIATED_EVENT)).thenReturn(List.of(
 			IncidentEntity.create()
 				.withId(UUID.randomUUID().toString())
@@ -424,10 +441,13 @@ class IncidentServiceTest {
 		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
 		verify(jiraClientMock).createIssue("Bug", "Supportärende (This works!).", "This is a description");
 		verify(jiraClientMock).getIssue(jiraIssueKey);
-		verify(jiraClientMock).addComment("JIR-12345", "2024-05-08 14:09 Kommentar");
+		verify(jiraClientMock).addComment(jiraIssueKey, "2024-05-08 14:09 Kommentar");
+		verify(jiraClientMock).addAttachment(jiraIssueKey, new File("happy_dog.png"));
 		verify(pobClientMock).getCase(pobIssueKey);
 		verify(pobClientMock).getCaseInternalNotesCustom(pobIssueKey);
 		verify(pobClientMock).getProblemMemo(pobIssueKey);
+		verify(pobClientMock).getAttachments(pobIssueKey);
+		verify(pobClientMock).getAttachment(pobIssueKey, "1628120");
 
 		final var capturedIncidentEntity = incidentEntityCaptor.getValue();
 		assertThat(capturedIncidentEntity).isNotNull();

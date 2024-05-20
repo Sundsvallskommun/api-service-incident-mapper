@@ -10,6 +10,8 @@ import java.io.File;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -54,6 +56,19 @@ class JiraIncidentClientTest {
 
 	@InjectMocks
 	private JiraIncidentClient jiraClient;
+
+	private File file;
+
+	@BeforeEach
+	void before() throws Exception {
+		file = new File("tmp");
+		file.createNewFile();
+	}
+
+	@AfterEach
+	void after() {
+		file.delete();
+	}
 
 	@Test
 	void getProperties() {
@@ -244,10 +259,9 @@ class JiraIncidentClientTest {
 	}
 
 	@Test
-	void addAttachment() {
+	void addAttachment() throws Exception {
 
 		// Arrange
-		final var file = new File("test");
 		final var issueKey = "TEST-1";
 
 		when(jiraClientMock.getIssueApi()).thenReturn(issueApiMock);

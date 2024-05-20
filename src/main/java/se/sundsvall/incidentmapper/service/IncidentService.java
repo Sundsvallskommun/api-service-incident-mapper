@@ -1,6 +1,5 @@
 package se.sundsvall.incidentmapper.service;
 
-import static java.nio.file.Files.delete;
 import static java.time.OffsetDateTime.MIN;
 import static java.time.OffsetDateTime.now;
 import static java.time.ZoneId.systemDefault;
@@ -13,8 +12,6 @@ import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.CLOS
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.POB_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
-import static se.sundsvall.incidentmapper.service.Constants.JIRA_ISSUE_TITLE_TEMPLATE;
-import static se.sundsvall.incidentmapper.service.Constants.JIRA_ISSUE_TYPE;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toAttachmentPayload;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toCaseInternalNotesCustomMemo;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toCaseInternalNotesCustomMemoPayload;
@@ -49,22 +46,20 @@ import se.sundsvall.incidentmapper.service.mapper.PobMapper;
 @Transactional
 public class IncidentService {
 
-	static final List<Status> OPEN_FOR_MODIFICATION_STATUS_LIST = asList(null, SYNCHRONIZED); // Status is only modifiable if current value is one of these.
-
-	static final List<Status> DBCLEAN_ELIGIBLE_FOR_REMOVAL_STATUS_LIST = List.of(CLOSED); // Status is only eligible for removal if one of these during dbcleaner-execution.
-
-	static final Integer DBCLEAN_CLOSED_INCIDENTS_TTL_IN_DAYS = 10;
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(IncidentService.class);
 
 	private static final String LOG_MSG_CLEANING_DELETE_RANGE = "Removing all incidents with modified '{}' (or earlier) and with status matching '{}'.";
 
+	private static final List<Status> OPEN_FOR_MODIFICATION_STATUS_LIST = asList(null, SYNCHRONIZED); // Status is only modifiable if current value is one of these.
+	private static final List<Status> DBCLEAN_ELIGIBLE_FOR_REMOVAL_STATUS_LIST = List.of(CLOSED); // Status is only eligible for removal if one of these during dbcleaner-execution.
+	private static final Integer DBCLEAN_CLOSED_INCIDENTS_TTL_IN_DAYS = 10;
 	private static final List<String> JIRA_CLOSED_STATUSES = List.of("Closed", "Done", "Won't Do");
 
+	private static final String JIRA_ISSUE_TYPE = "Bug";
+	private static final String JIRA_ISSUE_TITLE_TEMPLATE = "Supportärende (%s).";
+
 	private final IncidentRepository incidentRepository;
-
 	private final JiraIncidentClient jiraIncidentClient;
-
 	private final POBClient pobClient;
 
 	public IncidentService(final IncidentRepository incidentRepository, final JiraIncidentClient jiraClient, final POBClient pobClient) {
@@ -173,14 +168,7 @@ public class IncidentService {
 				.forEach(attachment -> jiraIncidentClient.deleteAttachment(attachment.getId()));
 
 			// Add attachments.
-			getPobAttachments(incident).forEach(attachment -> {
-				jiraIncidentClient.addAttachment(jiraIssueKey, attachment);
-				try {
-					delete(attachment.toPath());
-				} catch (final IOException e) {
-					LOGGER.error("Error cleaning up attachment file: '{}'", attachment.toPath(), e);
-				}
-			});
+			getPobAttachments(incident).forEach(attachment -> jiraIncidentClient.addAttachment(jiraIssueKey, attachment));
 
 			// Save state in DB
 			incidentRepository.saveAndFlush(incident
@@ -210,14 +198,7 @@ public class IncidentService {
 		jiraIncidentClient.getIssue(jiraIssueKey).ifPresent(issue -> jiraIncidentClient.addComment(jiraIssueKey, comments));
 
 		// Add attachments.
-		getPobAttachments(incident).forEach(attachment -> {
-			jiraIncidentClient.addAttachment(jiraIssueKey, attachment);
-			try {
-				delete(attachment.toPath());
-			} catch (final IOException e) {
-				LOGGER.error("Error cleaning up attachment file: '{}'", attachment.toPath(), e);
-			}
-		});
+		getPobAttachments(incident).forEach(attachment -> jiraIncidentClient.addAttachment(jiraIssueKey, attachment));
 
 		// Save state in DB
 		incidentRepository.saveAndFlush(incident

@@ -22,15 +22,13 @@ import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toResponsible
 import java.util.List;
 import java.util.Optional;
 
+import com.chavaillaz.client.jira.domain.Attachment;
+import com.chavaillaz.client.jira.domain.Issue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.chavaillaz.client.jira.domain.Attachment;
-import com.chavaillaz.client.jira.domain.Issue;
-
-import generated.se.sundsvall.pob.PobPayload;
 import se.sundsvall.incidentmapper.api.model.IncidentRequest;
 import se.sundsvall.incidentmapper.integration.db.IncidentRepository;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
@@ -39,20 +37,28 @@ import se.sundsvall.incidentmapper.integration.jira.JiraIncidentClient;
 import se.sundsvall.incidentmapper.integration.pob.POBClient;
 import se.sundsvall.incidentmapper.service.mapper.PobMapper;
 
+import generated.se.sundsvall.pob.PobPayload;
+
 @Service
 @Transactional
 public class IncidentService {
 
 	static final List<Status> OPEN_FOR_MODIFICATION_STATUS_LIST = asList(null, SYNCHRONIZED); // Status is only modifiable if current value is one of these.
+
 	static final List<Status> DBCLEAN_ELIGIBLE_FOR_REMOVAL_STATUS_LIST = List.of(CLOSED); // Status is only eligible for removal if one of these during dbcleaner-execution.
+
 	static final Integer DBCLEAN_CLOSED_INCIDENTS_TTL_IN_DAYS = 10;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(IncidentService.class);
+
 	private static final String LOG_MSG_CLEANING_DELETE_RANGE = "Removing all incidents with modified '{}' (or earlier) and with status matching '{}'.";
+
 	private static final List<String> JIRA_CLOSED_STATUSES = List.of("Closed", "Done", "Won't Do");
 
 	private final IncidentRepository incidentRepository;
+
 	private final JiraIncidentClient jiraIncidentClient;
+
 	private final POBClient pobClient;
 
 	public IncidentService(final IncidentRepository incidentRepository, final JiraIncidentClient jiraClient, final POBClient pobClient) {
@@ -155,11 +161,11 @@ public class IncidentService {
 
 		}, () -> // Issue is not present in Jira.
 
-		// Save the mapping as POB_INITIATED_EVENT with empty jiraIssueKey (this will trigger a create).
-		incidentRepository.saveAndFlush(incident
-			.withStatus(POB_INITIATED_EVENT)
-			.withJiraIssueKey(null)
-			.withLastSynchronizedJira(null)));
+			// Save the mapping as POB_INITIATED_EVENT with empty jiraIssueKey (this will trigger a create).
+			incidentRepository.saveAndFlush(incident
+				.withStatus(POB_INITIATED_EVENT)
+				.withJiraIssueKey(null)
+				.withLastSynchronizedJira(null)));
 	}
 
 	public void createJiraIssue(final IncidentEntity incident) {
@@ -231,7 +237,7 @@ public class IncidentService {
 		final var jiraDescription = jiraIssue.getFields().getDescription();
 
 		if ((jiraDescription != null) && !jiraDescription.equals(pobDescription)) {
-			pobClient.updateCase(PobMapper.toDescriptionPayload(entity, jiraDescription));
+			pobClient.updateCase(PobMapper.toProblemPayload(entity, jiraDescription));
 		}
 	}
 
@@ -249,4 +255,5 @@ public class IncidentService {
 			pobClient.createAttachment(entity.getPobIssueKey(), payload);
 		}
 	}
+
 }

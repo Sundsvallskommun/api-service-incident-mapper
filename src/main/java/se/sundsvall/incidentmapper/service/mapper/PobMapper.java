@@ -43,7 +43,7 @@ public final class PobMapper {
 
 	private static final String IT_SUPPORT = "IT Support";
 
-	private static final String EXTENSION = ".txt";
+	private static final String EXTENSION = ".html";
 
 	// Json paths
 	private static final String CASE_INTERNAL_NOTES_CUSTOM = "CaseInternalNotesCustom";

@@ -57,15 +57,6 @@
 			<artifactId>jira-client</artifactId>
 			<version>${jira-client.version}</version>
 		</dependency>
-<dependency>
-    <groupId>org.zalando</groupId>
-    <artifactId>logbook-httpclient5</artifactId>
-</dependency>
-<dependency>
-    <groupId>org.apache.httpcomponents.client5</groupId>
-    <artifactId>httpclient5</artifactId>
-</dependency>
-		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>

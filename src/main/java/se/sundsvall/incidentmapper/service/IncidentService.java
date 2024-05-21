@@ -4,14 +4,14 @@ import static java.time.OffsetDateTime.MIN;
 import static java.time.OffsetDateTime.now;
 import static java.time.ZoneId.systemDefault;
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang3.ObjectUtils.anyNull;
+import static java.util.Collections.emptyList;
+import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.CLOSED;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.POB_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
-import static se.sundsvall.incidentmapper.service.Constants.JIRA_ISSUE_TITLE_TEMPLATE;
-import static se.sundsvall.incidentmapper.service.Constants.JIRA_ISSUE_TYPE;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toAttachmentPayload;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toCaseInternalNotesCustomMemo;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toCaseInternalNotesCustomMemoPayload;
@@ -19,16 +19,21 @@ import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toDescription
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toProblemMemo;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toResponsibleGroupPayload;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
-import com.chavaillaz.client.jira.domain.Attachment;
-import com.chavaillaz.client.jira.domain.Issue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.chavaillaz.client.jira.domain.Attachment;
+import com.chavaillaz.client.jira.domain.Issue;
+
+import generated.se.sundsvall.pob.PobPayload;
 import se.sundsvall.incidentmapper.api.model.IncidentRequest;
 import se.sundsvall.incidentmapper.integration.db.IncidentRepository;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
@@ -37,28 +42,24 @@ import se.sundsvall.incidentmapper.integration.jira.JiraIncidentClient;
 import se.sundsvall.incidentmapper.integration.pob.POBClient;
 import se.sundsvall.incidentmapper.service.mapper.PobMapper;
 
-import generated.se.sundsvall.pob.PobPayload;
-
 @Service
 @Transactional
 public class IncidentService {
-
-	static final List<Status> OPEN_FOR_MODIFICATION_STATUS_LIST = asList(null, SYNCHRONIZED); // Status is only modifiable if current value is one of these.
-
-	static final List<Status> DBCLEAN_ELIGIBLE_FOR_REMOVAL_STATUS_LIST = List.of(CLOSED); // Status is only eligible for removal if one of these during dbcleaner-execution.
-
-	static final Integer DBCLEAN_CLOSED_INCIDENTS_TTL_IN_DAYS = 10;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(IncidentService.class);
 
 	private static final String LOG_MSG_CLEANING_DELETE_RANGE = "Removing all incidents with modified '{}' (or earlier) and with status matching '{}'.";
 
+	private static final List<Status> OPEN_FOR_MODIFICATION_STATUS_LIST = asList(null, SYNCHRONIZED); // Status is only modifiable if current value is one of these.
+	private static final List<Status> DBCLEAN_ELIGIBLE_FOR_REMOVAL_STATUS_LIST = List.of(CLOSED); // Status is only eligible for removal if one of these during dbcleaner-execution.
+	private static final Integer DBCLEAN_CLOSED_INCIDENTS_TTL_IN_DAYS = 10;
 	private static final List<String> JIRA_CLOSED_STATUSES = List.of("Closed", "Done", "Won't Do");
 
+	private static final String JIRA_ISSUE_TYPE = "Bug";
+	private static final String JIRA_ISSUE_TITLE_TEMPLATE = "Supportärende (%s).";
+
 	private final IncidentRepository incidentRepository;
-
 	private final JiraIncidentClient jiraIncidentClient;
-
 	private final POBClient pobClient;
 
 	public IncidentService(final IncidentRepository incidentRepository, final JiraIncidentClient jiraClient, final POBClient pobClient) {
@@ -67,17 +68,22 @@ public class IncidentService {
 		this.pobClient = pobClient;
 	}
 
-	public void handleIncidentRequest(final IncidentRequest request) {
+	/**
+	 * Takes an IncidentRequest and map it to an IncidentEntity in the database, with status POB_INITIATED_EVENT.
+	 *
+	 * @param incidentRequest the request (from POB).
+	 */
+	public void handleIncidentRequest(final IncidentRequest incidentRequest) {
 
-		final var issueKey = request.getIncidentKey();
+		final var issueKey = incidentRequest.getIncidentKey();
 		final var incidentEntity = incidentRepository.findByPobIssueKey(issueKey)
 			.orElse(IncidentEntity.create().withPobIssueKey(issueKey));
 
+		// Only set the status to POB_INITIATED_EVENT if status is currently SYNCHRONIZED.
 		if (OPEN_FOR_MODIFICATION_STATUS_LIST.contains(incidentEntity.getStatus())) {
 			incidentEntity.withStatus(POB_INITIATED_EVENT);
+			incidentRepository.saveAndFlush(incidentEntity);
 		}
-
-		incidentRepository.saveAndFlush(incidentEntity);
 	}
 
 	/**
@@ -92,21 +98,24 @@ public class IncidentService {
 	public void pollJiraUpdates() {
 		incidentRepository.findByStatus(SYNCHRONIZED)
 			.forEach(incident -> jiraIncidentClient.getIssue(incident.getJiraIssueKey()).ifPresentOrElse(jiraIssue -> {
-				final var lastModifiedJira = jiraIssue.getFields().getUpdated();
-				final var lastSynchronizedPob = incident.getLastSynchronizedPob();
+				final var lastModifiedJira = Optional.ofNullable(jiraIssue.getFields().getUpdated()).orElse(MIN);
+				final var lastSynchronizedJira = Optional.ofNullable(incident.getLastSynchronizedJira()).orElse(MIN);
 
-				if (anyNull(lastModifiedJira, lastSynchronizedPob)) {
-					LOGGER.info("Null dates discovered. lastModifiedJira '{}', lastSynchronizedPob '{}'. Skipping record.", lastModifiedJira, lastSynchronizedPob);
-					return;
-				}
-
-				if (lastModifiedJira.isAfter(lastSynchronizedPob)) { // Issue has been updated in Jira after last synchronization towards POB.
+				if (lastModifiedJira.isAfter(lastSynchronizedJira)) { // Issue has been updated in Jira after last synchronization towards Jira.
 					LOGGER.info("Updating database. Set status to '{}' on mapping with jiraIssueType '{}'.", JIRA_INITIATED_EVENT, incident.getJiraIssueKey());
 					incidentRepository.saveAndFlush(incident.withStatus(JIRA_INITIATED_EVENT));
 				}
 			}, () -> LOGGER.warn("No jira issue with key '{}' found", incident.getJiraIssueKey())));
 	}
 
+	/**
+	 * Removes obsolete records from the database.
+	 *
+	 * Records are eligible for cleaning if these conditions are fulfilled:
+	 * - 'IncidentEntity.status' is one of the statuses defined in DBCLEAN_ELIGIBLE_FOR_REMOVAL_STATUS_LIST.
+	 * - 'IncidentEntity.modified' is a date older than the number of days defined in DBCLEAN_CLOSED_INCIDENTS_TTL_IN_DAYS.
+	 *
+	 */
 	public void cleanObsoleteIncidents() {
 		final var statusesEligibleForRemoval = DBCLEAN_ELIGIBLE_FOR_REMOVAL_STATUS_LIST.toArray(Status[]::new);
 		final var expiryDate = now(systemDefault()).minusDays(DBCLEAN_CLOSED_INCIDENTS_TTL_IN_DAYS);
@@ -123,11 +132,11 @@ public class IncidentService {
 					createJiraIssue(incident);
 					return;
 				}
-				updateJira(incident);
+				updateJiraIssue(incident);
 			});
 	}
 
-	public void updateJira(final IncidentEntity incident) {
+	public void updateJiraIssue(final IncidentEntity incident) {
 
 		// Fetch from POB.
 		final var summary = toDescription(pobClient.getCase(incident.getPobIssueKey()).orElse(null));
@@ -154,6 +163,13 @@ public class IncidentService {
 			// Add new comment (with data from POB).
 			jiraIncidentClient.addComment(jiraIssueKey, comments);
 
+			// Delete all attachments in Jira.
+			issue.getFields().getAttachments().stream()
+				.forEach(attachment -> jiraIncidentClient.deleteAttachment(attachment.getId()));
+
+			// Add attachments.
+			getPobAttachments(incident).forEach(attachment -> jiraIncidentClient.addAttachment(jiraIssueKey, attachment));
+
 			// Save state in DB
 			incidentRepository.saveAndFlush(incident
 				.withStatus(SYNCHRONIZED)
@@ -161,11 +177,11 @@ public class IncidentService {
 
 		}, () -> // Issue is not present in Jira.
 
-			// Save the mapping as POB_INITIATED_EVENT with empty jiraIssueKey (this will trigger a create).
-			incidentRepository.saveAndFlush(incident
-				.withStatus(POB_INITIATED_EVENT)
-				.withJiraIssueKey(null)
-				.withLastSynchronizedJira(null)));
+		// Save the mapping as POB_INITIATED_EVENT with empty jiraIssueKey (this will trigger a create).
+		incidentRepository.saveAndFlush(incident
+			.withStatus(POB_INITIATED_EVENT)
+			.withJiraIssueKey(null)
+			.withLastSynchronizedJira(null)));
 	}
 
 	public void createJiraIssue(final IncidentEntity incident) {
@@ -180,6 +196,9 @@ public class IncidentService {
 
 		// Add comments in Jira.
 		jiraIncidentClient.getIssue(jiraIssueKey).ifPresent(issue -> jiraIncidentClient.addComment(jiraIssueKey, comments));
+
+		// Add attachments.
+		getPobAttachments(incident).forEach(attachment -> jiraIncidentClient.addAttachment(jiraIssueKey, attachment));
 
 		// Save state in DB
 		incidentRepository.saveAndFlush(incident
@@ -202,7 +221,7 @@ public class IncidentService {
 		updatePobComment(entity, jiraIssue);
 		updatePobDescription(entity, jiraIssue);
 		updatePobAttachments(entity, jiraIssue.getFields().getAttachments().getAttachments(), pobAttachments);
-		updateJira(entity);
+		updateJiraIssue(entity);
 		incidentRepository.saveAndFlush(entity.withLastSynchronizedPob(now(systemDefault())));
 	}
 
@@ -247,7 +266,7 @@ public class IncidentService {
 
 	private void updatePobAttachment(final IncidentEntity entity, final PobPayload pobAttachments, final Attachment jiraAttachment) {
 		final boolean attachmentExists = pobAttachments.getLinks().stream()
-			.anyMatch(pobAttachment -> pobAttachment.getRelation().equals(jiraAttachment.getFilename()));
+			.anyMatch(pobAttachment -> Objects.equals(pobAttachment.getRelation(), jiraAttachment.getFilename()));
 
 		if (!attachmentExists) {
 			final var base64String = jiraAttachment.getContent();
@@ -256,4 +275,28 @@ public class IncidentService {
 		}
 	}
 
+	private List<File> getPobAttachments(final IncidentEntity incident) {
+		return pobClient.getAttachments(incident.getPobIssueKey())
+			.map(attachment -> attachment.getLinks().stream()
+				.filter(link -> isNotEmpty(link.getRelation()))
+				.filter(link -> isNotEmpty(link.getHref()))
+				.map(link -> {
+					final var attachmentFileName = link.getRelation();
+					final var href = link.getHref();
+					final var attachmentId = href.substring(href.lastIndexOf("/") + 1);
+
+					final var file = new File(attachmentFileName);
+
+					try {
+						final var inputStream = pobClient.getAttachment(incident.getPobIssueKey(), attachmentId).getInputStream();
+						copyInputStreamToFile(inputStream, file);
+					} catch (final IOException e) {
+						LOGGER.error("Problem fetching attachment binary data from POB", e);
+					}
+
+					return file;
+				})
+				.toList())
+			.orElse(emptyList());
+	}
 }

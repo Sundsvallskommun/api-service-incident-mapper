@@ -6,9 +6,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -53,6 +56,19 @@ class JiraIncidentClientTest {
 
 	@InjectMocks
 	private JiraIncidentClient jiraClient;
+
+	private File file;
+
+	@BeforeEach
+	void before() throws Exception {
+		file = new File("tmp");
+		file.createNewFile();
+	}
+
+	@AfterEach
+	void after() {
+		file.delete();
+	}
 
 	@Test
 	void getProperties() {
@@ -243,47 +259,34 @@ class JiraIncidentClientTest {
 	}
 
 	@Test
-	void getAttachment() throws InterruptedException, ExecutionException {
+	void addAttachment() throws Exception {
 
-		final var content = "content";
-		final var attachmentId = "666";
-		final var attachment = new Attachment();
-		attachment.setContent(content);
+		// Arrange
+		final var issueKey = "TEST-1";
 
 		when(jiraClientMock.getIssueApi()).thenReturn(issueApiMock);
-		when(issueApiMock.getAttachment(attachmentId)).thenReturn(completableFutureAttachmentMock);
-		when(completableFutureAttachmentMock.get()).thenReturn(attachment);
 
 		// Act
-		final var result = jiraClient.getAttachment(attachmentId);
+		jiraClient.addAttachment(issueKey, file);
 
 		// Assert
-		assertThat(result).isNotNull().isEqualTo(attachment);
-
 		verify(jiraClientMock).getIssueApi();
-		verify(issueApiMock).getAttachment(attachmentId);
-		verify(completableFutureAttachmentMock).get();
+		verify(issueApiMock).addAttachment(issueKey, file);
 	}
 
 	@Test
-	void getAttachmentThrowsException() throws InterruptedException, ExecutionException {
+	void deleteAttachment() {
 
-		final var content = "content";
-		final var attachmentId = "666";
-		final var attachment = new Attachment();
-		attachment.setContent(content);
+		// Arrange
+		final var attachmentId = "id";
 
 		when(jiraClientMock.getIssueApi()).thenReturn(issueApiMock);
-		when(issueApiMock.getAttachment(attachmentId)).thenThrow(new RuntimeException("Error"));
 
 		// Act
-		final var exception = assertThrows(JiraIntegrationException.class, () -> jiraClient.getAttachment(attachmentId));
+		jiraClient.deleteAttachment(attachmentId);
 
 		// Assert
-		assertThat(exception).isNotNull();
-		assertThat(exception.getMessage()).isEqualTo("java.lang.RuntimeException: Error");
-
 		verify(jiraClientMock).getIssueApi();
-		verify(issueApiMock).getAttachment(attachmentId);
+		verify(issueApiMock).deleteAttachment(attachmentId);
 	}
 }

@@ -93,5 +93,4 @@ public interface POBClient {
 
 	@PutMapping(path = "case/{caseId}/attachments", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
 	Void createAttachment(@PathVariable("caseId") String caseId, @RequestBody PobPayload payload);
-
 }

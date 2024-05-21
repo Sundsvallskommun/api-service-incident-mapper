@@ -2,9 +2,14 @@
 # General settings
 #========================================
 application:
+  # Synchronization-settings (between Jira, (this) microservice and POB).
   synchronization:
-    clockskew:
-      seconds: 30
+    # Clock-skew in seconds between microservice, pob and jira.
+    clockSkewInSeconds: 15
+    # The folder where files are temorarily stored during execution ("/temp" is a volume mount in openshift)
+    tempFolder: /temp
+    # The user group that is assigned POB-issues when Jira-ticket is closed.
+    responsibleUserGroupInPob: IT-Support
 
 logging:
   level:

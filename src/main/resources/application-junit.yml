@@ -1,6 +1,10 @@
 #========================================
 # Test profile settings (junit tests)
 #========================================
+application:
+  tmp:
+    folder: ${project.build.directory}
+    
 integration:
   messaging:
     url: http://messaging.url

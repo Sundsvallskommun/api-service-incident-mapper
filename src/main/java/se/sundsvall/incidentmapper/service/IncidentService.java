@@ -27,6 +27,7 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,10 +58,17 @@ public class IncidentService {
 
 	private static final String JIRA_ISSUE_TYPE = "Bug";
 	private static final String JIRA_ISSUE_TITLE_TEMPLATE = "Supportärende (%s).";
+	private static final String APPLICATION_TEMP_FOLDER_PATH_TEMPLATE = "%s/%s";
 
 	private final IncidentRepository incidentRepository;
 	private final JiraIncidentClient jiraIncidentClient;
 	private final POBClient pobClient;
+
+	@Value("${application.tmp.folder}")
+	private String applicationTempFolder;
+
+	@Value("${application.synchronization.clockskew.seconds}")
+	private int clockSkewInSeconds;
 
 	public IncidentService(final IncidentRepository incidentRepository, final JiraIncidentClient jiraClient, final POBClient pobClient) {
 		this.incidentRepository = incidentRepository;
@@ -101,7 +109,8 @@ public class IncidentService {
 				final var lastModifiedJira = Optional.ofNullable(jiraIssue.getFields().getUpdated()).orElse(MIN);
 				final var lastSynchronizedJira = Optional.ofNullable(incident.getLastSynchronizedJira()).orElse(MIN);
 
-				if (lastModifiedJira.isAfter(lastSynchronizedJira)) { // Issue has been updated in Jira after last synchronization towards Jira.
+				if (lastModifiedJira.isAfter(lastSynchronizedJira.plusSeconds(clockSkewInSeconds))) {
+					// Issue has been updated in Jira after last synchronization towards Jira.
 					LOGGER.info("Updating database. Set status to '{}' on mapping with jiraIssueType '{}'.", JIRA_INITIATED_EVENT, incident.getJiraIssueKey());
 					incidentRepository.saveAndFlush(incident.withStatus(JIRA_INITIATED_EVENT));
 				}
@@ -170,6 +179,9 @@ public class IncidentService {
 			// Add attachments.
 			getPobAttachments(incident).forEach(attachment -> jiraIncidentClient.addAttachment(jiraIssueKey, attachment));
 
+			// Clean temp-dir.
+			cleanFilesInTempFilder();
+
 			// Save state in DB
 			incidentRepository.saveAndFlush(incident
 				.withStatus(SYNCHRONIZED)
@@ -199,6 +211,9 @@ public class IncidentService {
 
 		// Add attachments.
 		getPobAttachments(incident).forEach(attachment -> jiraIncidentClient.addAttachment(jiraIssueKey, attachment));
+
+		// Clean temp-dir.
+		cleanFilesInTempFilder();
 
 		// Save state in DB
 		incidentRepository.saveAndFlush(incident
@@ -241,7 +256,7 @@ public class IncidentService {
 
 	private void updatePobComment(final IncidentEntity entity, final Issue jiraIssue) {
 		jiraIssue.getFields().getComments().stream()
-			.filter(comment -> comment.getCreated().isAfter(Optional.ofNullable(entity.getLastSynchronizedPob()).orElse(MIN)))
+			.filter(comment -> comment.getCreated().isAfter(Optional.ofNullable(entity.getLastSynchronizedPob()).orElse(MIN).plusSeconds(clockSkewInSeconds)))
 			.filter(comment -> comment.getAuthor() != null)
 			.filter(comment -> !comment.getAuthor().getName().equals(jiraIncidentClient.getProperties().username()))
 			.forEach(comment -> updatePobWithComment(entity, comment.getBody()));
@@ -284,12 +299,10 @@ public class IncidentService {
 					final var attachmentFileName = link.getRelation();
 					final var href = link.getHref();
 					final var attachmentId = href.substring(href.lastIndexOf("/") + 1);
-
-					final var file = new File(attachmentFileName);
+					final var file = new File(APPLICATION_TEMP_FOLDER_PATH_TEMPLATE.formatted(applicationTempFolder, attachmentFileName));
 
 					try {
-						final var inputStream = pobClient.getAttachment(incident.getPobIssueKey(), attachmentId).getInputStream();
-						copyInputStreamToFile(inputStream, file);
+						copyInputStreamToFile(pobClient.getAttachment(incident.getPobIssueKey(), attachmentId).getInputStream(), file);
 					} catch (final IOException e) {
 						LOGGER.error("Problem fetching attachment binary data from POB", e);
 					}
@@ -298,5 +311,9 @@ public class IncidentService {
 				})
 				.toList())
 			.orElse(emptyList());
+	}
+
+	public void cleanFilesInTempFilder() {
+		asList(new File(applicationTempFolder).listFiles()).forEach(File::delete);
 	}
 }

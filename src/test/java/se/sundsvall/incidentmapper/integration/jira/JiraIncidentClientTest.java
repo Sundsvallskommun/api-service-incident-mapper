@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.chavaillaz.client.jira.JiraClient;
 import com.chavaillaz.client.jira.api.IssueApi;
 import com.chavaillaz.client.jira.domain.Attachment;
+import com.chavaillaz.client.jira.domain.Attachments;
 import com.chavaillaz.client.jira.domain.Comment;
 import com.chavaillaz.client.jira.domain.Fields;
 import com.chavaillaz.client.jira.domain.Identity;
@@ -53,6 +54,9 @@ class JiraIncidentClientTest {
 
 	@Mock
 	private CompletableFuture<Attachment> completableFutureAttachmentMock;
+
+	@Mock
+	private CompletableFuture<Attachments> completableFutureAttachmentsMock;
 
 	@InjectMocks
 	private JiraIncidentClient jiraClient;
@@ -265,6 +269,7 @@ class JiraIncidentClientTest {
 		final var issueKey = "TEST-1";
 
 		when(jiraClientMock.getIssueApi()).thenReturn(issueApiMock);
+		when(issueApiMock.addAttachment(any(), any())).thenReturn(completableFutureAttachmentsMock);
 
 		// Act
 		jiraClient.addAttachment(issueKey, file);
@@ -272,6 +277,7 @@ class JiraIncidentClientTest {
 		// Assert
 		verify(jiraClientMock).getIssueApi();
 		verify(issueApiMock).addAttachment(issueKey, file);
+		verify(completableFutureAttachmentsMock).get();
 	}
 
 	@Test

@@ -179,6 +179,9 @@ public class IncidentService {
 			// Add attachments.
 			getPobAttachments(incident).forEach(attachment -> jiraIncidentClient.addAttachment(jiraIssueKey, attachment));
 
+			// Clean temp-dir.
+			cleanFilesInTempFilder();
+
 			// Save state in DB
 			incidentRepository.saveAndFlush(incident
 				.withStatus(SYNCHRONIZED)
@@ -208,6 +211,9 @@ public class IncidentService {
 
 		// Add attachments.
 		getPobAttachments(incident).forEach(attachment -> jiraIncidentClient.addAttachment(jiraIssueKey, attachment));
+
+		// Clean temp-dir.
+		cleanFilesInTempFilder();
 
 		// Save state in DB
 		incidentRepository.saveAndFlush(incident
@@ -305,5 +311,9 @@ public class IncidentService {
 				})
 				.toList())
 			.orElse(emptyList());
+	}
+
+	public void cleanFilesInTempFilder() {
+		asList(new File(applicationTempFolder).listFiles()).forEach(File::delete);
 	}
 }

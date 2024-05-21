@@ -37,6 +37,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.chavaillaz.client.jira.domain.Attachment;
 import com.chavaillaz.client.jira.domain.Attachments;
@@ -94,6 +95,8 @@ class IncidentServiceTest {
 	void before() throws Exception {
 		file = new File("test.png");
 		file.createNewFile();
+
+		ReflectionTestUtils.setField(incidentService, "applicationTempFolder", "/target/tmp");
 	}
 
 	@AfterEach
@@ -388,7 +391,7 @@ class IncidentServiceTest {
 		verify(jiraClientMock).getIssue(jiraIssueKey);
 		verify(jiraClientMock).addComment(jiraIssueKey, "2024-05-08 14:09 Kommentar");
 		verify(jiraClientMock).deleteAttachment(attachmentId);
-		verify(jiraClientMock).addAttachment(jiraIssueKey, new File("happy_dog.png"));
+		verify(jiraClientMock).addAttachment(jiraIssueKey, new File("/target/tmp/happy_dog.png"));
 		verify(pobClientMock).getCase(pobIssueKey);
 		verify(pobClientMock).getCaseInternalNotesCustom(pobIssueKey);
 		verify(pobClientMock).getProblemMemo(pobIssueKey);
@@ -442,7 +445,7 @@ class IncidentServiceTest {
 		verify(jiraClientMock).createIssue("Bug", "Supportärende (This works!).", "This is a description");
 		verify(jiraClientMock).getIssue(jiraIssueKey);
 		verify(jiraClientMock).addComment(jiraIssueKey, "2024-05-08 14:09 Kommentar");
-		verify(jiraClientMock).addAttachment(jiraIssueKey, new File("happy_dog.png"));
+		verify(jiraClientMock).addAttachment(jiraIssueKey, new File("/target/tmp/happy_dog.png"));
 		verify(pobClientMock).getCase(pobIssueKey);
 		verify(pobClientMock).getCaseInternalNotesCustom(pobIssueKey);
 		verify(pobClientMock).getProblemMemo(pobIssueKey);

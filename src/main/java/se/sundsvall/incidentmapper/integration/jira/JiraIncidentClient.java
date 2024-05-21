@@ -3,8 +3,6 @@ package se.sundsvall.incidentmapper.integration.jira;
 import static java.util.Optional.empty;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -71,7 +69,7 @@ public class JiraIncidentClient {
 	public void addAttachment(String issueKey, File file) {
 		try {
 			jiraClient.getIssueApi().addAttachment(issueKey, file);
-			Files.delete(Paths.get(file.getName()));
+			// Files.delete(Paths.get(file.getName()));
 		} catch (final Exception e) {
 			Thread.currentThread().interrupt();
 			throw new JiraIntegrationException(e);

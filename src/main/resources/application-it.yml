@@ -3,7 +3,7 @@
 #========================================
 application:
   tmp:
-    folder: target/tmp
+    folder: ${project.build.directory}
     
 integration:
   messaging:

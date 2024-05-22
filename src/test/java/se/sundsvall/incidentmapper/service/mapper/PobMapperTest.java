@@ -3,15 +3,15 @@ package se.sundsvall.incidentmapper.service.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.dept44.test.annotation.resource.Load.ResourceType.JSON;
 
-import com.chavaillaz.client.jira.domain.Attachment;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import com.chavaillaz.client.jira.domain.Attachment;
+
+import generated.se.sundsvall.pob.PobPayload;
 import se.sundsvall.dept44.test.annotation.resource.Load;
 import se.sundsvall.dept44.test.extension.ResourceLoaderExtension;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
-
-import generated.se.sundsvall.pob.PobPayload;
 
 @ExtendWith(ResourceLoaderExtension.class)
 class PobMapperTest {
@@ -52,16 +52,17 @@ class PobMapperTest {
 	void testToResponsibleGroupPayload() {
 
 		// Arrange
+		final var responsibleUserGroupInPob = "The-user-group";
 		final var entity = new IncidentEntity()
 			.withPobIssueKey("testId");
 
 		// Act
-		final var result = PobMapper.toResponsibleGroupPayload(entity);
+		final var result = PobMapper.toResponsibleGroupPayload(entity, responsibleUserGroupInPob);
 
 		// Assert
 		assertThat(result).isNotNull();
 		assertThat(result.getData()).containsEntry("Id", "testId");
-		assertThat(result.getData()).containsEntry("ResponsibleGroup", "IT Support");
+		assertThat(result.getData()).containsEntry("ResponsibleGroup", "The-user-group");
 	}
 
 	@Test
@@ -142,5 +143,4 @@ class PobMapperTest {
 				test interna anteckningar
 				___________________________________________________________""");
 	}
-
 }

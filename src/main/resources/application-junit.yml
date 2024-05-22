@@ -2,8 +2,8 @@
 # Test profile settings (junit tests)
 #========================================
 application:
-  tmp:
-    folder: ${project.build.directory}
+  synchronization:
+    tempFolder: ${project.build.directory}
     
 integration:
   messaging:

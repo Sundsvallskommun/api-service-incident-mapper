@@ -37,7 +37,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import com.chavaillaz.client.jira.domain.Attachment;
 import com.chavaillaz.client.jira.domain.Attachments;
@@ -58,6 +57,7 @@ import se.sundsvall.incidentmapper.integration.db.model.enums.Status;
 import se.sundsvall.incidentmapper.integration.jira.JiraIncidentClient;
 import se.sundsvall.incidentmapper.integration.jira.configuration.JiraProperties;
 import se.sundsvall.incidentmapper.integration.pob.POBClient;
+import se.sundsvall.incidentmapper.service.configuration.SynchronizationProperties;
 
 @ExtendWith({ MockitoExtension.class, ResourceLoaderExtension.class })
 class IncidentServiceTest {
@@ -72,6 +72,9 @@ class IncidentServiceTest {
 
 	@Mock
 	private POBClient pobClientMock;
+
+	@Mock
+	private SynchronizationProperties synchronizationPropertiesMock;
 
 	@Mock
 	private InputStreamResource inputStreamResourceMock;
@@ -99,8 +102,6 @@ class IncidentServiceTest {
 		file = new File(TEMP_DIR + "/test.png");
 		file.getParentFile().mkdirs();
 		file.createNewFile();
-
-		ReflectionTestUtils.setField(incidentService, "applicationTempFolder", TEMP_DIR);
 	}
 
 	@AfterEach
@@ -334,6 +335,8 @@ class IncidentServiceTest {
 		final var jiraIssue = new Issue();
 		jiraIssue.setFields(fields);
 
+		when(synchronizationPropertiesMock.tempFolder()).thenReturn(TEMP_DIR);
+		when(synchronizationPropertiesMock.responsibleUserGroupInPob()).thenReturn("The-user-group");
 		when(incidentRepositoryMock.findByStatus(JIRA_INITIATED_EVENT)).thenReturn(List.of(incidentEntity));
 		when(jiraClientMock.getIssue(incidentEntity.getJiraIssueKey())).thenReturn(Optional.of(jiraIssue));
 		when(jiraClientMock.getProperties()).thenReturn(new JiraProperties("user", null, null, null));
@@ -370,7 +373,9 @@ class IncidentServiceTest {
 		attachment.setFilename("test.jpg");
 		jiraIssue.getFields().setComments(new Comments());
 		jiraIssue.getFields().setAttachments(Attachments.from(attachment));
+		jiraIssue.getFields().setStatus(com.chavaillaz.client.jira.domain.Status.fromName("Closed"));
 
+		when(synchronizationPropertiesMock.tempFolder()).thenReturn(TEMP_DIR);
 		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(Optional.of(jiraIssue));
 		when(pobClientMock.getCase(pobIssueKey)).thenReturn(Optional.ofNullable(pobPayload));
 		when(pobClientMock.getCaseInternalNotesCustom(pobIssueKey)).thenReturn(Optional.of(pobPayloadCaseInternalNotesCustomMemo));
@@ -410,9 +415,10 @@ class IncidentServiceTest {
 
 		final var capturedJiraIssuey = jiraIssueCaptor.getValue();
 		assertThat(capturedJiraIssuey).isNotNull();
-		assertThat(capturedJiraIssuey.getFields()).hasAllNullFieldsOrPropertiesExcept("description", "summary", "customFields");
+		assertThat(capturedJiraIssuey.getFields()).hasAllNullFieldsOrPropertiesExcept("description", "summary", "status", "customFields");
 		assertThat(capturedJiraIssuey.getFields().getDescription()).isEqualTo("This is a description");
 		assertThat(capturedJiraIssuey.getFields().getSummary()).isEqualTo("This works!");
+		assertThat(capturedJiraIssuey.getFields().getStatus().getName()).isEqualTo("To Do");
 	}
 
 	@Test
@@ -427,6 +433,7 @@ class IncidentServiceTest {
 		final var jiraIssueKey = "JIR-12345";
 		final var jiraIssue = new Issue();
 
+		when(synchronizationPropertiesMock.tempFolder()).thenReturn(TEMP_DIR);
 		when(jiraClientMock.createIssue(any(), any(), any())).thenReturn(jiraIssueKey);
 		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(Optional.of(jiraIssue));
 		when(pobClientMock.getCase(pobIssueKey)).thenReturn(Optional.ofNullable(pobPayload));

@@ -2,9 +2,9 @@
 # Test profile settings (IT tests)
 #========================================
 application:
-  tmp:
-    folder: ${project.build.directory}
-    
+  synchronization:
+    tempFolder: ${project.build.directory}
+
 integration:
   messaging:
     url: http://localhost:${wiremock.server.port:}/api-messaging

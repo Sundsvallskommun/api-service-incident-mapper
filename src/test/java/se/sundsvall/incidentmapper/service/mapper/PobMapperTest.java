@@ -21,7 +21,7 @@ class PobMapperTest {
 
 		// Arrange
 		final var attachment = new Attachment();
-		attachment.setFilename("testFile");
+		attachment.setFilename("testFile.txt");
 		final var base64String = "testBase64String";
 
 		// Act
@@ -29,7 +29,9 @@ class PobMapperTest {
 
 		// Assert
 		assertThat(result).isNotNull();
-		assertThat(result.getData()).containsEntry("FileData", "data:testFile;base64,testBase64String");
+		assertThat(result.getData()).containsEntry("FileData", "data:testFile.txt;base64,testBase64String");
+		assertThat(result.getData()).containsEntry("OriginalFileName", "testFile.txt");
+		assertThat(result.getData()).containsEntry("FileType", ".txt");
 	}
 
 	@Test

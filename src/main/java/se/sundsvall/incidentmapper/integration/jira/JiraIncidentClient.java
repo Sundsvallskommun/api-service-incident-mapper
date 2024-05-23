@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import com.chavaillaz.client.jira.JiraClient;
 import com.chavaillaz.client.jira.domain.Comment;
 import com.chavaillaz.client.jira.domain.Issue;
-import com.chavaillaz.client.jira.domain.Status;
 
 import se.sundsvall.incidentmapper.integration.jira.configuration.JiraProperties;
 
@@ -39,14 +38,13 @@ public class JiraIncidentClient {
 		}
 	}
 
-	public String createIssue(final String issueType, final String issueSummary, final String description, final Status initialStatus) {
-		return createIssue(jiraProperties.projectKey(), issueType, issueSummary, description, initialStatus);
+	public String createIssue(final String issueType, final String issueSummary, final String description) {
+		return createIssue(jiraProperties.projectKey(), issueType, issueSummary, description);
 	}
 
-	public String createIssue(final String projectKey, final String issueType, final String issueSummary, final String description, final Status initialStatus) {
+	public String createIssue(final String projectKey, final String issueType, final String issueSummary, final String description) {
 
 		final var issue = Issue.from(issueType, projectKey, issueSummary);
-		issue.getFields().setStatus(initialStatus);
 		issue.getFields().setDescription(description);
 
 		try {

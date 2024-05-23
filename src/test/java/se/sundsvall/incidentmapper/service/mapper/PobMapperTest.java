@@ -55,11 +55,10 @@ class PobMapperTest {
 
 		// Arrange
 		final var responsibleUserGroupInPob = "The-user-group";
-		final var entity = new IncidentEntity()
-			.withPobIssueKey("testId");
+		final var pobIssueKey = "testId";
 
 		// Act
-		final var result = PobMapper.toResponsibleGroupPayload(entity, responsibleUserGroupInPob);
+		final var result = PobMapper.toResponsibleGroupPayload(pobIssueKey, responsibleUserGroupInPob);
 
 		// Assert
 		assertThat(result).isNotNull();

@@ -1,13 +1,11 @@
 package se.sundsvall.incidentmapper.integration.db;
 
 import static java.time.OffsetDateTime.now;
-import static java.time.ZoneId.systemDefault;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.api.Assertions.within;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
-import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.CLOSED;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
 
@@ -113,28 +111,6 @@ class IncidentRepositoryTest {
 				tuple("JIR-001", "POB-001", SYNCHRONIZED),
 				tuple("JIR-009", "POB-009", SYNCHRONIZED),
 				tuple("JIR-005", "POB-005", SYNCHRONIZED));
-	}
-
-	@Test
-	void deleteByModifiedBeforeAndStatusIn() {
-
-		// Arrange
-		final var deleteOlderThanDays = 10;
-		final var expiryDate = now(systemDefault()).minusDays(deleteOlderThanDays);
-		final var incidentEligibleForDelete = repository.findByStatus(CLOSED);
-
-		// Assert that both is older than 24 months.
-		assertThat(incidentEligibleForDelete)
-			.hasSize(2)
-			.allSatisfy(incident -> {
-				assertThat(incident.getModified()).isBefore(expiryDate);
-			});
-
-		// Act
-		repository.deleteByModifiedBeforeAndStatusIn(expiryDate, CLOSED);
-
-		// Assert
-		assertThat(repository.findByStatus(CLOSED)).isEmpty();
 	}
 
 	@Test

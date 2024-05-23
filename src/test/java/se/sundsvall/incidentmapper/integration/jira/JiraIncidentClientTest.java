@@ -99,7 +99,6 @@ class JiraIncidentClientTest {
 		final var issueSummary = "Test issue";
 		final var issueDescription = "Test description";
 		final var issueKey = "TEST-1";
-		final var status = com.chavaillaz.client.jira.domain.Status.fromName("To Do");
 
 		when(issueMock.getKey()).thenReturn(issueKey);
 		when(jiraClientMock.getIssueApi()).thenReturn(issueApiMock);
@@ -107,7 +106,7 @@ class JiraIncidentClientTest {
 		when(completableFutureIdentityMock.get()).thenReturn(issueMock);
 
 		// Act
-		final var result = jiraClient.createIssue(projectKey, issueTypeName, issueSummary, issueDescription, status);
+		final var result = jiraClient.createIssue(projectKey, issueTypeName, issueSummary, issueDescription);
 
 		// Assert
 		assertThat(result).isNotNull().isEqualTo(issueKey);
@@ -125,7 +124,6 @@ class JiraIncidentClientTest {
 		final var issueSummary = "Test issue";
 		final var issueDescription = "Test description";
 		final var issueKey = "TEST-1";
-		final var status = com.chavaillaz.client.jira.domain.Status.fromName("To Do");
 
 		when(issueMock.getKey()).thenReturn(issueKey);
 		when(jiraClientMock.getIssueApi()).thenReturn(issueApiMock);
@@ -133,7 +131,7 @@ class JiraIncidentClientTest {
 		when(completableFutureIdentityMock.get()).thenReturn(issueMock);
 
 		// Act
-		final var result = jiraClient.createIssue(issueTypeName, issueSummary, issueDescription, status);
+		final var result = jiraClient.createIssue(issueTypeName, issueSummary, issueDescription);
 
 		// Assert
 		assertThat(result).isNotNull().isEqualTo(issueKey);
@@ -152,13 +150,12 @@ class JiraIncidentClientTest {
 		final var issueTypeName = "Bug";
 		final var issueSummary = "Test issue";
 		final var issueDescription = "Test description";
-		final var status = com.chavaillaz.client.jira.domain.Status.fromName("To Do");
 
 		when(jiraClientMock.getIssueApi()).thenReturn(issueApiMock);
 		when(issueApiMock.addIssue(any())).thenThrow(new RuntimeException("Error"));
 
 		// Act
-		final var exception = assertThrows(JiraIntegrationException.class, () -> jiraClient.createIssue(projectKey, issueTypeName, issueSummary, issueDescription, status));
+		final var exception = assertThrows(JiraIntegrationException.class, () -> jiraClient.createIssue(projectKey, issueTypeName, issueSummary, issueDescription));
 
 		// Assert
 		assertThat(exception).isNotNull();

@@ -72,9 +72,9 @@ public final class PobMapper {
 				.memo(jiraDescription)));
 	}
 
-	public static PobPayload toResponsibleGroupPayload(final IncidentEntity entity, String responsibleUserGroupInPob) {
+	public static PobPayload toResponsibleGroupPayload(final String pobIssueKey, String responsibleUserGroupInPob) {
 		final var data = new HashMap<String, Object>();
-		data.put(ID, entity.getPobIssueKey());
+		data.put(ID, pobIssueKey);
 		data.put(RESPONSIBLE, null);
 		data.put(RESPONSIBLE_GROUP, responsibleUserGroupInPob);
 		return new PobPayload()

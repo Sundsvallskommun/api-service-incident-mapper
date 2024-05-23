@@ -111,7 +111,15 @@ public class IncidentService {
 					LOGGER.info("Set status to '{}' on mapping with jiraIssueType '{}'.", JIRA_INITIATED_EVENT, incidentEntity.getJiraIssueKey());
 					incidentRepository.saveAndFlush(incidentEntity.withStatus(JIRA_INITIATED_EVENT));
 				}
-			}, () -> LOGGER.warn("No jira issue with key '{}' found", incidentEntity.getJiraIssueKey())));
+			}, () -> {
+				LOGGER.warn("No jira issue with key '{}' found. Delete incident mapping from database.", incidentEntity.getJiraIssueKey());
+
+				// Issue does not exist. Save the mapping as POB_INITIATED_EVENT with empty jiraIssueKey (this will trigger a create).
+				incidentRepository.saveAndFlush(incidentEntity
+					.withStatus(POB_INITIATED_EVENT)
+					.withJiraIssueKey(null)
+					.withLastSynchronizedJira(null));
+			}));
 	}
 
 	public void updateJira() {

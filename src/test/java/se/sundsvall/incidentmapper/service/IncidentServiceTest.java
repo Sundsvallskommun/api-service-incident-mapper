@@ -247,9 +247,11 @@ class IncidentServiceTest {
 
 		// Arrange
 		final var jiraIssueKey = "JIR-12345";
+		final var pobIssueKey = "POB-12345";
 		final var lastSynchronizedJira = now().plusMinutes(1);
 		final var existingIncident = IncidentEntity.create()
 			.withJiraIssueKey(jiraIssueKey)
+			.withPobIssueKey(pobIssueKey)
 			.withLastSynchronizedJira(lastSynchronizedJira)
 			.withStatus(SYNCHRONIZED);
 
@@ -262,7 +264,14 @@ class IncidentServiceTest {
 		// Assert
 		verify(incidentRepositoryMock).findByStatus(SYNCHRONIZED);
 		verify(jiraClientMock).getIssue(jiraIssueKey);
-		verify(incidentRepositoryMock, never()).saveAndFlush(any());
+		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
+
+		final var capturedIncidentEntity = incidentEntityCaptor.getValue();
+		assertThat(capturedIncidentEntity).isNotNull();
+		assertThat(capturedIncidentEntity.getStatus()).isEqualTo(POB_INITIATED_EVENT);
+		assertThat(capturedIncidentEntity.getPobIssueKey()).isEqualTo(pobIssueKey);
+		assertThat(capturedIncidentEntity.getJiraIssueKey()).isNull();
+		assertThat(capturedIncidentEntity.getLastSynchronizedJira()).isNull();
 	}
 
 	@Test

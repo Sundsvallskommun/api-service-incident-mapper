@@ -19,7 +19,7 @@ class SynchronizationPropertiesTest {
 	@Test
 	void testProperties() {
 		assertThat(properties.clockSkewInSeconds()).isEqualTo(15);
-		assertThat(properties.responsibleUserGroupInPob()).isEqualTo("IT-Support");
+		assertThat(properties.responsibleUserGroupInPob()).isEqualTo("IT Support");
 		assertThat(properties.tempFolder()).endsWith("target");
 	}
 }

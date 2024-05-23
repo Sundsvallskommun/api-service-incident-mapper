@@ -8,6 +8,8 @@ application:
 integration:
   messaging:
     url: http://messaging.url
+    channel: the-channel
+    token: the-token
   pob:
     url: http://pob.url
     apiKey: some-key

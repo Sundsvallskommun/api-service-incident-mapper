@@ -18,8 +18,9 @@ class MessagingPropertiesTest {
 
 	@Test
 	void testProperties() {
+		assertThat(properties.channel()).isEqualTo("the-channel");
+		assertThat(properties.token()).isEqualTo("the-token");
 		assertThat(properties.connectTimeout()).isEqualTo(5);
 		assertThat(properties.readTimeout()).isEqualTo(30);
 	}
-
 }

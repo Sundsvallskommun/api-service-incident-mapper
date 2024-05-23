@@ -8,6 +8,8 @@ application:
 integration:
   messaging:
     url: http://localhost:${wiremock.server.port:}/api-messaging
+    channel: the-channel
+    token: the-token
   pob:
     url: http://localhost:${wiremock.server.port:}/api-pob
     apiKey: some-key

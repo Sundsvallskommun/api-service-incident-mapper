@@ -74,6 +74,9 @@ class IncidentServiceTest {
 	private POBClient pobClientMock;
 
 	@Mock
+	private SlackService slackServiceMock;
+
+	@Mock
 	private SynchronizationProperties synchronizationPropertiesMock;
 
 	@Mock
@@ -309,7 +312,9 @@ class IncidentServiceTest {
 		final var memoPayload = new PobPayload().memo(Map.of("Problem", new PobMemo()));
 
 		final var attachment = new Attachment();
-		attachment.setContent("testContent");
+		attachment.setContent("contentUrl");
+		attachment.setFilename(file.getName());
+
 		final var attachments = new Attachments();
 		attachments.add(attachment);
 
@@ -395,7 +400,7 @@ class IncidentServiceTest {
 
 		// Assert
 		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
-		verify(jiraClientMock, never()).createIssue(any(), any(), any());
+		verify(jiraClientMock, never()).createIssue(any(), any(), any(), any());
 		verify(jiraClientMock).updateIssue(jiraIssueCaptor.capture());
 		verify(jiraClientMock).getIssue(jiraIssueKey);
 		verify(jiraClientMock).addComment(jiraIssueKey, "2024-05-08 14:09 Kommentar");
@@ -406,6 +411,7 @@ class IncidentServiceTest {
 		verify(pobClientMock).getProblemMemo(pobIssueKey);
 		verify(pobClientMock).getAttachments(pobIssueKey);
 		verify(pobClientMock).getAttachment(pobIssueKey, "1628120");
+
 		final var capturedIncidentEntity = incidentEntityCaptor.getValue();
 		assertThat(capturedIncidentEntity).isNotNull();
 		assertThat(capturedIncidentEntity.getStatus()).isEqualTo(SYNCHRONIZED);
@@ -434,8 +440,9 @@ class IncidentServiceTest {
 		final var jiraIssue = new Issue();
 
 		when(synchronizationPropertiesMock.tempFolder()).thenReturn(TEMP_DIR);
-		when(jiraClientMock.createIssue(any(), any(), any())).thenReturn(jiraIssueKey);
+		when(jiraClientMock.createIssue(any(), any(), any(), any())).thenReturn(jiraIssueKey);
 		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(Optional.of(jiraIssue));
+		when(jiraClientMock.getProperties()).thenReturn(new JiraProperties("user", "pass", "http:://jira-test.com", "XX"));
 		when(pobClientMock.getCase(pobIssueKey)).thenReturn(Optional.ofNullable(pobPayload));
 		when(pobClientMock.getCaseInternalNotesCustom(pobIssueKey)).thenReturn(Optional.of(pobPayloadCaseInternalNotesCustomMemo));
 		when(pobClientMock.getProblemMemo(pobIssueKey)).thenReturn(Optional.of(pobPayloadProblemMemo));
@@ -453,7 +460,7 @@ class IncidentServiceTest {
 
 		// Assert
 		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
-		verify(jiraClientMock).createIssue("Bug", "Supportärende (This works!).", "This is a description");
+		verify(jiraClientMock).createIssue("Bug", "Supportärende (This works!)", "This is a description", com.chavaillaz.client.jira.domain.Status.fromName("To Do"));
 		verify(jiraClientMock).getIssue(jiraIssueKey);
 		verify(jiraClientMock).addComment(jiraIssueKey, "2024-05-08 14:09 Kommentar");
 		verify(jiraClientMock).addAttachment(jiraIssueKey, new File(TEMP_DIR + "/happy_dog.png"));
@@ -462,6 +469,7 @@ class IncidentServiceTest {
 		verify(pobClientMock).getProblemMemo(pobIssueKey);
 		verify(pobClientMock).getAttachments(pobIssueKey);
 		verify(pobClientMock).getAttachment(pobIssueKey, "1628120");
+		verify(slackServiceMock).sendToSlack("A new Jira issue has been created for you: http:://jira-test.com/browse/JIR-12345");
 
 		final var capturedIncidentEntity = incidentEntityCaptor.getValue();
 		assertThat(capturedIncidentEntity).isNotNull();

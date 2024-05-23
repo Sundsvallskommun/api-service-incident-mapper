@@ -22,5 +22,4 @@ class POBPropertiesTest {
 		assertThat(properties.readTimeout()).isEqualTo(30);
 		assertThat(properties.apiKey()).isEqualTo("some-key");
 	}
-
 }

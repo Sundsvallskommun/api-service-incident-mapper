@@ -3,6 +3,7 @@ package se.sundsvall.incidentmapper.integration.jira;
 import static java.util.Optional.empty;
 
 import java.io.File;
+import java.util.Base64;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 import com.chavaillaz.client.jira.JiraClient;
 import com.chavaillaz.client.jira.domain.Comment;
 import com.chavaillaz.client.jira.domain.Issue;
+import com.chavaillaz.client.jira.domain.Status;
 
 import se.sundsvall.incidentmapper.integration.jira.configuration.JiraProperties;
 
@@ -37,13 +39,14 @@ public class JiraIncidentClient {
 		}
 	}
 
-	public String createIssue(final String issueType, final String issueSummary, final String description) {
-		return createIssue(jiraProperties.projectKey(), issueType, issueSummary, description);
+	public String createIssue(final String issueType, final String issueSummary, final String description, final Status initialStatus) {
+		return createIssue(jiraProperties.projectKey(), issueType, issueSummary, description, initialStatus);
 	}
 
-	public String createIssue(final String projectKey, final String issueType, final String issueSummary, final String description) {
+	public String createIssue(final String projectKey, final String issueType, final String issueSummary, final String description, final Status initialStatus) {
 
 		final var issue = Issue.from(issueType, projectKey, issueSummary);
+		issue.getFields().setStatus(initialStatus);
 		issue.getFields().setDescription(description);
 
 		try {
@@ -69,6 +72,15 @@ public class JiraIncidentClient {
 	public void addAttachment(String issueKey, File file) {
 		try {
 			jiraClient.getIssueApi().addAttachment(issueKey, file).get();
+		} catch (final Exception e) {
+			Thread.currentThread().interrupt();
+			throw new JiraIntegrationException(e);
+		}
+	}
+
+	public String getAttachment(String contentUrl) {
+		try {
+			return Base64.getEncoder().encodeToString(jiraClient.getIssueApi().getAttachmentContent(contentUrl).get().readAllBytes());
 		} catch (final Exception e) {
 			Thread.currentThread().interrupt();
 			throw new JiraIntegrationException(e);

@@ -32,5 +32,4 @@ class SynchronizerSchedulerServiceTest {
 		verify(incidentService).updatePob();
 		verifyNoMoreInteractions(incidentService);
 	}
-
 }

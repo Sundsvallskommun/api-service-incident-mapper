@@ -47,7 +47,7 @@ class IncidentEntityTest {
 		final var modified = now();
 		final var pobIssueKey = "pobIssueKey";
 		now();
-		final var status = Status.CLOSED;
+		final var status = Status.SYNCHRONIZED;
 
 		final var bean = IncidentEntity.create()
 			.withCreated(created)

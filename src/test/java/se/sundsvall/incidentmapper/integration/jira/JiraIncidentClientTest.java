@@ -6,7 +6,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
+import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -57,6 +60,9 @@ class JiraIncidentClientTest {
 
 	@Mock
 	private CompletableFuture<Attachments> completableFutureAttachmentsMock;
+
+	@Mock
+	private CompletableFuture<InputStream> completableFutureInputStreamMock;
 
 	@InjectMocks
 	private JiraIncidentClient jiraClient;
@@ -281,6 +287,27 @@ class JiraIncidentClientTest {
 	}
 
 	@Test
+	void addAttachmentThrowsException() {
+
+		// Arrange
+		final var issueKey = "TEST-1";
+
+		when(jiraClientMock.getIssueApi()).thenReturn(issueApiMock);
+		when(issueApiMock.addAttachment(any(), any())).thenThrow(new RuntimeException("Error"));
+
+		// Act
+		final var exception = assertThrows(JiraIntegrationException.class, () -> jiraClient.addAttachment(issueKey, file));
+
+		// Assert
+		assertThat(exception).isNotNull();
+		assertThat(exception.getMessage()).isEqualTo("java.lang.RuntimeException: Error");
+
+		// Assert
+		verify(jiraClientMock).getIssueApi();
+		verify(issueApiMock).addAttachment(issueKey, file);
+	}
+
+	@Test
 	void deleteAttachment() {
 
 		// Arrange
@@ -294,5 +321,48 @@ class JiraIncidentClientTest {
 		// Assert
 		verify(jiraClientMock).getIssueApi();
 		verify(issueApiMock).deleteAttachment(attachmentId);
+	}
+
+	@Test
+	void getAttachment() throws Exception {
+
+		// Arrange
+		final var contentUrl = "contentUrl";
+		final var attachmentContent = "This is a test attachment";
+		final var byteArrayInputStream = new ByteArrayInputStream(attachmentContent.getBytes());
+
+		when(jiraClientMock.getIssueApi()).thenReturn(issueApiMock);
+		when(issueApiMock.getAttachmentContent(any())).thenReturn(completableFutureInputStreamMock);
+		when(completableFutureInputStreamMock.get()).thenReturn(byteArrayInputStream);
+
+		// Act
+		final var result = jiraClient.getAttachment(contentUrl);
+
+		// Assert
+		assertThat(result).isEqualTo(Base64.getEncoder().encodeToString(attachmentContent.getBytes()));
+
+		verify(jiraClientMock).getIssueApi();
+		verify(issueApiMock).getAttachmentContent(contentUrl);
+		verify(completableFutureInputStreamMock).get();
+	}
+
+	@Test
+	void getAttachmentThrowsException() {
+
+		// Arrange
+		final var contentUrl = "contentUrl";
+
+		when(jiraClientMock.getIssueApi()).thenReturn(issueApiMock);
+		when(issueApiMock.getAttachmentContent(any())).thenThrow(new RuntimeException("Error"));
+
+		// Act
+		final var exception = assertThrows(JiraIntegrationException.class, () -> jiraClient.getAttachment(contentUrl));
+
+		// Assert
+		assertThat(exception).isNotNull();
+		assertThat(exception.getMessage()).isEqualTo("java.lang.RuntimeException: Error");
+
+		verify(jiraClientMock).getIssueApi();
+		verify(issueApiMock).getAttachmentContent(contentUrl);
 	}
 }

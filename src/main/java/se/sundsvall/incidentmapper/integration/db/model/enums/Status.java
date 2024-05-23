@@ -6,6 +6,5 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public enum Status {
 	SYNCHRONIZED,
 	POB_INITIATED_EVENT,
-	JIRA_INITIATED_EVENT,
-	CLOSED;
+	JIRA_INITIATED_EVENT;
 }

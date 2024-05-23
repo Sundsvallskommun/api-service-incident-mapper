@@ -9,7 +9,7 @@ application:
     # The folder where files are temorarily stored during execution ("/temp" is a volume mount in openshift)
     tempFolder: /temp
     # The user group that is assigned POB-issues when Jira-ticket is closed.
-    responsibleUserGroupInPob: IT-Support
+    responsibleUserGroupInPob: 'IT Support'
 
 logging:
   level:
@@ -19,12 +19,12 @@ openapi:
   title: ${spring.application.name}
   version: '@project.version@'
 spring:
+  application:
+    name: api-incident-mapper
   cache:
     cache-names: issueTypes
     caffeine:
       spec: maximumSize=1000,expireAfterWrite=86400s
-  application:
-    name: api-incident-mapper
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
     hikari:
@@ -58,6 +58,8 @@ integration:
     connect-timeout: 5
     read-timeout: 30
   jira:
+    channel: the-channel
+    token: the-token
 
 #========================================
 # Scheduler settings

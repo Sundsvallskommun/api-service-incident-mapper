@@ -1,7 +1,6 @@
 package se.sundsvall.incidentmapper.service;
 
 import static java.time.OffsetDateTime.now;
-import static java.time.ZoneId.systemDefault;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.empty;
@@ -14,7 +13,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static se.sundsvall.dept44.test.annotation.resource.Load.ResourceType.JSON;
-import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.CLOSED;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.POB_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
@@ -72,6 +70,9 @@ class IncidentServiceTest {
 
 	@Mock
 	private POBClient pobClientMock;
+
+	@Mock
+	private SlackService slackServiceMock;
 
 	@Mock
 	private SynchronizationProperties synchronizationPropertiesMock;
@@ -279,22 +280,6 @@ class IncidentServiceTest {
 	}
 
 	@Test
-	void cleanObsoleteIncidents() {
-
-		// Act
-		incidentService.cleanObsoleteIncidents();
-
-		// Assert
-		verify(incidentRepositoryMock).deleteByModifiedBeforeAndStatusIn(offsetDateTimeCaptor.capture(), statusCaptor.capture());
-
-		final var capturedOffsetDateTime = offsetDateTimeCaptor.getValue();
-		final var capturedStatus = statusCaptor.getAllValues();
-
-		assertThat(capturedOffsetDateTime).isCloseTo(now(systemDefault()).minusDays(10), within(2, SECONDS));
-		assertThat(capturedStatus).isEqualTo(List.of(CLOSED));
-	}
-
-	@Test
 	void updatePob() {
 
 		// Arrange
@@ -309,7 +294,9 @@ class IncidentServiceTest {
 		final var memoPayload = new PobPayload().memo(Map.of("Problem", new PobMemo()));
 
 		final var attachment = new Attachment();
-		attachment.setContent("testContent");
+		attachment.setContent("contentUrl");
+		attachment.setFilename(file.getName());
+
 		final var attachments = new Attachments();
 		attachments.add(attachment);
 
@@ -353,7 +340,7 @@ class IncidentServiceTest {
 		verify(pobClientMock, times(2)).getProblemMemo(incidentEntity.getPobIssueKey());
 		verify(pobClientMock, times(3)).updateCase(any());
 		verify(pobClientMock).createAttachment(any(), any());
-		verify(incidentRepositoryMock, times(2)).saveAndFlush(incidentEntity);
+		verify(incidentRepositoryMock).saveAndFlush(incidentEntity);
 	}
 
 	@Test
@@ -395,7 +382,7 @@ class IncidentServiceTest {
 
 		// Assert
 		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
-		verify(jiraClientMock, never()).createIssue(any(), any(), any());
+		verify(jiraClientMock, never()).createIssue(any(), any(), any(), any());
 		verify(jiraClientMock).updateIssue(jiraIssueCaptor.capture());
 		verify(jiraClientMock).getIssue(jiraIssueKey);
 		verify(jiraClientMock).addComment(jiraIssueKey, "2024-05-08 14:09 Kommentar");
@@ -406,6 +393,7 @@ class IncidentServiceTest {
 		verify(pobClientMock).getProblemMemo(pobIssueKey);
 		verify(pobClientMock).getAttachments(pobIssueKey);
 		verify(pobClientMock).getAttachment(pobIssueKey, "1628120");
+
 		final var capturedIncidentEntity = incidentEntityCaptor.getValue();
 		assertThat(capturedIncidentEntity).isNotNull();
 		assertThat(capturedIncidentEntity.getStatus()).isEqualTo(SYNCHRONIZED);
@@ -418,7 +406,6 @@ class IncidentServiceTest {
 		assertThat(capturedJiraIssuey.getFields()).hasAllNullFieldsOrPropertiesExcept("description", "summary", "status", "customFields");
 		assertThat(capturedJiraIssuey.getFields().getDescription()).isEqualTo("This is a description");
 		assertThat(capturedJiraIssuey.getFields().getSummary()).isEqualTo("This works!");
-		assertThat(capturedJiraIssuey.getFields().getStatus().getName()).isEqualTo("To Do");
 	}
 
 	@Test
@@ -436,6 +423,7 @@ class IncidentServiceTest {
 		when(synchronizationPropertiesMock.tempFolder()).thenReturn(TEMP_DIR);
 		when(jiraClientMock.createIssue(any(), any(), any())).thenReturn(jiraIssueKey);
 		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(Optional.of(jiraIssue));
+		when(jiraClientMock.getProperties()).thenReturn(new JiraProperties("user", "pass", "http:://jira-test.com", "XX"));
 		when(pobClientMock.getCase(pobIssueKey)).thenReturn(Optional.ofNullable(pobPayload));
 		when(pobClientMock.getCaseInternalNotesCustom(pobIssueKey)).thenReturn(Optional.of(pobPayloadCaseInternalNotesCustomMemo));
 		when(pobClientMock.getProblemMemo(pobIssueKey)).thenReturn(Optional.of(pobPayloadProblemMemo));
@@ -453,7 +441,8 @@ class IncidentServiceTest {
 
 		// Assert
 		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
-		verify(jiraClientMock).createIssue("Bug", "Supportärende (This works!).", "This is a description");
+		verify(jiraClientMock).createIssue("Bug", "Supportärende (This works!)", "This is a description");
+		verify(jiraClientMock).updateIssue(jiraIssueCaptor.capture());
 		verify(jiraClientMock).getIssue(jiraIssueKey);
 		verify(jiraClientMock).addComment(jiraIssueKey, "2024-05-08 14:09 Kommentar");
 		verify(jiraClientMock).addAttachment(jiraIssueKey, new File(TEMP_DIR + "/happy_dog.png"));
@@ -462,6 +451,12 @@ class IncidentServiceTest {
 		verify(pobClientMock).getProblemMemo(pobIssueKey);
 		verify(pobClientMock).getAttachments(pobIssueKey);
 		verify(pobClientMock).getAttachment(pobIssueKey, "1628120");
+		verify(slackServiceMock).sendToSlack("A new Jira issue has been created for you: http:://jira-test.com/browse/JIR-12345");
+
+		final var capturedJiraIssuey = jiraIssueCaptor.getValue();
+		assertThat(capturedJiraIssuey).isNotNull();
+		assertThat(capturedJiraIssuey.getFields()).hasAllNullFieldsOrPropertiesExcept("status", "customFields");
+		assertThat(capturedJiraIssuey.getFields().getStatus()).isEqualTo(com.chavaillaz.client.jira.domain.Status.fromName("To Do"));
 
 		final var capturedIncidentEntity = incidentEntityCaptor.getValue();
 		assertThat(capturedIncidentEntity).isNotNull();

@@ -6,9 +6,11 @@ import static com.jayway.jsonpath.JsonPath.parse;
 import static com.jayway.jsonpath.Option.SUPPRESS_EXCEPTIONS;
 import static java.util.Objects.nonNull;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.compress.utils.FileNameUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.safety.Safelist;
@@ -26,9 +28,12 @@ public final class PobMapper {
 	// Fields
 	static final String PROBLEM = "Problem";
 	static final String BINARY_DATA_TYPE = "BinaryData";
+	static final String ORIGINAL_FILE_NAME = "OriginalFileName";
+	static final String FILE_TYPE = "FileType";
 	static final String ID = "Id";
 	static final String CASE_TYPE = "Case";
 	static final String FILE_DATA = "FileData";
+	static final String RELATION = "Relation";
 	static final String RESPONSIBLE = "Responsible";
 	static final String RESPONSIBLE_GROUP = "ResponsibleGroup";
 
@@ -50,7 +55,10 @@ public final class PobMapper {
 	public static PobPayload toAttachmentPayload(final Attachment jiraAttachment, final String base64String) {
 		return new PobPayload()
 			.type(BINARY_DATA_TYPE)
-			.data(Map.of(FILE_DATA, DATA_URL_FORMAT.formatted(jiraAttachment.getFilename(), base64String)));
+			.data(Map.of(
+				FILE_TYPE, "." + FileNameUtils.getExtension(jiraAttachment.getFilename()),
+				ORIGINAL_FILE_NAME, jiraAttachment.getFilename(),
+				FILE_DATA, DATA_URL_FORMAT.formatted(jiraAttachment.getFilename(), base64String)));
 	}
 
 	public static PobPayload toProblemPayload(final IncidentEntity entity, final String jiraDescription) {
@@ -64,8 +72,11 @@ public final class PobMapper {
 				.memo(jiraDescription)));
 	}
 
-	public static PobPayload toResponsibleGroupPayload(final IncidentEntity entity, String responsibleUserGroupInPob) {
-		final Map<String, Object> data = Map.of(ID, entity.getPobIssueKey(), RESPONSIBLE, "", RESPONSIBLE_GROUP, responsibleUserGroupInPob);
+	public static PobPayload toResponsibleGroupPayload(final String pobIssueKey, String responsibleUserGroupInPob) {
+		final var data = new HashMap<String, Object>();
+		data.put(ID, pobIssueKey);
+		data.put(RESPONSIBLE, null);
+		data.put(RESPONSIBLE_GROUP, responsibleUserGroupInPob);
 		return new PobPayload()
 			.type(CASE_TYPE)
 			.data(data);

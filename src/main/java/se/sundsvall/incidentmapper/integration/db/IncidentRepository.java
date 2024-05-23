@@ -1,6 +1,5 @@
 package se.sundsvall.incidentmapper.integration.db;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,12 +35,4 @@ public interface IncidentRepository extends JpaRepository<IncidentEntity, String
 	 * @return        a List of IncidentEntities.
 	 */
 	List<IncidentEntity> findByStatus(Status status);
-
-	/**
-	 * Delete all incidents older than the provided date and with the provided statuses.
-	 *
-	 * @param expiryDate the expiryDate. All incidents older (last modified) than this date will be deleted.
-	 * @param statuses   a List of statuses to delete by.
-	 */
-	void deleteByModifiedBeforeAndStatusIn(OffsetDateTime expiryDate, Status... statuses);
 }

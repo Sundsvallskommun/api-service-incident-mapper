@@ -1,4 +1,3 @@
-
     create table incident (
         id varchar(255) not null,
         created datetime(6),
@@ -19,4 +18,9 @@
 
     create index ix_status 
        on incident (status);
-       
+
+    alter table if exists incident 
+       add constraint incident_unique_pob_issue_key_constraint unique (pob_issue_key);
+
+    alter table if exists incident 
+       add constraint incident_unique_jira_issue_key_constraint unique (jira_issue_key);

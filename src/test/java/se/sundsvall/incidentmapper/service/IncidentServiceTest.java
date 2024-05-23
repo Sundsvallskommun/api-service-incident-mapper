@@ -181,7 +181,11 @@ class IncidentServiceTest {
 
 		// Assert
 		verify(incidentRepositoryMock).findByPobIssueKey(pobIssueKey);
-		verify(incidentRepositoryMock, never()).saveAndFlush(any());
+		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
+
+		final var capturedIncidentEntity = incidentEntityCaptor.getValue();
+		assertThat(capturedIncidentEntity).isNotNull();
+		assertThat(capturedIncidentEntity.getStatus()).isEqualTo(JIRA_INITIATED_EVENT);
 	}
 
 	@Test

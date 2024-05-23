@@ -15,12 +15,17 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import se.sundsvall.incidentmapper.integration.db.listener.IncidentEntityListener;
 import se.sundsvall.incidentmapper.integration.db.model.enums.Status;
 
 @Entity
 @Table(
 	name = "incident",
+	uniqueConstraints = {
+		@UniqueConstraint(name = "incident_unique_pob_issue_key_constraint", columnNames = { "pob_issue_key" }),
+		@UniqueConstraint(name = "incident_unique_jira_issue_key_constraint", columnNames = { "jira_issue_key" })
+	},
 	indexes = {
 		@Index(name = "ix_pob_issue_key", columnList = "pob_issue_key"),
 		@Index(name = "ix_jira_issue_key", columnList = "jira_issue_key"),

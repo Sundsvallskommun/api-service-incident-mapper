@@ -48,7 +48,7 @@ public class IncidentService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(IncidentService.class);
 
-	private static final List<Status> OPEN_FOR_MODIFICATION_STATUS_LIST = asList(null, SYNCHRONIZED); // Status is only modifiable if current value is one of these.
+	private static final List<Status> OPEN_FOR_MODIFICATION_STATUS_LIST = asList(SYNCHRONIZED); // Status is only modifiable if current value is one of these.
 	private static final List<String> JIRA_CLOSED_STATUSES = List.of("Closed", "Done", "Resolved", "Won't Do", "wont-do");
 	private static final com.chavaillaz.client.jira.domain.Status JIRA_TODO_STATUS = com.chavaillaz.client.jira.domain.Status.fromName("To Do");
 
@@ -79,16 +79,20 @@ public class IncidentService {
 	 *
 	 * @param incidentRequest the request (from POB).
 	 */
-	public void handleIncidentRequest(final IncidentRequest incidentRequest) {
+	public synchronized void handleIncidentRequest(final IncidentRequest incidentRequest) {
 
 		final var issueKey = incidentRequest.getIncidentKey();
 		final var incidentEntity = incidentRepository.findByPobIssueKey(issueKey)
-			.orElse(IncidentEntity.create().withPobIssueKey(issueKey));
+			.orElse(IncidentEntity.create()
+				.withPobIssueKey(issueKey)
+				.withStatus(POB_INITIATED_EVENT));
 
 		// Only set the status to POB_INITIATED_EVENT if status is currently SYNCHRONIZED.
 		if (OPEN_FOR_MODIFICATION_STATUS_LIST.contains(incidentEntity.getStatus())) {
-			incidentRepository.saveAndFlush(incidentEntity.withStatus(POB_INITIATED_EVENT));
+			incidentEntity.withStatus(POB_INITIATED_EVENT);
 		}
+
+		incidentRepository.saveAndFlush(incidentEntity);
 	}
 
 	/**

@@ -1,16 +1,24 @@
 package se.sundsvall.incidentmapper.integration.jira;
 
+import static java.util.Collections.emptyList;
 import static java.util.Optional.empty;
+import static java.util.stream.Collectors.toMap;
 
 import java.io.File;
 import java.util.Base64;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import com.chavaillaz.client.jira.JiraClient;
 import com.chavaillaz.client.jira.domain.Comment;
 import com.chavaillaz.client.jira.domain.Issue;
+import com.chavaillaz.client.jira.domain.IssueType;
+import com.chavaillaz.client.jira.domain.Status;
 
 import se.sundsvall.incidentmapper.integration.jira.configuration.JiraProperties;
 
@@ -47,29 +55,55 @@ public class JiraIncidentClient {
 	/**
 	 * Create a Jira issue, with the configured default project key.
 	 *
-	 * @param issueType    the isse type (e.g. "Bug")
-	 * @param issueSummary the issue summary (subject)
-	 * @param description  the issue description.
+	 * @param type        the issue type (e.g. "Bug")
+	 * @param labels      the issue labels (e.g. "my-label")
+	 * @param summary     the issue summary (subject)
+	 * @param description the issue description.
 	 */
-	public String createIssue(final String issueType, final String issueSummary, final String description) {
-		return createIssue(jiraProperties.projectKey(), issueType, issueSummary, description);
+	public String createIssue(final String type, List<String> labels, final String summary, final String description) {
+		return createIssue(jiraProperties.projectKey(), type, labels, summary, description);
 	}
 
 	/**
 	 * Create a Jira issue.
 	 *
-	 * @param projectKey   the project key.
-	 * @param issueType    the isse type (e.g. "Bug")
-	 * @param issueSummary the issue summary (subject)
-	 * @param description  the issue description.
+	 * @param projectKey  the project key.
+	 * @param type        the issue type (e.g. "Bug")
+	 * @param labels      the issue labels (e.g. "my-label")
+	 * @param summary     the issue summary (subject)
+	 * @param description the issue description.
 	 */
-	public String createIssue(final String projectKey, final String issueType, final String issueSummary, final String description) {
+	public String createIssue(final String projectKey, final String type, List<String> labels, final String summary, final String description) {
 
-		final var issue = Issue.from(issueType, projectKey, issueSummary);
+		final var issue = Issue.from(type, projectKey, summary);
 		issue.getFields().setDescription(description);
+		issue.getFields().setLabels(labels);
 
 		try {
 			return jiraClient.getIssueApi().addIssue(issue).get().getKey();
+		} catch (final Exception e) {
+			Thread.currentThread().interrupt();
+			throw new JiraIntegrationException(e);
+		}
+	}
+
+	/**
+	 * Get available statuses for a project.
+	 *
+	 * @param  projectKey the project key.
+	 * @return            a list of statuses.
+	 */
+	@Cacheable("statuses")
+	public Map<String, Status> getStatusesByIssueType(String projectKey, String type) {
+		try {
+			return jiraClient.getProjectApi().getProjectStatuses(projectKey).get().stream()
+				.filter(issueType -> issueType.getName().equalsIgnoreCase(type))
+				.findFirst()
+				.map(IssueType::getStatuses)
+				.orElse(emptyList())
+				.stream()
+				.collect(toMap(Status::getName, Function.identity()));
+
 		} catch (final Exception e) {
 			Thread.currentThread().interrupt();
 			throw new JiraIntegrationException(e);

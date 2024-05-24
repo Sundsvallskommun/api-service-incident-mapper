@@ -26,16 +26,15 @@ import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
 public final class PobMapper {
 
 	// Fields
-	static final String PROBLEM = "Problem";
-	static final String BINARY_DATA_TYPE = "BinaryData";
-	static final String ORIGINAL_FILE_NAME = "OriginalFileName";
-	static final String FILE_TYPE = "FileType";
-	static final String ID = "Id";
-	static final String CASE_TYPE = "Case";
-	static final String FILE_DATA = "FileData";
-	static final String RELATION = "Relation";
-	static final String RESPONSIBLE = "Responsible";
-	static final String RESPONSIBLE_GROUP = "ResponsibleGroup";
+	private static final String PROBLEM = "Problem";
+	private static final String BINARY_DATA_TYPE = "BinaryData";
+	private static final String ORIGINAL_FILE_NAME = "OriginalFileName";
+	private static final String FILE_TYPE = "FileType";
+	private static final String ID = "Id";
+	private static final String CASE_TYPE = "Case";
+	private static final String FILE_DATA = "FileData";
+	private static final String RESPONSIBLE = "Responsible";
+	private static final String RESPONSIBLE_GROUP = "ResponsibleGroup";
 
 	// Field values
 	private static final String DATA_URL_FORMAT = "data:%s;base64,%s";

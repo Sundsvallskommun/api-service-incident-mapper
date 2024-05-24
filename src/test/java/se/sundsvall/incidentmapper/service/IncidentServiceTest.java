@@ -434,9 +434,10 @@ class IncidentServiceTest {
 		final var jiraIssue = new Issue();
 
 		when(synchronizationPropertiesMock.tempFolder()).thenReturn(TEMP_DIR);
-		when(jiraClientMock.createIssue(any(), any(), any())).thenReturn(jiraIssueKey);
+		when(jiraClientMock.createIssue(any(), any(), any(), any())).thenReturn(jiraIssueKey);
 		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(Optional.of(jiraIssue));
 		when(jiraClientMock.getProperties()).thenReturn(new JiraProperties("user", "pass", "http:://jira-test.com", "XX"));
+		when(jiraClientMock.getStatusesByIssueType(any(), any())).thenReturn(Map.of("To Do", com.chavaillaz.client.jira.domain.Status.fromName("To Do")));
 		when(pobClientMock.getCase(pobIssueKey)).thenReturn(Optional.ofNullable(pobPayload));
 		when(pobClientMock.getCaseInternalNotesCustom(pobIssueKey)).thenReturn(Optional.of(pobPayloadCaseInternalNotesCustomMemo));
 		when(pobClientMock.getProblemMemo(pobIssueKey)).thenReturn(Optional.of(pobPayloadProblemMemo));
@@ -454,11 +455,13 @@ class IncidentServiceTest {
 
 		// Assert
 		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
-		verify(jiraClientMock).createIssue("Bug", "Supportärende (This works!)", "This is a description");
+		verify(jiraClientMock).createIssue("Bug", List.of("support-ticket"), "Supportärende (This works!)", "This is a description");
 		verify(jiraClientMock).updateIssue(jiraIssueCaptor.capture());
 		verify(jiraClientMock).getIssue(jiraIssueKey);
 		verify(jiraClientMock).addComment(jiraIssueKey, "2024-05-08 14:09 Kommentar");
 		verify(jiraClientMock).addAttachment(jiraIssueKey, new File(TEMP_DIR + "/happy_dog.png"));
+		verify(jiraClientMock, times(2)).getProperties();
+		verify(jiraClientMock).getStatusesByIssueType("XX", "Bug");
 		verify(pobClientMock).getCase(pobIssueKey);
 		verify(pobClientMock).getCaseInternalNotesCustom(pobIssueKey);
 		verify(pobClientMock).getProblemMemo(pobIssueKey);

@@ -5,6 +5,7 @@ import static java.time.OffsetDateTime.now;
 import static java.time.ZoneId.systemDefault;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Objects.nonNull;
 import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
@@ -50,11 +51,12 @@ public class IncidentService {
 
 	private static final List<Status> OPEN_FOR_MODIFICATION_STATUS_LIST = asList(SYNCHRONIZED); // Status is only modifiable if current value is one of these.
 	private static final List<String> JIRA_CLOSED_STATUSES = List.of("Closed", "Done", "Resolved", "Won't Do", "wont-do");
-	private static final com.chavaillaz.client.jira.domain.Status JIRA_TODO_STATUS = com.chavaillaz.client.jira.domain.Status.fromName("To Do");
 
 	private static final String JIRA_ISSUE_CREATED = "A new Jira issue has been created for you: %s/browse/%s";
 
 	private static final String JIRA_ISSUE_TYPE = "Bug";
+	private static final String JIRA_TODO_STATUS = "To Do";
+	private static final String JIRA_ISSUE_LABEL = "support-ticket";
 	private static final String JIRA_ISSUE_TITLE_TEMPLATE = "Supportärende (%s)";
 	private static final String APPLICATION_TEMP_FOLDER_PATH_TEMPLATE = "%s/%s";
 
@@ -80,7 +82,6 @@ public class IncidentService {
 	 * @param incidentRequest the request (from POB).
 	 */
 	public synchronized void handleIncidentRequest(final IncidentRequest incidentRequest) {
-
 		final var issueKey = incidentRequest.getIncidentKey();
 		final var incidentEntity = incidentRepository.findByPobIssueKey(issueKey)
 			.orElse(IncidentEntity.create()
@@ -197,15 +198,20 @@ public class IncidentService {
 		final var comments = toCaseInternalNotesCustomMemo(pobClient.getCaseInternalNotesCustom(incidentEntity.getPobIssueKey()).orElse(null));
 
 		// Create issue in Jira.
-		final var jiraIssueKey = jiraIncidentClient.createIssue(JIRA_ISSUE_TYPE, JIRA_ISSUE_TITLE_TEMPLATE.formatted(summary), description);
+		final var jiraIssueKey = jiraIncidentClient.createIssue(JIRA_ISSUE_TYPE, List.of(JIRA_ISSUE_LABEL), JIRA_ISSUE_TITLE_TEMPLATE.formatted(summary), description);
 		final var jiraIssue = jiraIncidentClient.getIssue(jiraIssueKey);
 
 		jiraIssue.ifPresent(issue -> {
 
 			// Update status on issue in Jira.
-			final var updateIssue = Issue.fromKey(jiraIssueKey);
-			updateIssue.getFields().setStatus(JIRA_TODO_STATUS);
-			jiraIncidentClient.updateIssue(updateIssue);
+			final var status = jiraIncidentClient.getStatusesByIssueType(jiraIncidentClient.getProperties().projectKey(), JIRA_ISSUE_TYPE).get(JIRA_TODO_STATUS);
+			if (nonNull(status)) {
+				final var updateIssue = Issue.fromKey(jiraIssueKey);
+				updateIssue.getFields().setStatus(status);
+				jiraIncidentClient.updateIssue(updateIssue);
+
+				LOGGER.info("Updated status on issue '{}' to {}", jiraIssueKey, status);
+			}
 
 			// Add comments in Jira.
 			jiraIncidentClient.addComment(jiraIssueKey, comments);
@@ -266,7 +272,7 @@ public class IncidentService {
 			.filter(comment -> comment.getCreated().isAfter(Optional.ofNullable(incidentEntity.getLastSynchronizedPob()).orElse(MIN).plusSeconds(synchronizationProperties.clockSkewInSeconds())))
 			.filter(comment -> comment.getAuthor() != null)
 			.filter(comment -> !comment.getAuthor().getName().equals(jiraIncidentClient.getProperties().username()))
-			.forEach(comment -> updatePobWithComment(incidentEntity, comment.getBody()));
+			.forEach(comment -> updatePobWithComment(incidentEntity, comment.getAuthor().getDisplayName() + ":\n " + comment.getBody()));
 	}
 
 	private void updatePobWithComment(final IncidentEntity incidentEntity, final String comment) {

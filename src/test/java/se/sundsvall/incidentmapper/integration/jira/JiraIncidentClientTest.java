@@ -10,6 +10,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Base64;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -23,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.chavaillaz.client.jira.JiraClient;
 import com.chavaillaz.client.jira.api.IssueApi;
+import com.chavaillaz.client.jira.api.ProjectApi;
 import com.chavaillaz.client.jira.domain.Attachment;
 import com.chavaillaz.client.jira.domain.Attachments;
 import com.chavaillaz.client.jira.domain.Comment;
@@ -31,6 +33,7 @@ import com.chavaillaz.client.jira.domain.Identity;
 import com.chavaillaz.client.jira.domain.Issue;
 import com.chavaillaz.client.jira.domain.IssueType;
 import com.chavaillaz.client.jira.domain.Project;
+import com.chavaillaz.client.jira.domain.Statuses;
 
 import se.sundsvall.incidentmapper.integration.jira.configuration.JiraProperties;
 
@@ -44,10 +47,16 @@ class JiraIncidentClientTest {
 	private IssueApi<Issue> issueApiMock;
 
 	@Mock
+	private ProjectApi projectApiMock;
+
+	@Mock
 	private JiraClient<Issue> jiraClientMock;
 
 	@Mock
 	private JiraProperties jiraPropertiesMock;
+
+	@Mock
+	private CompletableFuture<Statuses> completableFutureStatusesMock;
 
 	@Mock
 	private CompletableFuture<Identity> completableFutureIdentityMock;
@@ -95,21 +104,22 @@ class JiraIncidentClientTest {
 
 		// Arrange
 		final var projectKey = "TEST";
-		final var issueTypeName = "Bug";
-		final var issueSummary = "Test issue";
-		final var issueDescription = "Test description";
-		final var issueKey = "TEST-1";
+		final var type = "Bug";
+		final var summary = "Test issue";
+		final var description = "Test description";
+		final var key = "TEST-1";
+		final var labels = List.of("my-label");
 
-		when(issueMock.getKey()).thenReturn(issueKey);
+		when(issueMock.getKey()).thenReturn(key);
 		when(jiraClientMock.getIssueApi()).thenReturn(issueApiMock);
 		when(issueApiMock.addIssue(any())).thenReturn(completableFutureIdentityMock);
 		when(completableFutureIdentityMock.get()).thenReturn(issueMock);
 
 		// Act
-		final var result = jiraClient.createIssue(projectKey, issueTypeName, issueSummary, issueDescription);
+		final var result = jiraClient.createIssue(projectKey, type, labels, summary, description);
 
 		// Assert
-		assertThat(result).isNotNull().isEqualTo(issueKey);
+		assertThat(result).isNotNull().isEqualTo(key);
 
 		verify(jiraClientMock).getIssueApi();
 		verify(issueMock).getKey();
@@ -120,21 +130,22 @@ class JiraIncidentClientTest {
 	@Test
 	void createIssueUsingImplicitProjectKey() throws Exception {
 
-		final var issueTypeName = "Bug";
-		final var issueSummary = "Test issue";
-		final var issueDescription = "Test description";
-		final var issueKey = "TEST-1";
+		final var type = "Bug";
+		final var summary = "Test issue";
+		final var description = "Test description";
+		final var key = "TEST-1";
+		final var labels = List.of("my-label");
 
-		when(issueMock.getKey()).thenReturn(issueKey);
+		when(issueMock.getKey()).thenReturn(key);
 		when(jiraClientMock.getIssueApi()).thenReturn(issueApiMock);
 		when(issueApiMock.addIssue(any())).thenReturn(completableFutureIdentityMock);
 		when(completableFutureIdentityMock.get()).thenReturn(issueMock);
 
 		// Act
-		final var result = jiraClient.createIssue(issueTypeName, issueSummary, issueDescription);
+		final var result = jiraClient.createIssue(type, labels, summary, description);
 
 		// Assert
-		assertThat(result).isNotNull().isEqualTo(issueKey);
+		assertThat(result).isNotNull().isEqualTo(key);
 
 		verify(jiraClientMock).getIssueApi();
 		verify(issueMock).getKey();
@@ -147,15 +158,16 @@ class JiraIncidentClientTest {
 
 		// Arrange
 		final var projectKey = "TEST";
-		final var issueTypeName = "Bug";
-		final var issueSummary = "Test issue";
-		final var issueDescription = "Test description";
+		final var type = "Bug";
+		final var summary = "Test issue";
+		final var description = "Test description";
+		final var labels = List.of("my-label");
 
 		when(jiraClientMock.getIssueApi()).thenReturn(issueApiMock);
 		when(issueApiMock.addIssue(any())).thenThrow(new RuntimeException("Error"));
 
 		// Act
-		final var exception = assertThrows(JiraIntegrationException.class, () -> jiraClient.createIssue(projectKey, issueTypeName, issueSummary, issueDescription));
+		final var exception = assertThrows(JiraIntegrationException.class, () -> jiraClient.createIssue(projectKey, type, labels, summary, description));
 
 		// Assert
 		assertThat(exception).isNotNull();
@@ -364,5 +376,48 @@ class JiraIncidentClientTest {
 
 		verify(jiraClientMock).getIssueApi();
 		verify(issueApiMock).getAttachmentContent(contentUrl);
+	}
+
+	@Test
+	void getStatusesByIssueType() throws Exception {
+
+		// Arrange
+		final var projectKey = "TEST";
+		final var issueType = "Bug";
+		final var statuses = new Statuses();
+
+		when(jiraClientMock.getProjectApi()).thenReturn(projectApiMock);
+		when(projectApiMock.getProjectStatuses(projectKey)).thenReturn(completableFutureStatusesMock);
+		when(completableFutureStatusesMock.get()).thenReturn(statuses);
+
+		// Act
+		jiraClient.getStatusesByIssueType(projectKey, issueType);
+
+		// Assert
+		verify(jiraClientMock).getProjectApi();
+		verify(projectApiMock).getProjectStatuses(projectKey);
+		verify(completableFutureStatusesMock).get();
+	}
+
+	@Test
+	void getStatusesByIssueTypeThrowsException() {
+
+		// Arrange
+		final var projectKey = "TEST";
+		final var issueType = "Bug";
+
+		when(jiraClientMock.getProjectApi()).thenReturn(projectApiMock);
+		when(projectApiMock.getProjectStatuses(projectKey)).thenThrow(new RuntimeException("Error"));
+
+		// Act
+		final var exception = assertThrows(JiraIntegrationException.class, () -> jiraClient.getStatusesByIssueType(projectKey, issueType));
+
+		// Assert
+		assertThat(exception).isNotNull();
+		assertThat(exception.getMessage()).isEqualTo("java.lang.RuntimeException: Error");
+
+		verify(jiraClientMock).getProjectApi();
+		verify(projectApiMock).getProjectStatuses(projectKey);
+
 	}
 }

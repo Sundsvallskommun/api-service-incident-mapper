@@ -23,16 +23,16 @@ public class SynchronizerSchedulerService {
 	@SchedulerLock(name = "jira-polling", lockAtMostFor = "${scheduler.synchronizer.shedlock-lock-at-most-for}")
 	public void execute() {
 
-		LOGGER.info("Start polling for Jira updates");
-		incidentService.pollJiraUpdates();
-		LOGGER.info("End polling for Jira updates");
+		LOGGER.info("Start polling for Jira modifications");
+		incidentService.pollJira();
+		LOGGER.info("End polling for Jira modifications");
 
-		LOGGER.info("Start POB updates");
+		LOGGER.info("Start POB synchronization");
 		incidentService.updatePob();
-		LOGGER.info("End POB updates");
+		LOGGER.info("End POB synchronization");
 
-		LOGGER.info("Start Jira updates");
+		LOGGER.info("Start Jira synchronization");
 		incidentService.updateJira();
-		LOGGER.info("End Jira updates");
+		LOGGER.info("End Jira synchronization");
 	}
 }

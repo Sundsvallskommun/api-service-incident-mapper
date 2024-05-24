@@ -189,7 +189,7 @@ class IncidentServiceTest {
 	}
 
 	@Test
-	void pollJiraUpdatesWhenUpdatesFound() {
+	void pollJiraWhenUpdatesFound() {
 
 		// Arrange
 		final var jiraIssueKey = "JIR-12345";
@@ -206,7 +206,7 @@ class IncidentServiceTest {
 		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(Optional.of(jiraIssue));
 
 		// Act
-		incidentService.pollJiraUpdates();
+		incidentService.pollJira();
 
 		// Assert
 		verify(jiraClientMock).getIssue(jiraIssueKey);
@@ -219,7 +219,7 @@ class IncidentServiceTest {
 	}
 
 	@Test
-	void pollJiraUpdatesWhenUpdatesNotFound() {
+	void pollJiraWhenUpdatesNotFound() {
 
 		// Arrange
 		final var jiraIssueKey = "JIR-12345";
@@ -238,7 +238,7 @@ class IncidentServiceTest {
 		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(Optional.of(jiraIssue));
 
 		// Act
-		incidentService.pollJiraUpdates();
+		incidentService.pollJira();
 
 		// Assert
 		verify(jiraClientMock).getIssue(jiraIssueKey);
@@ -247,7 +247,7 @@ class IncidentServiceTest {
 	}
 
 	@Test
-	void pollJiraUpdatesWhenJiraIssueNotFound() {
+	void pollJiraWhenJiraIssueNotFound() {
 
 		// Arrange
 		final var jiraIssueKey = "JIR-12345";
@@ -263,7 +263,7 @@ class IncidentServiceTest {
 		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(Optional.empty());
 
 		// Act
-		incidentService.pollJiraUpdates();
+		incidentService.pollJira();
 
 		// Assert
 		verify(incidentRepositoryMock).findByStatus(SYNCHRONIZED);
@@ -279,12 +279,12 @@ class IncidentServiceTest {
 	}
 
 	@Test
-	void pollJiraUpdatesWhenIncidentMappingsNotFound() {
+	void pollJiraWhenIncidentMappingsNotFound() {
 
 		when(incidentRepositoryMock.findByStatus(SYNCHRONIZED)).thenReturn(emptyList());
 
 		// Act
-		incidentService.pollJiraUpdates();
+		incidentService.pollJira();
 
 		// Assert
 		verifyNoInteractions(jiraClientMock);

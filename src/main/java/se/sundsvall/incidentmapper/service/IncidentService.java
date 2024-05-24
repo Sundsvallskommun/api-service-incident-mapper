@@ -104,7 +104,7 @@ public class IncidentService {
 	 * the status will be changed to "JIRA_INITIATED_EVENT". This status will make the issue a candidate for synchronization
 	 * towards Pob.
 	 */
-	public void pollJiraUpdates() {
+	public void pollJira() {
 		incidentRepository.findByStatus(SYNCHRONIZED)
 			.forEach(incidentEntity -> jiraIncidentClient.getIssue(incidentEntity.getJiraIssueKey()).ifPresentOrElse(jiraIssue -> {
 				final var lastModifiedJira = Optional.ofNullable(jiraIssue.getFields().getUpdated()).orElse(MIN);
@@ -131,7 +131,6 @@ public class IncidentService {
 			.forEach(incidentEntity -> {
 				if (isBlank(incidentEntity.getJiraIssueKey())) {
 					createJiraIssue(incidentEntity);
-					slackService.sendToSlack(JIRA_ISSUE_CREATED.formatted(jiraIncidentClient.getProperties().url(), incidentEntity.getJiraIssueKey()));
 					return;
 				}
 				updateJiraIssue(incidentEntity);
@@ -149,14 +148,12 @@ public class IncidentService {
 		final var jiraIssueKey = incidentEntity.getJiraIssueKey();
 		final var jiraIssue = jiraIncidentClient.getIssue(jiraIssueKey);
 
-		// Update comments (remove all + add existing from POB).
 		jiraIssue.ifPresentOrElse(issue -> {
 
 			// Update issue in Jira
 			final var updateIssue = Issue.fromKey(jiraIssueKey);
 			updateIssue.getFields().setDescription(description);
 			updateIssue.getFields().setSummary(summary);
-
 			jiraIncidentClient.updateIssue(updateIssue);
 
 			// Delete all existing comments in Jira.
@@ -205,7 +202,7 @@ public class IncidentService {
 
 		jiraIssue.ifPresent(issue -> {
 
-			// Update status om issue in Jira
+			// Update status on issue in Jira.
 			final var updateIssue = Issue.fromKey(jiraIssueKey);
 			updateIssue.getFields().setStatus(JIRA_TODO_STATUS);
 			jiraIncidentClient.updateIssue(updateIssue);
@@ -220,13 +217,16 @@ public class IncidentService {
 			removeFilesInTempFolder();
 
 			LOGGER.info("Issue '{}' created in Jira", jiraIssueKey);
-		});
 
-		// Save state in DB
-		incidentRepository.saveAndFlush(incidentEntity
-			.withStatus(SYNCHRONIZED)
-			.withJiraIssueKey(jiraIssueKey)
-			.withLastSynchronizedJira(now(systemDefault())));
+			// Save state in DB.
+			incidentRepository.saveAndFlush(incidentEntity
+				.withStatus(SYNCHRONIZED)
+				.withJiraIssueKey(jiraIssueKey)
+				.withLastSynchronizedJira(now(systemDefault())));
+
+			// Send slack notification.
+			slackService.sendToSlack(JIRA_ISSUE_CREATED.formatted(jiraIncidentClient.getProperties().url(), jiraIssueKey));
+		});
 	}
 
 	public void updatePob() {
@@ -253,6 +253,8 @@ public class IncidentService {
 				.withStatus(SYNCHRONIZED)
 				.withLastSynchronizedPob(now(systemDefault())));
 		}
+
+		LOGGER.info("Issue '{}' synchronized in POB", incidentEntity.getPobIssueKey());
 	}
 
 	private void updatePobUser(final IncidentEntity incidentEntity) {

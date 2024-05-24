@@ -181,11 +181,15 @@ class IncidentServiceTest {
 
 		// Assert
 		verify(incidentRepositoryMock).findByPobIssueKey(pobIssueKey);
-		verify(incidentRepositoryMock, never()).saveAndFlush(any());
+		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
+
+		final var capturedIncidentEntity = incidentEntityCaptor.getValue();
+		assertThat(capturedIncidentEntity).isNotNull();
+		assertThat(capturedIncidentEntity.getStatus()).isEqualTo(JIRA_INITIATED_EVENT);
 	}
 
 	@Test
-	void pollJiraUpdatesWhenUpdatesFound() {
+	void pollJiraWhenUpdatesFound() {
 
 		// Arrange
 		final var jiraIssueKey = "JIR-12345";
@@ -202,7 +206,7 @@ class IncidentServiceTest {
 		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(Optional.of(jiraIssue));
 
 		// Act
-		incidentService.pollJiraUpdates();
+		incidentService.pollJira();
 
 		// Assert
 		verify(jiraClientMock).getIssue(jiraIssueKey);
@@ -215,7 +219,7 @@ class IncidentServiceTest {
 	}
 
 	@Test
-	void pollJiraUpdatesWhenUpdatesNotFound() {
+	void pollJiraWhenUpdatesNotFound() {
 
 		// Arrange
 		final var jiraIssueKey = "JIR-12345";
@@ -234,7 +238,7 @@ class IncidentServiceTest {
 		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(Optional.of(jiraIssue));
 
 		// Act
-		incidentService.pollJiraUpdates();
+		incidentService.pollJira();
 
 		// Assert
 		verify(jiraClientMock).getIssue(jiraIssueKey);
@@ -243,13 +247,15 @@ class IncidentServiceTest {
 	}
 
 	@Test
-	void pollJiraUpdatesWhenJiraIssueNotFound() {
+	void pollJiraWhenJiraIssueNotFound() {
 
 		// Arrange
 		final var jiraIssueKey = "JIR-12345";
+		final var pobIssueKey = "POB-12345";
 		final var lastSynchronizedJira = now().plusMinutes(1);
 		final var existingIncident = IncidentEntity.create()
 			.withJiraIssueKey(jiraIssueKey)
+			.withPobIssueKey(pobIssueKey)
 			.withLastSynchronizedJira(lastSynchronizedJira)
 			.withStatus(SYNCHRONIZED);
 
@@ -257,21 +263,28 @@ class IncidentServiceTest {
 		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(Optional.empty());
 
 		// Act
-		incidentService.pollJiraUpdates();
+		incidentService.pollJira();
 
 		// Assert
 		verify(incidentRepositoryMock).findByStatus(SYNCHRONIZED);
 		verify(jiraClientMock).getIssue(jiraIssueKey);
-		verify(incidentRepositoryMock, never()).saveAndFlush(any());
+		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
+
+		final var capturedIncidentEntity = incidentEntityCaptor.getValue();
+		assertThat(capturedIncidentEntity).isNotNull();
+		assertThat(capturedIncidentEntity.getStatus()).isEqualTo(POB_INITIATED_EVENT);
+		assertThat(capturedIncidentEntity.getPobIssueKey()).isEqualTo(pobIssueKey);
+		assertThat(capturedIncidentEntity.getJiraIssueKey()).isNull();
+		assertThat(capturedIncidentEntity.getLastSynchronizedJira()).isNull();
 	}
 
 	@Test
-	void pollJiraUpdatesWhenIncidentMappingsNotFound() {
+	void pollJiraWhenIncidentMappingsNotFound() {
 
 		when(incidentRepositoryMock.findByStatus(SYNCHRONIZED)).thenReturn(emptyList());
 
 		// Act
-		incidentService.pollJiraUpdates();
+		incidentService.pollJira();
 
 		// Assert
 		verifyNoInteractions(jiraClientMock);

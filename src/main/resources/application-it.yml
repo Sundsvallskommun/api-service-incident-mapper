@@ -7,17 +7,17 @@ application:
 
 integration:
   messaging:
-    url: http://localhost:${wiremock.server.port:}/api-messaging
+    url: http://localhost:${wiremock.server.port:}/messaging
     channel: the-channel
     token: the-token
   pob:
-    url: http://localhost:${wiremock.server.port:}/api-pob
+    url: http://localhost:${wiremock.server.port:}/pob
     apiKey: some-key
   jira:
     password: some-password
     username: some-username
-    url: http://jira.url
-    projectKey: PROJECT-KEY
+    url: http://localhost:${wiremock.server.port:}/jira
+    projectKey: UF
 spring:
   datasource:
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
@@ -49,6 +49,6 @@ spring:
 #========================================
 scheduler:
   synchronizer:
-    cron: "-"
+    cron: "0/3 * * * * *"
   dbcleaner:
     cron: "-"

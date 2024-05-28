@@ -3,7 +3,7 @@
 #========================================
 application:
   synchronization:
-    tempFolder: ${project.build.directory}
+    tempFolder: ${project.build.directory}/tmp
     
 integration:
   messaging:
@@ -19,6 +19,8 @@ integration:
     url: http://jira.url
     projectKey: PROJECT-KEY
 spring:
+  cache:
+    type: none
   datasource:
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
     url: jdbc:tc:mariadb:10.6.4:///

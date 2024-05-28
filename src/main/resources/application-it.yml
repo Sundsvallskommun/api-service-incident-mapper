@@ -3,22 +3,24 @@
 #========================================
 application:
   synchronization:
-    tempFolder: ${project.build.directory}
+    tempFolder: ${project.build.directory}/tmp
 
 integration:
   messaging:
-    url: http://localhost:${wiremock.server.port:}/api-messaging
+    url: http://localhost:${wiremock.server.port:}/messaging
     channel: the-channel
     token: the-token
   pob:
-    url: http://localhost:${wiremock.server.port:}/api-pob
+    url: http://localhost:${wiremock.server.port:}/pob
     apiKey: some-key
   jira:
     password: some-password
     username: some-username
-    url: http://jira.url
-    projectKey: PROJECT-KEY
+    url: http://localhost:${wiremock.server.port:}/jira
+    projectKey: UF
 spring:
+  cache:
+    type: none
   datasource:
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
     url: jdbc:tc:mariadb:10.6.4:///
@@ -49,6 +51,6 @@ spring:
 #========================================
 scheduler:
   synchronizer:
-    cron: "-"
+    cron: "0/3 * * * * *"
   dbcleaner:
     cron: "-"

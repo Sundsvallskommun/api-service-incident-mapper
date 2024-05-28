@@ -18,6 +18,8 @@ public class StatusConverter implements AttributeConverter<Status, String> {
 
 	@Override
 	public Status convertToEntityAttribute(String columnValue) {
-		return Status.valueOf(columnValue);
+		return Optional.ofNullable(columnValue)
+			.map(Status::valueOf)
+			.orElse(null);
 	}
 }

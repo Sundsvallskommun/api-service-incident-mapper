@@ -57,7 +57,7 @@ public class IncidentService {
 	private static final String JIRA_ISSUE_TYPE = "Bug";
 	private static final String JIRA_TODO_STATUS = "To Do";
 	private static final String JIRA_ISSUE_LABEL = "support-ticket";
-	private static final String JIRA_ISSUE_TITLE_TEMPLATE = "Supportärende (%s)";
+	private static final String JIRA_ISSUE_TITLE_TEMPLATE = "Supportärende %s (%s)";
 	private static final String APPLICATION_TEMP_FOLDER_PATH_TEMPLATE = "%s/%s";
 
 	private final IncidentRepository incidentRepository;
@@ -141,9 +141,10 @@ public class IncidentService {
 	public void updateJiraIssue(final IncidentEntity incidentEntity) {
 
 		// Fetch from POB.
-		final var summary = toDescription(pobClient.getCase(incidentEntity.getPobIssueKey()).orElse(null));
-		final var description = toProblemMemo(pobClient.getProblemMemo(incidentEntity.getPobIssueKey()).orElse(null));
-		final var comments = toCaseInternalNotesCustomMemo(pobClient.getCaseInternalNotesCustom(incidentEntity.getPobIssueKey()).orElse(null));
+		final var pobIssueKey = incidentEntity.getPobIssueKey();
+		final var summary = toDescription(pobClient.getCase(pobIssueKey).orElse(null));
+		final var description = toProblemMemo(pobClient.getProblemMemo(pobIssueKey).orElse(null));
+		final var comments = toCaseInternalNotesCustomMemo(pobClient.getCaseInternalNotesCustom(pobIssueKey).orElse(null));
 
 		// Fetch from Jira.
 		final var jiraIssueKey = incidentEntity.getJiraIssueKey();
@@ -154,7 +155,7 @@ public class IncidentService {
 			// Update issue in Jira
 			final var updateIssue = Issue.fromKey(jiraIssueKey);
 			updateIssue.getFields().setDescription(description);
-			updateIssue.getFields().setSummary(summary);
+			updateIssue.getFields().setSummary(JIRA_ISSUE_TITLE_TEMPLATE.formatted(pobIssueKey, summary));
 			jiraIncidentClient.updateIssue(updateIssue);
 
 			// Delete all existing comments in Jira.
@@ -193,12 +194,13 @@ public class IncidentService {
 	public void createJiraIssue(final IncidentEntity incidentEntity) {
 
 		// Fetch from POB.
-		final var summary = toDescription(pobClient.getCase(incidentEntity.getPobIssueKey()).orElse(null));
-		final var description = toProblemMemo(pobClient.getProblemMemo(incidentEntity.getPobIssueKey()).orElse(null));
-		final var comments = toCaseInternalNotesCustomMemo(pobClient.getCaseInternalNotesCustom(incidentEntity.getPobIssueKey()).orElse(null));
+		final var pobIssueKey = incidentEntity.getPobIssueKey();
+		final var summary = toDescription(pobClient.getCase(pobIssueKey).orElse(null));
+		final var description = toProblemMemo(pobClient.getProblemMemo(pobIssueKey).orElse(null));
+		final var comments = toCaseInternalNotesCustomMemo(pobClient.getCaseInternalNotesCustom(pobIssueKey).orElse(null));
 
 		// Create issue in Jira.
-		final var jiraIssueKey = jiraIncidentClient.createIssue(JIRA_ISSUE_TYPE, List.of(JIRA_ISSUE_LABEL), JIRA_ISSUE_TITLE_TEMPLATE.formatted(summary), description);
+		final var jiraIssueKey = jiraIncidentClient.createIssue(JIRA_ISSUE_TYPE, List.of(JIRA_ISSUE_LABEL), JIRA_ISSUE_TITLE_TEMPLATE.formatted(pobIssueKey, summary), description);
 		final var jiraIssue = jiraIncidentClient.getIssue(jiraIssueKey);
 
 		jiraIssue.ifPresent(issue -> {

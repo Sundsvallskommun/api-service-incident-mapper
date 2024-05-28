@@ -1,0 +1,17 @@
+{
+  "id" : "4a32bd4f-ce2d-43e4-98d9-ab2bf4aaeaec",
+  "name" : "rest_api_2_attachment_11031",
+  "request" : {
+    "url" : "/jira/rest/api/2/attachment/11031",
+    "method" : "DELETE"
+  },
+  "response" : {
+    "status" : 204,
+    "headers" : {
+      "Content-Type" : "application/json;charset=UTF-8"
+    }
+  },
+  "uuid" : "4a32bd4f-ce2d-43e4-98d9-ab2bf4aaeaec",
+  "persistent" : true,
+  "insertionIndex" : 16
+}

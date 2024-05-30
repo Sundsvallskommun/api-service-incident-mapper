@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>se.sundsvall.dept44</groupId>
 		<artifactId>dept44-service-parent</artifactId>
-		<version>5.0.0</version>
+		<version>5.0.1</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>se.sundsvall</groupId>
@@ -15,7 +15,6 @@
 	<version>1.0</version>
 	<name>api-service-incident-mapper</name>
 	<properties>
-		<docker.image.name>ms-incident-mapper</docker.image.name>
 		<generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
 		<generated-sources-java-path>src/main/java</generated-sources-java-path>
 		<shedlock.version>5.13.0</shedlock.version>

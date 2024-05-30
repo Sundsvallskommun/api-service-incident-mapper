@@ -15,7 +15,6 @@
 	<version>1.0</version>
 	<name>api-service-incident-mapper</name>
 	<properties>
-		<docker.image.name>ms-incident-mapper</docker.image.name>
 		<generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
 		<generated-sources-java-path>src/main/java</generated-sources-java-path>
 		<shedlock.version>5.13.0</shedlock.version>

@@ -1,0 +1,21 @@
+{
+  "id" : "1e5fa4ea-0c11-45be-9bfe-a44c375d2050",
+  "name" : "pob_case_12345_memo",
+  "request" : {
+    "url" : "/pob/case/12345/memo?type=Problem&scope=all",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"Type\":\"Case\",\"Links\":[],\"Data\":{\"Id\":\"12345\"},\"Memo\":{\"Problem\":{\"Extension\":\".html\",\"IsValidForWeb\":false,\"Style\":0,\"Memo\":\"<html><head></head><body style=\\\"font-family:Segoe UI;font-size:9pt;\\\"><div id='memo1360032269'><div><div style=\\\"font-family:Segoe UI;font-size:9pt;\\\">2024-05-23 12:59 System API Utvecklingsfabriken Utvecklingsfabriken</div><div style=\\\"font-family:Segoe UI;font-size:9pt;\\\">test2</div><div><div style=\\\"font-family:Segoe UI;font-size:9pt;\\\"><br>___________________________________________________________<br></div></div></div></div><div id='memo1360032268'><div><div style=\\\"font-family:Segoe UI;font-size:9pt;\\\">2024-05-23 12:36 System API Utvecklingsfabriken Utvecklingsfabriken</div><div style=\\\"font-family:Segoe UI;font-size:9pt;\\\">Andreas test</div><div><div style=\\\"font-family:Segoe UI;font-size:9pt;\\\"><br>___________________________________________________________<br></div></div></div></div></body></html>\",\"HandleSeparators\":false}}}",
+    "headers" : {
+      "Content-Type" : "application/json; charset=utf-8"
+    }
+  },
+  "uuid" : "1e5fa4ea-0c11-45be-9bfe-a44c375d2050",
+  "persistent" : true,
+  "scenarioName" : "scenario-2-pobg6-api-v20-case-12345-memo",
+  "requiredScenarioState" : "Started",
+  "newScenarioState" : "scenario-2-pobg6-api-v20-case-12345-memo-2",
+  "insertionIndex" : 10
+}

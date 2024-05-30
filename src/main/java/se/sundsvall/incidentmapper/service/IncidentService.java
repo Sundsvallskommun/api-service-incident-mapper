@@ -270,18 +270,7 @@ public class IncidentService {
 	}
 
 	private void updatePobComment(final IncidentEntity incidentEntity, final Issue jiraIssue) {
-
 		jiraIssue.getFields().getComments().stream()
-			.peek(comment -> {
-
-				LOGGER.info(comment.getCreated() + "");
-				LOGGER.info(comment.getAuthor().getName() + " " + jiraIncidentClient.getProperties().username());
-
-				LOGGER.info("1: " + comment.getCreated().isAfter(Optional.ofNullable(incidentEntity.getLastSynchronizedPob()).orElse(MIN).plusSeconds(synchronizationProperties.clockSkewInSeconds())));
-				LOGGER.info("2: " + (comment.getAuthor() != null) + "");
-				LOGGER.info("3: " + !comment.getAuthor().getName().equals(jiraIncidentClient.getProperties().username()));
-
-			})
 			.filter(comment -> comment.getCreated().isAfter(Optional.ofNullable(incidentEntity.getLastSynchronizedPob()).orElse(MIN).plusSeconds(synchronizationProperties.clockSkewInSeconds())))
 			.filter(comment -> comment.getAuthor() != null)
 			.filter(comment -> !comment.getAuthor().getName().equals(jiraIncidentClient.getProperties().username()))

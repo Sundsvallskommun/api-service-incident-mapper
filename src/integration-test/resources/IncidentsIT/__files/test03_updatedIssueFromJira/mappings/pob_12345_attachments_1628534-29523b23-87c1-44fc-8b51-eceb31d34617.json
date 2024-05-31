@@ -1,0 +1,18 @@
+{
+  "id" : "29523b23-87c1-44fc-8b51-eceb31d34617",
+  "name" : "pob_case_12345_attachments_1628534",
+  "request" : {
+    "url" : "/pob/case/12345/attachments/1628534",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "Hello World.",
+    "headers" : {
+      "Content-Type" : "text/plain"
+    }
+  },
+  "uuid" : "29523b23-87c1-44fc-8b51-eceb31d34617",
+  "persistent" : true,
+  "insertionIndex" : 4
+}

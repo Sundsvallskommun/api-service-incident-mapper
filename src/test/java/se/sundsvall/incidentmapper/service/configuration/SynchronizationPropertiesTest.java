@@ -2,6 +2,8 @@ package se.sundsvall.incidentmapper.service.configuration;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+import java.nio.file.Path;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,6 +22,6 @@ class SynchronizationPropertiesTest {
 	void testProperties() {
 		assertThat(properties.clockSkewInSeconds()).isEqualTo(15);
 		assertThat(properties.responsibleUserGroupInPob()).isEqualTo("IT Support");
-		assertThat(properties.tempFolder()).endsWith("target");
+		assertThat(Path.of(properties.tempFolder()).endsWith(Path.of("target/tmp")));
 	}
 }

@@ -109,8 +109,10 @@ class IncidentRepositoryTest {
 			.extracting(IncidentEntity::getJiraIssueKey, IncidentEntity::getPobIssueKey, IncidentEntity::getStatus)
 			.containsExactlyInAnyOrder(
 				tuple("JIR-001", "POB-001", SYNCHRONIZED),
-				tuple("JIR-009", "POB-009", SYNCHRONIZED),
-				tuple("JIR-005", "POB-005", SYNCHRONIZED));
+				tuple("JIR-004", "POB-004", SYNCHRONIZED),
+				tuple("JIR-005", "POB-005", SYNCHRONIZED),
+				tuple("JIR-008", "POB-008", SYNCHRONIZED),
+				tuple("JIR-009", "POB-009", SYNCHRONIZED));
 	}
 
 	@Test

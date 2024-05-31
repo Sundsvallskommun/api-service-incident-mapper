@@ -1,0 +1,22 @@
+{
+  "id" : "1ed65565-c7fc-4828-ba57-f179430de732",
+  "name" : "rest_api_2_issue_uf-5974",
+  "request" : {
+    "url" : "/jira/rest/api/2/issue/UF-5974",
+    "method" : "PUT",
+    "bodyPatterns" : [ {
+      "equalToJson" : "{\"key\":\"UF-5974\",\"fields\":{\"summary\":\"Supportärende 12345 (testärende draken 240522)\",\"description\":\"2024-05-23 12:59 System API Utvecklingsfabriken Utvecklingsfabriken\\ntest2\\n\\n\\n___________________________________________________________\\n\\n\\n\\n2024-05-23 12:36 System API Utvecklingsfabriken Utvecklingsfabriken\\nAndreas test\\n\\n\\n___________________________________________________________\"}}",
+      "ignoreArrayOrder" : true,
+      "ignoreExtraElements" : true
+    } ]
+  },
+  "response" : {
+    "status" : 204,
+    "headers" : {
+      "Content-Type" : "application/json;charset=UTF-8"
+    }
+  },
+  "uuid" : "1ed65565-c7fc-4828-ba57-f179430de732",
+  "persistent" : true,
+  "insertionIndex" : 24
+}

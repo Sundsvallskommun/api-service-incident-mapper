@@ -418,7 +418,7 @@ class IncidentServiceTest {
 		assertThat(capturedJiraIssuey).isNotNull();
 		assertThat(capturedJiraIssuey.getFields()).hasAllNullFieldsOrPropertiesExcept("description", "summary", "status", "customFields");
 		assertThat(capturedJiraIssuey.getFields().getDescription()).isEqualTo("This is a description");
-		assertThat(capturedJiraIssuey.getFields().getSummary()).isEqualTo("This works!");
+		assertThat(capturedJiraIssuey.getFields().getSummary()).isEqualTo("Supportärende POB-12345 (This works!)");
 	}
 
 	@Test
@@ -455,7 +455,7 @@ class IncidentServiceTest {
 
 		// Assert
 		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
-		verify(jiraClientMock).createIssue("Bug", List.of("support-ticket"), "Supportärende (This works!)", "This is a description");
+		verify(jiraClientMock).createIssue("Bug", List.of("support-ticket"), "Supportärende POB-12345 (This works!)", "This is a description");
 		verify(jiraClientMock).updateIssue(jiraIssueCaptor.capture());
 		verify(jiraClientMock).getIssue(jiraIssueKey);
 		verify(jiraClientMock).addComment(jiraIssueKey, "2024-05-08 14:09 Kommentar");

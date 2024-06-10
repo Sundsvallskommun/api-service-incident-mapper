@@ -21,10 +21,6 @@ openapi:
 spring:
   application:
     name: api-incident-mapper
-  cache:
-    cache-names: statuses
-    caffeine:
-      spec: maximumSize=1000,expireAfterWrite=86400s
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
     hikari:

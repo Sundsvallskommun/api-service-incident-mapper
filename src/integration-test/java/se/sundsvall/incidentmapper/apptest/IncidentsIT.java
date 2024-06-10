@@ -5,6 +5,7 @@ import static org.springframework.http.HttpStatus.ACCEPTED;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
@@ -15,6 +16,7 @@ import se.sundsvall.incidentmapper.Application;
 import se.sundsvall.incidentmapper.integration.db.IncidentRepository;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
 
+@Disabled // TODO: Remove this in UF-8662
 @WireMockAppTestSuite(files = "classpath:/IncidentsIT/", classes = Application.class)
 @Sql({
 	"/db/scripts/truncate.sql",

@@ -5,7 +5,6 @@ import static java.time.OffsetDateTime.now;
 import static java.time.ZoneId.systemDefault;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Objects.nonNull;
 import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
@@ -205,15 +204,11 @@ public class IncidentService {
 
 		jiraIssue.ifPresent(issue -> {
 
-			// Update status on issue in Jira.
-			final var status = jiraIncidentClient.getStatusesByIssueType(jiraIncidentClient.getProperties().projectKey(), JIRA_ISSUE_TYPE).get(JIRA_TODO_STATUS);
-			if (nonNull(status)) {
-				final var updateIssue = Issue.fromKey(jiraIssueKey);
-				updateIssue.getFields().setStatus(status);
-				jiraIncidentClient.updateIssue(updateIssue);
-
-				LOGGER.info("Updated status on issue '{}' to {}", jiraIssueKey, status);
-			}
+			// Set initial status on issue in Jira.
+			Optional.ofNullable(jiraIncidentClient.getTransitions(jiraIssueKey).get(JIRA_TODO_STATUS)).ifPresent(initialStatus -> {
+				jiraIncidentClient.performTransition(jiraIssueKey, initialStatus);
+				LOGGER.info("Updated initial status on issue '{}' to '{}'", jiraIssueKey, initialStatus.getName());
+			});
 
 			// Add comments in Jira.
 			jiraIncidentClient.addComment(jiraIssueKey, comments);

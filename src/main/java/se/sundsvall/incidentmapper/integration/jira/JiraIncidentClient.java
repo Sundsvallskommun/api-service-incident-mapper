@@ -1,6 +1,5 @@
 package se.sundsvall.incidentmapper.integration.jira;
 
-import static java.util.Collections.emptyList;
 import static java.util.Optional.empty;
 import static java.util.stream.Collectors.toMap;
 
@@ -11,14 +10,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import com.chavaillaz.client.jira.JiraClient;
 import com.chavaillaz.client.jira.domain.Comment;
 import com.chavaillaz.client.jira.domain.Issue;
-import com.chavaillaz.client.jira.domain.IssueType;
-import com.chavaillaz.client.jira.domain.Status;
+import com.chavaillaz.client.jira.domain.IssueTransition;
+import com.chavaillaz.client.jira.domain.Transition;
 
 import se.sundsvall.incidentmapper.integration.jira.configuration.JiraProperties;
 
@@ -88,26 +86,29 @@ public class JiraIncidentClient {
 	}
 
 	/**
-	 * Get available statuses for a project.
+	 * Get available transitions for an issue.
 	 *
-	 * @param  projectKey the project key.
-	 * @return            a list of statuses.
+	 * @param  issueKey the issue key.
+	 * @return          a map of transitions where the keys are the transition name.
 	 */
-	@Cacheable("statuses")
-	public Map<String, Status> getStatusesByIssueType(String projectKey, String type) {
+	public Map<String, Transition> getTransitions(String issueKey) {
 		try {
-			return jiraClient.getProjectApi().getProjectStatuses(projectKey).get().stream()
-				.filter(issueType -> issueType.getName().equalsIgnoreCase(type))
-				.findFirst()
-				.map(IssueType::getStatuses)
-				.orElse(emptyList())
-				.stream()
-				.collect(toMap(Status::getName, Function.identity()));
+			return jiraClient.getIssueApi().getTransitions(issueKey).get().stream()
+				.collect(toMap(Transition::getName, Function.identity()));
 
 		} catch (final Exception e) {
 			Thread.currentThread().interrupt();
 			throw new JiraIntegrationException(e);
 		}
+	}
+
+	/**
+	 * Perform a transition
+	 *
+	 * @param issue The issue containing only the fields to update.
+	 */
+	public void performTransition(String issueKey, Transition transition) {
+		jiraClient.getIssueApi().doTransition(issueKey, IssueTransition.from(transition));
 	}
 
 	/**

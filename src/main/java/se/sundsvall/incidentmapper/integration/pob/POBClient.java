@@ -80,7 +80,6 @@ public interface POBClient {
 	 * @param  attachmentId the ID of the attachment.
 	 * @return              the attachment
 	 */
-
 	@GetMapping(path = "case/{caseId}/attachments/{attachmentId}", produces = APPLICATION_JSON_VALUE)
 	InputStreamResource getAttachment(@PathVariable("caseId") String caseId, @PathVariable("attachmentId") String attachmentId);
 
@@ -90,7 +89,56 @@ public interface POBClient {
 	 * @param caseId  the ID of the case.
 	 * @param payload the object with the attachment to create.
 	 */
-
 	@PutMapping(path = "case/{caseId}/attachments", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
 	Void createAttachment(@PathVariable("caseId") String caseId, @RequestBody PobPayload payload);
+
+	/**
+	 * Returns a list of all sent mails for a case (mailStatus=2).
+	 *
+	 * lease note: The payload will only contain an "Id". Use the readMail-method to fetch the content.
+	 *
+	 * @param  caseId the ID of the case.
+	 * @return        a payload with the mail information.
+	 */
+	@GetMapping(path = "case/{caseId}/mails?Filter=MailStatus=2&Fields=Id", produces = APPLICATION_JSON_VALUE)
+	List<PobPayload> getSentMails(@PathVariable("caseId") String caseId);
+
+	/**
+	 * Returns a list of all received mails for a case (mailStatus=3).
+	 *
+	 * Please note: The payload will only contain an "Id". Use the readMail-method to fetch the content.
+	 *
+	 * @param  caseId the ID of the case.
+	 * @return        a payload with the mail information.
+	 */
+	@GetMapping(path = "case/{caseId}/mails?Filter=MailStatus=3&Fields=Id", produces = APPLICATION_JSON_VALUE)
+	List<PobPayload> getReceivedMails(@PathVariable("caseId") String caseId);
+
+	/**
+	 * Fetch a mail by Id.
+	 *
+	 * @param  mailId the ID of the mail.
+	 * @return        a payload with the mail data.
+	 */
+	@GetMapping(path = "mail/{mailId}", produces = APPLICATION_JSON_VALUE)
+	Optional<PobPayload> fetchMail(@PathVariable("mailId") String mailId);
+
+	/**
+	 * Returns a list of all mail attachments for a mail in POB.
+	 *
+	 * @param  mailId the mail ID.
+	 * @return        a payload with the attachments.
+	 */
+	@GetMapping(path = "mail/{mailId}/attachments", produces = APPLICATION_JSON_VALUE)
+	Optional<PobPayload> getMailAttachments(@PathVariable("mailId") String mailId);
+
+	/**
+	 * Returns an attachment for a mail in POB.
+	 *
+	 * @param  mailId       the ID of the mail.
+	 * @param  attachmentId the ID of the attachment.
+	 * @return              the attachment
+	 */
+	@GetMapping(path = "mail/{mailId}/attachments/{attachmentId}", produces = APPLICATION_JSON_VALUE)
+	InputStreamResource getMailAttachment(@PathVariable("mailId") String mailId, @PathVariable("attachmentId") String attachmentId);
 }

@@ -101,7 +101,7 @@ public interface POBClient {
 	 * @return        a payload with the mail information.
 	 */
 	@GetMapping(path = "case/{caseId}/mails?Filter=MailStatus=2&Fields=Id", produces = APPLICATION_JSON_VALUE)
-	List<PobPayload> getSentMails(@PathVariable("caseId") String caseId);
+	List<PobPayload> getSentMailIds(@PathVariable("caseId") String caseId);
 
 	/**
 	 * Returns a list of all received mails for a case (mailStatus=3).
@@ -112,7 +112,7 @@ public interface POBClient {
 	 * @return        a payload with the mail information.
 	 */
 	@GetMapping(path = "case/{caseId}/mails?Filter=MailStatus=3&Fields=Id", produces = APPLICATION_JSON_VALUE)
-	List<PobPayload> getReceivedMails(@PathVariable("caseId") String caseId);
+	List<PobPayload> getReceivedMailIds(@PathVariable("caseId") String caseId);
 
 	/**
 	 * Fetch a mail by Id.
@@ -121,7 +121,7 @@ public interface POBClient {
 	 * @return        a payload with the mail data.
 	 */
 	@GetMapping(path = "mail/{mailId}", produces = APPLICATION_JSON_VALUE)
-	Optional<PobPayload> fetchMail(@PathVariable("mailId") String mailId);
+	Optional<PobPayload> getMail(@PathVariable("mailId") String mailId);
 
 	/**
 	 * Returns a list of all mail attachments for a mail in POB.

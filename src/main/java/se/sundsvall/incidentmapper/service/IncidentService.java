@@ -6,8 +6,10 @@ import static java.time.ZoneId.systemDefault;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.springframework.util.FileSystemUtils.deleteRecursively;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.POB_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
@@ -15,6 +17,7 @@ import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toAttachmentP
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toCaseInternalNotesCustomMemo;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toCaseInternalNotesCustomMemoPayload;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toDescription;
+import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toFormattedMail;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toProblemMemo;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toProblemPayload;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toResponsibleGroupPayload;
@@ -40,7 +43,9 @@ import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
 import se.sundsvall.incidentmapper.integration.db.model.enums.Status;
 import se.sundsvall.incidentmapper.integration.jira.JiraIncidentClient;
 import se.sundsvall.incidentmapper.integration.pob.POBClient;
+import se.sundsvall.incidentmapper.integration.pob.model.Mail;
 import se.sundsvall.incidentmapper.service.configuration.SynchronizationProperties;
+import se.sundsvall.incidentmapper.service.mapper.PobMapper;
 
 @Service
 @Transactional
@@ -57,7 +62,7 @@ public class IncidentService {
 	private static final String JIRA_TODO_STATUS = "To Do";
 	private static final String JIRA_ISSUE_LABEL = "support-ticket";
 	private static final String JIRA_ISSUE_TITLE_TEMPLATE = "Supportärende %s (%s)";
-	private static final String APPLICATION_TEMP_FOLDER_PATH_TEMPLATE = "%s/%s";
+	private static final String APPLICATION_TEMP_FOLDER_PATH_TEMPLATE = "%s/%s/%s";
 
 	private final IncidentRepository incidentRepository;
 	private final JiraIncidentClient jiraIncidentClient;
@@ -161,15 +166,22 @@ public class IncidentService {
 			issue.getFields().getComments().stream()
 				.forEach(comment -> jiraIncidentClient.deleteComment(jiraIssueKey, comment.getId()));
 
-			// Add new comment (with data from POB).
-			jiraIncidentClient.addComment(jiraIssueKey, comments);
-
 			// Delete all attachments in Jira.
 			issue.getFields().getAttachments().stream()
 				.forEach(attachment -> jiraIncidentClient.deleteAttachment(attachment.getId()));
 
-			// Add attachments.
+			// Add POB mails to Jira (as comments and attachments).
+			getPobMails(incidentEntity).forEach(mail -> {
+				jiraIncidentClient.addComment(jiraIssueKey, toFormattedMail(mail));
+				Optional.ofNullable(mail.getAttachments()).orElse(emptyList())
+					.forEach(attachment -> jiraIncidentClient.addAttachment(jiraIssueKey, attachment));
+			});
+
+			// Add case attachments.
 			getPobAttachments(incidentEntity).forEach(attachmentFile -> jiraIncidentClient.addAttachment(jiraIssueKey, attachmentFile));
+
+			// Add new comment (with data from POB).
+			jiraIncidentClient.addComment(jiraIssueKey, comments);
 
 			// Clean temp-dir.
 			removeFilesInTempFolder();
@@ -210,10 +222,17 @@ public class IncidentService {
 				LOGGER.info("Updated initial status on issue '{}' to '{}'", jiraIssueKey, initialStatus.getName());
 			});
 
+			// Add POB mails to Jira (as comments and attachments).
+			getPobMails(incidentEntity).forEach(mail -> {
+				jiraIncidentClient.addComment(jiraIssueKey, toFormattedMail(mail));
+				Optional.ofNullable(mail.getAttachments()).orElse(emptyList())
+					.forEach(attachment -> jiraIncidentClient.addAttachment(jiraIssueKey, attachment));
+			});
+
 			// Add comments in Jira.
 			jiraIncidentClient.addComment(jiraIssueKey, comments);
 
-			// Add attachments.
+			// Add case attachments.
 			getPobAttachments(incidentEntity).forEach(attachment -> jiraIncidentClient.addAttachment(jiraIssueKey, attachment));
 
 			// Clean temp-dir.
@@ -309,22 +328,67 @@ public class IncidentService {
 					final var attachmentFileName = link.getRelation();
 					final var href = link.getHref();
 					final var attachmentId = href.substring(href.lastIndexOf("/") + 1);
-					final var file = new File(APPLICATION_TEMP_FOLDER_PATH_TEMPLATE.formatted(synchronizationProperties.tempFolder(), attachmentFileName));
+					final var file = new File(APPLICATION_TEMP_FOLDER_PATH_TEMPLATE.formatted(synchronizationProperties.tempFolder(), incidentEntity.getPobIssueKey(), attachmentFileName));
 
 					try {
 						copyInputStreamToFile(pobClient.getAttachment(incidentEntity.getPobIssueKey(), attachmentId).getInputStream(), file);
 					} catch (final IOException e) {
 						LOGGER.error("Problem fetching attachment binary data from POB", e);
+						return null;
 					}
 
 					return file;
 				})
+				.filter(Objects::nonNull)
+				.toList())
+			.orElse(emptyList());
+	}
+
+	private List<Mail> getPobMails(final IncidentEntity incidentEntity) {
+		return pobClient.getReceivedMailIds(incidentEntity.getPobIssueKey()).stream()
+			.map(payLoad -> pobClient.getMail((String) payLoad.getData().get("Id")).orElse(null))
+			.filter(Objects::nonNull)
+			.map(PobMapper::toMail)
+			.map(mail -> mail.withAttachments(getPobMailAttachments(mail)))
+			.filter(Objects::nonNull)
+			.toList();
+	}
+
+	private List<File> getPobMailAttachments(Mail mail) {
+		if (mail.getNumberOfAttachments() < 1) {
+			return emptyList();
+		}
+
+		return pobClient.getMailAttachments(mail.getId())
+			.map(attachment -> attachment.getLinks().stream()
+				.filter(link -> isNotEmpty(link.getRelation()))
+				.filter(link -> isNotEmpty(link.getHref()))
+				.filter(link -> !equalsIgnoreCase(link.getRelation(), "body.html")) // We don't want mail bodys as attachments.
+				.map(link -> {
+					final var attachmentFileName = link.getRelation();
+					final var href = link.getHref();
+					final var attachmentId = href.substring(href.lastIndexOf("/") + 1);
+					final var file = new File(APPLICATION_TEMP_FOLDER_PATH_TEMPLATE.formatted(synchronizationProperties.tempFolder(), mail.getId(), attachmentFileName));
+
+					try {
+						copyInputStreamToFile(pobClient.getMailAttachment(mail.getId(), attachmentId).getInputStream(), file);
+					} catch (final IOException e) {
+						LOGGER.error("Problem fetching mail attachment binary data from POB", e);
+						return null;
+					}
+
+					return file;
+				})
+				.filter(Objects::nonNull)
 				.toList())
 			.orElse(emptyList());
 	}
 
 	private void removeFilesInTempFolder() {
 		asList(new File(synchronizationProperties.tempFolder()).listFiles())
-			.forEach(File::delete);
+			.forEach(file -> {
+				LOGGER.info("Delete file: {}", file.getAbsolutePath());
+				deleteRecursively(file);
+			});
 	}
 }

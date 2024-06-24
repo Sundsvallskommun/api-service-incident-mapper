@@ -1,0 +1,13 @@
+{
+	"Type": "Mail",
+	"Links": [
+		{
+			"Relation": "body.html",
+			"Href": "pobg6/api/v20/mail/mailId/attachments/78910"
+		}
+	],
+	"Data": {
+		"Id": "mailId"
+	},
+	"Memo": {}
+}

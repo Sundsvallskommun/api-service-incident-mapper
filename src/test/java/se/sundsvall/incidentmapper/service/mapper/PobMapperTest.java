@@ -12,6 +12,7 @@ import generated.se.sundsvall.pob.PobPayload;
 import se.sundsvall.dept44.test.annotation.resource.Load;
 import se.sundsvall.dept44.test.extension.ResourceLoaderExtension;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
+import se.sundsvall.incidentmapper.integration.pob.model.Mail;
 
 @ExtendWith(ResourceLoaderExtension.class)
 class PobMapperTest {
@@ -80,6 +81,26 @@ class PobMapperTest {
 		assertThat(result).isNotNull();
 		assertThat(result.getData()).containsEntry("Id", "testId");
 		assertThat(result.getMemo().get("CaseInternalNotesCustom").getMemo()).isEqualTo("testComment");
+	}
+
+	@Test
+	void toMail(@Load(value = "/PobMapperTest/pobPayloadMail.json", as = JSON) final PobPayload pobPayload) {
+
+		// Act
+		final var result = PobMapper.toMail(pobPayload);
+
+		// Assert
+		assertThat(result).isNotNull()
+			.isEqualTo(Mail.create()
+				.withAttachments(null)
+				.withBody("Vi önskar avsluta det fasta abonnemanget. Vi önskar även att ni uppdaterar denna information på de platser där ni kan uppdatera")
+				.withFrom("test.testsson@sundsvall.se")
+				.withId("11831645")
+				.withNumberOfAttachments(1)
+				.withReplyTo("")
+				.withSendDate("2024-04-10 09:50:12")
+				.withSubject("Önskar övergå till enbart mobiltelefoni ")
+				.withTo("test@sundsvall.se"));
 	}
 
 	@Test

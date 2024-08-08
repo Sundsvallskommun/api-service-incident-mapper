@@ -5,8 +5,8 @@ import static java.time.OffsetDateTime.now;
 import static java.time.ZoneId.systemDefault;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Objects.nonNull;
 import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.springframework.util.FileSystemUtils.deleteRecursively;
@@ -54,7 +54,7 @@ public class IncidentService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(IncidentService.class);
 
 	private static final List<Status> OPEN_FOR_MODIFICATION_STATUS_LIST = asList(SYNCHRONIZED); // Status is only modifiable if current value is one of these.
-	private static final List<String> JIRA_CLOSED_STATUSES = List.of("Closed", "Done", "Resolved", "Won't Do", "wont-do");
+	private static final List<String> JIRA_CLOSED_STATUSES = List.of("Closed", "Done", "Review Done", "Resolved", "Won't Do", "wont-do");
 
 	private static final String JIRA_ISSUE_CREATED = "A new Jira issue has been created for you: %s/browse/%s";
 
@@ -325,19 +325,24 @@ public class IncidentService {
 				.filter(link -> isNotEmpty(link.getRelation()))
 				.filter(link -> isNotEmpty(link.getHref()))
 				.map(link -> {
-					final var attachmentFileName = link.getRelation();
+					var attachmentFileName = link.getRelation();
 					final var href = link.getHref();
 					final var attachmentId = href.substring(href.lastIndexOf("/") + 1);
-					final var file = new File(APPLICATION_TEMP_FOLDER_PATH_TEMPLATE.formatted(synchronizationProperties.tempFolder(), incidentEntity.getPobIssueKey(), attachmentFileName));
-
 					try {
-						copyInputStreamToFile(pobClient.getAttachment(incidentEntity.getPobIssueKey(), attachmentId).getInputStream(), file);
+						final var attachmentResponse = pobClient.getAttachment(incidentEntity.getPobIssueKey(), attachmentId);
+						final var contentType = attachmentResponse.getHeaders().getContentType();
+						if (!attachmentFileName.contains(".") && nonNull(contentType)) {
+							// Attachment doesn't have a suffix, use contentType mime sub-type instead.
+							attachmentFileName += "." + contentType.getSubtype();
+						}
+						final var file = new File(APPLICATION_TEMP_FOLDER_PATH_TEMPLATE.formatted(synchronizationProperties.tempFolder(), incidentEntity.getPobIssueKey(), attachmentFileName));
+						copyInputStreamToFile(attachmentResponse.getBody().getInputStream(), file);
+
+						return file;
 					} catch (final IOException e) {
 						LOGGER.error("Problem fetching attachment binary data from POB", e);
 						return null;
 					}
-
-					return file;
 				})
 				.filter(Objects::nonNull)
 				.toList())
@@ -349,39 +354,8 @@ public class IncidentService {
 			.map(payLoad -> pobClient.getMail((String) payLoad.getData().get("Id")).orElse(null))
 			.filter(Objects::nonNull)
 			.map(PobMapper::toMail)
-			.map(mail -> mail.withAttachments(getPobMailAttachments(mail)))
 			.filter(Objects::nonNull)
 			.toList();
-	}
-
-	private List<File> getPobMailAttachments(Mail mail) {
-		if (mail.getNumberOfAttachments() < 1) {
-			return emptyList();
-		}
-
-		return pobClient.getMailAttachments(mail.getId())
-			.map(attachment -> attachment.getLinks().stream()
-				.filter(link -> isNotEmpty(link.getRelation()))
-				.filter(link -> isNotEmpty(link.getHref()))
-				.filter(link -> !equalsIgnoreCase(link.getRelation(), "body.html")) // We don't want mail bodys as attachments.
-				.map(link -> {
-					final var attachmentFileName = link.getRelation();
-					final var href = link.getHref();
-					final var attachmentId = href.substring(href.lastIndexOf("/") + 1);
-					final var file = new File(APPLICATION_TEMP_FOLDER_PATH_TEMPLATE.formatted(synchronizationProperties.tempFolder(), mail.getId(), attachmentFileName));
-
-					try {
-						copyInputStreamToFile(pobClient.getMailAttachment(mail.getId(), attachmentId).getInputStream(), file);
-					} catch (final IOException e) {
-						LOGGER.error("Problem fetching mail attachment binary data from POB", e);
-						return null;
-					}
-
-					return file;
-				})
-				.filter(Objects::nonNull)
-				.toList())
-			.orElse(emptyList());
 	}
 
 	private void removeFilesInTempFolder() {

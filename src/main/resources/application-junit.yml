@@ -58,6 +58,4 @@ spring:
 scheduler:
   synchronizer:
     cron: "-"
-  dbcleaner:
-    cron: "-"
     

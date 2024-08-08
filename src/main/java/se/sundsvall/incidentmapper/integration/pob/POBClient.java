@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -81,7 +82,7 @@ public interface POBClient {
 	 * @return              the attachment
 	 */
 	@GetMapping(path = "case/{caseId}/attachments/{attachmentId}", produces = APPLICATION_JSON_VALUE)
-	InputStreamResource getAttachment(@PathVariable("caseId") String caseId, @PathVariable("attachmentId") String attachmentId);
+	ResponseEntity<InputStreamResource> getAttachment(@PathVariable("caseId") String caseId, @PathVariable("attachmentId") String attachmentId);
 
 	/**
 	 * Creates an attachment for a case in POB.

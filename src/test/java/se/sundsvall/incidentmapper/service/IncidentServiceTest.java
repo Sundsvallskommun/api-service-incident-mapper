@@ -35,6 +35,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 
 import com.chavaillaz.client.jira.domain.Attachment;
 import com.chavaillaz.client.jira.domain.Attachments;
@@ -80,6 +82,9 @@ class IncidentServiceTest {
 
 	@Mock
 	private InputStreamResource inputStreamResourceMock;
+
+	@Mock
+	private ResponseEntity<InputStreamResource> responseEntityMock;
 
 	@InjectMocks
 	private IncidentService incidentService;
@@ -386,10 +391,11 @@ class IncidentServiceTest {
 		when(pobClientMock.getCaseInternalNotesCustom(pobIssueKey)).thenReturn(Optional.of(pobPayloadCaseInternalNotesCustomMemo));
 		when(pobClientMock.getProblemMemo(pobIssueKey)).thenReturn(Optional.of(pobPayloadProblemMemo));
 		when(pobClientMock.getAttachments(pobIssueKey)).thenReturn(Optional.ofNullable(pobPayloadAttachments));
-		when(pobClientMock.getAttachment(pobIssueKey, "1628120")).thenReturn(inputStreamResourceMock);
+		when(pobClientMock.getAttachment(pobIssueKey, "1628120")).thenReturn(responseEntityMock);
+		when(responseEntityMock.getBody()).thenReturn(inputStreamResourceMock);
+		when(responseEntityMock.getHeaders()).thenReturn(new HttpHeaders());
 		when(pobClientMock.getReceivedMailIds(pobIssueKey)).thenReturn(List.of(pobPayloadReceivedMailId));
 		when(pobClientMock.getMail(mailId)).thenReturn(Optional.of(pobPayloadMail));
-		when(pobClientMock.getMailAttachments(mailId)).thenReturn(Optional.of(pobPayloadMailAttachments));
 		when(inputStreamResourceMock.getInputStream()).thenReturn(new FileInputStream(file));
 		when(incidentRepositoryMock.findByStatus(POB_INITIATED_EVENT)).thenReturn(List.of(
 			IncidentEntity.create()
@@ -416,7 +422,6 @@ class IncidentServiceTest {
 		verify(pobClientMock).getAttachment(pobIssueKey, "1628120");
 		verify(pobClientMock).getReceivedMailIds(pobIssueKey);
 		verify(pobClientMock).getMail(mailId);
-		verify(pobClientMock).getMailAttachments(mailId);
 
 		final var capturedIncidentEntity = incidentEntityCaptor.getValue();
 		assertThat(capturedIncidentEntity).isNotNull();
@@ -499,10 +504,11 @@ class IncidentServiceTest {
 		when(pobClientMock.getCaseInternalNotesCustom(pobIssueKey)).thenReturn(Optional.of(pobPayloadCaseInternalNotesCustomMemo));
 		when(pobClientMock.getProblemMemo(pobIssueKey)).thenReturn(Optional.of(pobPayloadProblemMemo));
 		when(pobClientMock.getAttachments(pobIssueKey)).thenReturn(Optional.ofNullable(pobPayloadAttachments));
-		when(pobClientMock.getAttachment(pobIssueKey, "1628120")).thenReturn(inputStreamResourceMock);
+		when(pobClientMock.getAttachment(pobIssueKey, "1628120")).thenReturn(responseEntityMock);
+		when(responseEntityMock.getBody()).thenReturn(inputStreamResourceMock);
+		when(responseEntityMock.getHeaders()).thenReturn(new HttpHeaders());
 		when(pobClientMock.getReceivedMailIds(pobIssueKey)).thenReturn(List.of(pobPayloadReceivedMailId));
 		when(pobClientMock.getMail(mailId)).thenReturn(Optional.of(pobPayloadMail));
-		when(pobClientMock.getMailAttachments(mailId)).thenReturn(Optional.of(pobPayloadMailAttachments));
 		when(inputStreamResourceMock.getInputStream()).thenReturn(new FileInputStream(file));
 		when(incidentRepositoryMock.findByStatus(POB_INITIATED_EVENT)).thenReturn(List.of(
 			IncidentEntity.create()
@@ -528,7 +534,6 @@ class IncidentServiceTest {
 		verify(pobClientMock).getAttachment(pobIssueKey, "1628120");
 		verify(pobClientMock).getReceivedMailIds(pobIssueKey);
 		verify(pobClientMock).getMail(mailId);
-		verify(pobClientMock).getMailAttachments(mailId);
 		verify(slackServiceMock).sendToSlack("A new Jira issue has been created for you: http:://jira-test.com/browse/JIR-12345");
 
 		final var capturedIncidentEntity = incidentEntityCaptor.getValue();

@@ -1,0 +1,18 @@
+{
+  "id" : "6b8e25db-b498-45cc-829d-55dabdf60668",
+  "name" : "rest_api_2_issue_uf-5974_transitions",
+  "request" : {
+    "url" : "/jira/rest/api/2/issue/UF-5974/transitions",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"expand\":\"transitions\",\"transitions\":[{\"id\":\"11\",\"name\":\"Backlog\",\"opsbarSequence\":2147483647,\"to\":{\"self\":\"https://jira-test.sundsvall.se/rest/api/2/status/10100\",\"description\":\"\",\"iconUrl\":\"https://jira-test.sundsvall.se/\",\"name\":\"Backlog\",\"id\":\"10100\",\"statusCategory\":{\"self\":\"https://jira-test.sundsvall.se/rest/api/2/statuscategory/2\",\"id\":2,\"key\":\"new\",\"colorName\":\"default\",\"name\":\"To Do\"}}},{\"id\":\"31\",\"name\":\"In Progress\",\"opsbarSequence\":2147483647,\"to\":{\"self\":\"https://jira-test.sundsvall.se/rest/api/2/status/3\",\"description\":\"This issue is being actively worked on at the moment by the assignee.\",\"iconUrl\":\"https://jira-test.sundsvall.se/images/icons/statuses/inprogress.png\",\"name\":\"In Progress\",\"id\":\"3\",\"statusCategory\":{\"self\":\"https://jira-test.sundsvall.se/rest/api/2/statuscategory/4\",\"id\":4,\"key\":\"indeterminate\",\"colorName\":\"inprogress\",\"name\":\"In Progress\"}}},{\"id\":\"41\",\"name\":\"Done\",\"opsbarSequence\":2147483647,\"to\":{\"self\":\"https://jira-test.sundsvall.se/rest/api/2/status/10001\",\"description\":\"\",\"iconUrl\":\"https://jira-test.sundsvall.se/\",\"name\":\"Done\",\"id\":\"10001\",\"statusCategory\":{\"self\":\"https://jira-test.sundsvall.se/rest/api/2/statuscategory/3\",\"id\":3,\"key\":\"done\",\"colorName\":\"success\",\"name\":\"Done\"}}},{\"id\":\"51\",\"name\":\"To Do\",\"opsbarSequence\":2147483647,\"to\":{\"self\":\"https://jira-test.sundsvall.se/rest/api/2/status/10000\",\"description\":\"\",\"iconUrl\":\"https://jira-test.sundsvall.se/\",\"name\":\"To Do\",\"id\":\"10000\",\"statusCategory\":{\"self\":\"https://jira-test.sundsvall.se/rest/api/2/statuscategory/2\",\"id\":2,\"key\":\"new\",\"colorName\":\"default\",\"name\":\"To Do\"}}},{\"id\":\"61\",\"name\":\"Blocked\",\"opsbarSequence\":2147483647,\"to\":{\"self\":\"https://jira-test.sundsvall.se/rest/api/2/status/10200\",\"description\":\"This status is managed internally by Jira Software\",\"iconUrl\":\"https://jira-test.sundsvall.se/\",\"name\":\"Blocked\",\"id\":\"10200\",\"statusCategory\":{\"self\":\"https://jira-test.sundsvall.se/rest/api/2/statuscategory/4\",\"id\":4,\"key\":\"indeterminate\",\"colorName\":\"inprogress\",\"name\":\"In Progress\"}}},{\"id\":\"71\",\"name\":\"Review\",\"opsbarSequence\":2147483647,\"to\":{\"self\":\"https://jira-test.sundsvall.se/rest/api/2/status/10201\",\"description\":\"This status is managed internally by Jira Software\",\"iconUrl\":\"https://jira-test.sundsvall.se/\",\"name\":\"Review\",\"id\":\"10201\",\"statusCategory\":{\"self\":\"https://jira-test.sundsvall.se/rest/api/2/statuscategory/4\",\"id\":4,\"key\":\"indeterminate\",\"colorName\":\"inprogress\",\"name\":\"In Progress\"}}},{\"id\":\"81\",\"name\":\"Won't do\",\"opsbarSequence\":2147483647,\"to\":{\"self\":\"https://jira-test.sundsvall.se/rest/api/2/status/10203\",\"description\":\"This status is managed internally by Jira Software\",\"iconUrl\":\"https://jira-test.sundsvall.se/\",\"name\":\"Won't do\",\"id\":\"10203\",\"statusCategory\":{\"self\":\"https://jira-test.sundsvall.se/rest/api/2/statuscategory/3\",\"id\":3,\"key\":\"done\",\"colorName\":\"success\",\"name\":\"Done\"}}}]}",
+    "headers" : {
+      "Content-Type" : "application/json;charset=UTF-8"
+    }
+  },
+  "uuid" : "6b8e25db-b498-45cc-829d-55dabdf60668",
+  "persistent" : true,
+  "insertionIndex" : 69
+}

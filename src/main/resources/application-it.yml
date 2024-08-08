@@ -50,5 +50,3 @@ spring:
 scheduler:
   synchronizer:
     cron: "0/3 * * * * *"
-  dbcleaner:
-    cron: "-"

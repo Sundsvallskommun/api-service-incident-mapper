@@ -2,6 +2,7 @@ package se.sundsvall.incidentmapper.integration.jira;
 
 import static java.util.Optional.empty;
 import static java.util.stream.Collectors.toMap;
+import static org.springframework.util.StringUtils.hasText;
 
 import java.io.File;
 import java.util.Base64;
@@ -127,7 +128,9 @@ public class JiraIncidentClient {
 	 * @param commentBody the comment text string.
 	 */
 	public void addComment(String issueKey, String commentBody) {
-		jiraClient.getIssueApi().addComment(issueKey, Comment.from(commentBody));
+		if (hasText(commentBody)) {
+			jiraClient.getIssueApi().addComment(issueKey, Comment.from(commentBody));
+		}
 	}
 
 	/**

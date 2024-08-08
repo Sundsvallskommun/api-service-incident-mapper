@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
@@ -154,7 +155,7 @@ class JiraIncidentClientTest {
 	}
 
 	@Test
-	void createIssueThrowsException() throws Exception {
+	void createIssueThrowsException() {
 
 		// Arrange
 		final var projectKey = "TEST";
@@ -261,6 +262,20 @@ class JiraIncidentClientTest {
 		// Assert
 		verify(jiraClientMock).getIssueApi();
 		verify(issueApiMock).addComment(issueKey, Comment.from(commentBody));
+	}
+
+	@Test
+	void addCommentWhenNoTextProvided() {
+
+		// Arrange
+		final var commentBody = "";
+		final var issueKey = "TEST-1";
+
+		// Act
+		jiraClient.addComment(issueKey, commentBody);
+
+		// Assert
+		verifyNoInteractions(jiraClientMock, issueApiMock);
 	}
 
 	@Test

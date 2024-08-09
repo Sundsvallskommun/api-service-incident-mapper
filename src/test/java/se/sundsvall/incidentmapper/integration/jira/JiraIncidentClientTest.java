@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
@@ -33,7 +34,7 @@ import com.chavaillaz.client.jira.domain.Identity;
 import com.chavaillaz.client.jira.domain.Issue;
 import com.chavaillaz.client.jira.domain.IssueType;
 import com.chavaillaz.client.jira.domain.Project;
-import com.chavaillaz.client.jira.domain.Statuses;
+import com.chavaillaz.client.jira.domain.Transitions;
 
 import se.sundsvall.incidentmapper.integration.jira.configuration.JiraProperties;
 
@@ -56,7 +57,7 @@ class JiraIncidentClientTest {
 	private JiraProperties jiraPropertiesMock;
 
 	@Mock
-	private CompletableFuture<Statuses> completableFutureStatusesMock;
+	private CompletableFuture<Transitions> completableFutureTransitionsMock;
 
 	@Mock
 	private CompletableFuture<Identity> completableFutureIdentityMock;
@@ -154,7 +155,7 @@ class JiraIncidentClientTest {
 	}
 
 	@Test
-	void createIssueThrowsException() throws Exception {
+	void createIssueThrowsException() {
 
 		// Arrange
 		final var projectKey = "TEST";
@@ -261,6 +262,20 @@ class JiraIncidentClientTest {
 		// Assert
 		verify(jiraClientMock).getIssueApi();
 		verify(issueApiMock).addComment(issueKey, Comment.from(commentBody));
+	}
+
+	@Test
+	void addCommentWhenNoTextProvided() {
+
+		// Arrange
+		final var commentBody = "";
+		final var issueKey = "TEST-1";
+
+		// Act
+		jiraClient.addComment(issueKey, commentBody);
+
+		// Assert
+		verifyNoInteractions(jiraClientMock, issueApiMock);
 	}
 
 	@Test
@@ -379,45 +394,42 @@ class JiraIncidentClientTest {
 	}
 
 	@Test
-	void getStatusesByIssueType() throws Exception {
+	void getTransitionsByIssue() throws Exception {
 
 		// Arrange
-		final var projectKey = "TEST";
-		final var issueType = "Bug";
-		final var statuses = new Statuses();
+		final var issueKey = "TEST-1";
+		final var transitions = new Transitions();
 
-		when(jiraClientMock.getProjectApi()).thenReturn(projectApiMock);
-		when(projectApiMock.getProjectStatuses(projectKey)).thenReturn(completableFutureStatusesMock);
-		when(completableFutureStatusesMock.get()).thenReturn(statuses);
+		when(jiraClientMock.getIssueApi()).thenReturn(issueApiMock);
+		when(issueApiMock.getTransitions(issueKey)).thenReturn(completableFutureTransitionsMock);
+		when(completableFutureTransitionsMock.get()).thenReturn(transitions);
 
 		// Act
-		jiraClient.getStatusesByIssueType(projectKey, issueType);
+		jiraClient.getTransitions(issueKey);
 
 		// Assert
-		verify(jiraClientMock).getProjectApi();
-		verify(projectApiMock).getProjectStatuses(projectKey);
-		verify(completableFutureStatusesMock).get();
+		verify(jiraClientMock).getIssueApi();
+		verify(issueApiMock).getTransitions(issueKey);
+		verify(completableFutureTransitionsMock).get();
 	}
 
 	@Test
-	void getStatusesByIssueTypeThrowsException() {
+	void getTransitionsByIssueThrowsException() {
 
 		// Arrange
-		final var projectKey = "TEST";
-		final var issueType = "Bug";
+		final var issueKey = "TEST-1";
 
-		when(jiraClientMock.getProjectApi()).thenReturn(projectApiMock);
-		when(projectApiMock.getProjectStatuses(projectKey)).thenThrow(new RuntimeException("Error"));
+		when(jiraClientMock.getIssueApi()).thenReturn(issueApiMock);
+		when(issueApiMock.getTransitions(issueKey)).thenThrow(new RuntimeException("Error"));
 
 		// Act
-		final var exception = assertThrows(JiraIntegrationException.class, () -> jiraClient.getStatusesByIssueType(projectKey, issueType));
+		final var exception = assertThrows(JiraIntegrationException.class, () -> jiraClient.getTransitions(issueKey));
 
 		// Assert
 		assertThat(exception).isNotNull();
 		assertThat(exception.getMessage()).isEqualTo("java.lang.RuntimeException: Error");
 
-		verify(jiraClientMock).getProjectApi();
-		verify(projectApiMock).getProjectStatuses(projectKey);
-
+		verify(jiraClientMock).getIssueApi();
+		verify(issueApiMock).getTransitions(issueKey);
 	}
 }

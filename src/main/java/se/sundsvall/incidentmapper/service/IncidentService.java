@@ -9,6 +9,7 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.springframework.util.FileSystemUtils.deleteRecursively;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.POB_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
@@ -16,6 +17,7 @@ import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toAttachmentP
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toCaseInternalNotesCustomMemo;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toCaseInternalNotesCustomMemoPayload;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toDescription;
+import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toFormattedMail;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toProblemMemo;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toProblemPayload;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toResponsibleGroupPayload;
@@ -41,7 +43,9 @@ import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
 import se.sundsvall.incidentmapper.integration.db.model.enums.Status;
 import se.sundsvall.incidentmapper.integration.jira.JiraIncidentClient;
 import se.sundsvall.incidentmapper.integration.pob.POBClient;
+import se.sundsvall.incidentmapper.integration.pob.model.Mail;
 import se.sundsvall.incidentmapper.service.configuration.SynchronizationProperties;
+import se.sundsvall.incidentmapper.service.mapper.PobMapper;
 
 @Service
 @Transactional
@@ -50,7 +54,7 @@ public class IncidentService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(IncidentService.class);
 
 	private static final List<Status> OPEN_FOR_MODIFICATION_STATUS_LIST = asList(SYNCHRONIZED); // Status is only modifiable if current value is one of these.
-	private static final List<String> JIRA_CLOSED_STATUSES = List.of("Closed", "Done", "Resolved", "Won't Do", "wont-do");
+	private static final List<String> JIRA_CLOSED_STATUSES = List.of("Closed", "Done", "Review Done", "Resolved", "Won't Do", "wont-do");
 
 	private static final String JIRA_ISSUE_CREATED = "A new Jira issue has been created for you: %s/browse/%s";
 
@@ -58,7 +62,7 @@ public class IncidentService {
 	private static final String JIRA_TODO_STATUS = "To Do";
 	private static final String JIRA_ISSUE_LABEL = "support-ticket";
 	private static final String JIRA_ISSUE_TITLE_TEMPLATE = "Supportärende %s (%s)";
-	private static final String APPLICATION_TEMP_FOLDER_PATH_TEMPLATE = "%s/%s";
+	private static final String APPLICATION_TEMP_FOLDER_PATH_TEMPLATE = "%s/%s/%s";
 
 	private final IncidentRepository incidentRepository;
 	private final JiraIncidentClient jiraIncidentClient;
@@ -162,15 +166,22 @@ public class IncidentService {
 			issue.getFields().getComments().stream()
 				.forEach(comment -> jiraIncidentClient.deleteComment(jiraIssueKey, comment.getId()));
 
-			// Add new comment (with data from POB).
-			jiraIncidentClient.addComment(jiraIssueKey, comments);
-
 			// Delete all attachments in Jira.
 			issue.getFields().getAttachments().stream()
 				.forEach(attachment -> jiraIncidentClient.deleteAttachment(attachment.getId()));
 
-			// Add attachments.
+			// Add POB mails to Jira (as comments and attachments).
+			getPobMails(incidentEntity).forEach(mail -> {
+				jiraIncidentClient.addComment(jiraIssueKey, toFormattedMail(mail));
+				Optional.ofNullable(mail.getAttachments()).orElse(emptyList())
+					.forEach(attachment -> jiraIncidentClient.addAttachment(jiraIssueKey, attachment));
+			});
+
+			// Add case attachments.
 			getPobAttachments(incidentEntity).forEach(attachmentFile -> jiraIncidentClient.addAttachment(jiraIssueKey, attachmentFile));
+
+			// Add new comment (with data from POB).
+			jiraIncidentClient.addComment(jiraIssueKey, comments);
 
 			// Clean temp-dir.
 			removeFilesInTempFolder();
@@ -205,20 +216,23 @@ public class IncidentService {
 
 		jiraIssue.ifPresent(issue -> {
 
-			// Update status on issue in Jira.
-			final var status = jiraIncidentClient.getStatusesByIssueType(jiraIncidentClient.getProperties().projectKey(), JIRA_ISSUE_TYPE).get(JIRA_TODO_STATUS);
-			if (nonNull(status)) {
-				final var updateIssue = Issue.fromKey(jiraIssueKey);
-				updateIssue.getFields().setStatus(status);
-				jiraIncidentClient.updateIssue(updateIssue);
+			// Set initial status on issue in Jira.
+			Optional.ofNullable(jiraIncidentClient.getTransitions(jiraIssueKey).get(JIRA_TODO_STATUS)).ifPresent(initialStatus -> {
+				jiraIncidentClient.performTransition(jiraIssueKey, initialStatus);
+				LOGGER.info("Updated initial status on issue '{}' to '{}'", jiraIssueKey, initialStatus.getName());
+			});
 
-				LOGGER.info("Updated status on issue '{}' to {}", jiraIssueKey, status);
-			}
+			// Add POB mails to Jira (as comments and attachments).
+			getPobMails(incidentEntity).forEach(mail -> {
+				jiraIncidentClient.addComment(jiraIssueKey, toFormattedMail(mail));
+				Optional.ofNullable(mail.getAttachments()).orElse(emptyList())
+					.forEach(attachment -> jiraIncidentClient.addAttachment(jiraIssueKey, attachment));
+			});
 
 			// Add comments in Jira.
 			jiraIncidentClient.addComment(jiraIssueKey, comments);
 
-			// Add attachments.
+			// Add case attachments.
 			getPobAttachments(incidentEntity).forEach(attachment -> jiraIncidentClient.addAttachment(jiraIssueKey, attachment));
 
 			// Clean temp-dir.
@@ -311,25 +325,44 @@ public class IncidentService {
 				.filter(link -> isNotEmpty(link.getRelation()))
 				.filter(link -> isNotEmpty(link.getHref()))
 				.map(link -> {
-					final var attachmentFileName = link.getRelation();
+					var attachmentFileName = link.getRelation();
 					final var href = link.getHref();
 					final var attachmentId = href.substring(href.lastIndexOf("/") + 1);
-					final var file = new File(APPLICATION_TEMP_FOLDER_PATH_TEMPLATE.formatted(synchronizationProperties.tempFolder(), attachmentFileName));
-
 					try {
-						copyInputStreamToFile(pobClient.getAttachment(incidentEntity.getPobIssueKey(), attachmentId).getInputStream(), file);
+						final var attachmentResponse = pobClient.getAttachment(incidentEntity.getPobIssueKey(), attachmentId);
+						final var contentType = attachmentResponse.getHeaders().getContentType();
+						if (!attachmentFileName.contains(".") && nonNull(contentType)) {
+							// Attachment doesn't have a suffix, use contentType mime sub-type instead.
+							attachmentFileName += "." + contentType.getSubtype();
+						}
+						final var file = new File(APPLICATION_TEMP_FOLDER_PATH_TEMPLATE.formatted(synchronizationProperties.tempFolder(), incidentEntity.getPobIssueKey(), attachmentFileName));
+						copyInputStreamToFile(attachmentResponse.getBody().getInputStream(), file);
+
+						return file;
 					} catch (final IOException e) {
 						LOGGER.error("Problem fetching attachment binary data from POB", e);
+						return null;
 					}
-
-					return file;
 				})
+				.filter(Objects::nonNull)
 				.toList())
 			.orElse(emptyList());
 	}
 
+	private List<Mail> getPobMails(final IncidentEntity incidentEntity) {
+		return pobClient.getReceivedMailIds(incidentEntity.getPobIssueKey()).stream()
+			.map(payLoad -> pobClient.getMail((String) payLoad.getData().get("Id")).orElse(null))
+			.filter(Objects::nonNull)
+			.map(PobMapper::toMail)
+			.filter(Objects::nonNull)
+			.toList();
+	}
+
 	private void removeFilesInTempFolder() {
 		asList(new File(synchronizationProperties.tempFolder()).listFiles())
-			.forEach(File::delete);
+			.forEach(file -> {
+				LOGGER.info("Delete file: {}", file.getAbsolutePath());
+				deleteRecursively(file);
+			});
 	}
 }

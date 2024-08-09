@@ -4,8 +4,12 @@ import static com.google.gson.FieldNamingPolicy.UPPER_CAMEL_CASE;
 import static com.jayway.jsonpath.Configuration.defaultConfiguration;
 import static com.jayway.jsonpath.JsonPath.parse;
 import static com.jayway.jsonpath.Option.SUPPRESS_EXCEPTIONS;
+import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
+import static java.util.stream.Collectors.joining;
+import static org.apache.commons.lang3.math.NumberUtils.toInt;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -22,6 +26,7 @@ import com.google.gson.GsonBuilder;
 import generated.se.sundsvall.pob.PobMemo;
 import generated.se.sundsvall.pob.PobPayload;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
+import se.sundsvall.incidentmapper.integration.pob.model.Mail;
 
 public final class PobMapper {
 
@@ -35,17 +40,38 @@ public final class PobMapper {
 	private static final String FILE_DATA = "FileData";
 	private static final String RESPONSIBLE = "Responsible";
 	private static final String RESPONSIBLE_GROUP = "ResponsibleGroup";
+	private static final String CASE_INTERNAL_NOTES_CUSTOM = "CaseInternalNotesCustom";
+	private static final String NUMBER_OF_ATTACHMENTS = "NumberOfAttachments";
+
+	private static final String MAIL_FROM = "MailFrom";
+	private static final String MAIL_REPLY_TO = "ReplyTo";
+	private static final String MAIL_SEND_DATE = "SendDate";
+	private static final String MAIL_SUBJECT = "Subject";
+	private static final String MAIL_TO = "MailTo";
 
 	// Field values
 	private static final String DATA_URL_FORMAT = "data:%s;base64,%s";
 	private static final String EXTENSION = ".html";
 
 	// Json paths
-	private static final String CASE_INTERNAL_NOTES_CUSTOM = "CaseInternalNotesCustom";
 	private static final String JSON_PATH_DATA_DESCRIPTION = "$['Data']['Description']";
 	private static final String JSON_PATH_MEMO_PROBLEM_MEMO = "$['Memo']['Problem']['Memo']";
+	private static final String JSON_PATH_MEMO_MAIL_MEMO = "$['Memo']['Mail']['Memo']";
 	private static final String JSON_PATH_MEMO_CASE_INTERNAL_NOTES_CUSTOM_MEMO = "$['Memo']['CaseInternalNotesCustom']['Memo']";
 	private static final Gson GSON = new GsonBuilder().setFieldNamingPolicy(UPPER_CAMEL_CASE).create();
+
+	// Format templates
+	private static final String FORMATTED_MAIL_TEMPLATE = """
+		_____________________________________________________
+		To: %s
+		From: %s
+		Subject: %s
+		Date: %s
+		Attachments: %s
+		_____________________________________________________
+
+		%s
+		""";
 
 	private PobMapper() {
 		// No instantiation allowed.
@@ -90,6 +116,32 @@ public final class PobMapper {
 				.extension(EXTENSION)
 				.handleSeparators(true)
 				.memo(comment)));
+	}
+
+	public static Mail toMail(final PobPayload pobPayload) {
+		return Mail.create()
+			.withBody(removeHTML(getValue(pobPayload, JSON_PATH_MEMO_MAIL_MEMO)))
+			.withFrom((String) pobPayload.getData().get(MAIL_FROM))
+			.withId((String) pobPayload.getData().get(ID))
+			.withNumberOfAttachments(toInt((String) pobPayload.getData().get(NUMBER_OF_ATTACHMENTS), 0))
+			.withReplyTo((String) pobPayload.getData().get(MAIL_REPLY_TO))
+			.withSendDate((String) pobPayload.getData().get(MAIL_SEND_DATE))
+			.withSubject((String) pobPayload.getData().get(MAIL_SUBJECT))
+			.withTo((String) pobPayload.getData().get(MAIL_TO));
+	}
+
+	public static String toFormattedMail(final Mail mail) {
+		return Optional.ofNullable(mail)
+			.map(m -> FORMATTED_MAIL_TEMPLATE.formatted(
+				m.getTo(),
+				m.getFrom(),
+				m.getSubject(),
+				m.getSendDate(),
+				Optional.ofNullable(m.getAttachments()).orElse(emptyList()).stream()
+					.map(File::getName)
+					.collect(joining(", ")),
+				m.getBody()))
+			.orElse(null);
 	}
 
 	public static String toDescription(final PobPayload pobPayload) {

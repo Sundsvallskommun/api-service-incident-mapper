@@ -35,6 +35,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 
 import com.chavaillaz.client.jira.domain.Attachment;
 import com.chavaillaz.client.jira.domain.Attachments;
@@ -42,6 +44,7 @@ import com.chavaillaz.client.jira.domain.Comment;
 import com.chavaillaz.client.jira.domain.Comments;
 import com.chavaillaz.client.jira.domain.Fields;
 import com.chavaillaz.client.jira.domain.Issue;
+import com.chavaillaz.client.jira.domain.Transition;
 import com.chavaillaz.client.jira.domain.User;
 
 import generated.se.sundsvall.pob.PobMemo;
@@ -79,6 +82,9 @@ class IncidentServiceTest {
 
 	@Mock
 	private InputStreamResource inputStreamResourceMock;
+
+	@Mock
+	private ResponseEntity<InputStreamResource> responseEntityMock;
 
 	@InjectMocks
 	private IncidentService incidentService;
@@ -361,7 +367,10 @@ class IncidentServiceTest {
 		@Load(value = "/IncidentServiceTest/pobPayloadCase.json", as = JSON) final PobPayload pobPayload,
 		@Load(value = "/IncidentServiceTest/pobPayloadCaseInternalNotesCustomMemo.json", as = JSON) final PobPayload pobPayloadCaseInternalNotesCustomMemo,
 		@Load(value = "/IncidentServiceTest/pobPayloadProblemMemo.json", as = JSON) final PobPayload pobPayloadProblemMemo,
-		@Load(value = "/IncidentServiceTest/pobPayloadAttachments.json", as = JSON) final PobPayload pobPayloadAttachments) throws Exception {
+		@Load(value = "/IncidentServiceTest/pobPayloadAttachments.json", as = JSON) final PobPayload pobPayloadAttachments,
+		@Load(value = "/IncidentServiceTest/pobPayloadMail.json", as = JSON) final PobPayload pobPayloadMail,
+		@Load(value = "/IncidentServiceTest/pobPayloadReceivedMailIds.json", as = JSON) final PobPayload pobPayloadReceivedMailId,
+		@Load(value = "/IncidentServiceTest/pobPayloadMailAttachments.json", as = JSON) final PobPayload pobPayloadMailAttachments) throws Exception {
 
 		// Arrange
 		final var pobIssueKey = "POB-12345";
@@ -369,6 +378,7 @@ class IncidentServiceTest {
 		final var jiraIssue = Issue.fromKey(jiraIssueKey);
 		final var attachmentId = "attachmentId";
 		final var attachment = new Attachment();
+		final var mailId = "mailId";
 		attachment.setId(attachmentId);
 		attachment.setFilename("test.jpg");
 		jiraIssue.getFields().setComments(new Comments());
@@ -381,7 +391,11 @@ class IncidentServiceTest {
 		when(pobClientMock.getCaseInternalNotesCustom(pobIssueKey)).thenReturn(Optional.of(pobPayloadCaseInternalNotesCustomMemo));
 		when(pobClientMock.getProblemMemo(pobIssueKey)).thenReturn(Optional.of(pobPayloadProblemMemo));
 		when(pobClientMock.getAttachments(pobIssueKey)).thenReturn(Optional.ofNullable(pobPayloadAttachments));
-		when(pobClientMock.getAttachment(pobIssueKey, "1628120")).thenReturn(inputStreamResourceMock);
+		when(pobClientMock.getAttachment(pobIssueKey, "1628120")).thenReturn(responseEntityMock);
+		when(responseEntityMock.getBody()).thenReturn(inputStreamResourceMock);
+		when(responseEntityMock.getHeaders()).thenReturn(new HttpHeaders());
+		when(pobClientMock.getReceivedMailIds(pobIssueKey)).thenReturn(List.of(pobPayloadReceivedMailId));
+		when(pobClientMock.getMail(mailId)).thenReturn(Optional.of(pobPayloadMail));
 		when(inputStreamResourceMock.getInputStream()).thenReturn(new FileInputStream(file));
 		when(incidentRepositoryMock.findByStatus(POB_INITIATED_EVENT)).thenReturn(List.of(
 			IncidentEntity.create()
@@ -400,12 +414,14 @@ class IncidentServiceTest {
 		verify(jiraClientMock).getIssue(jiraIssueKey);
 		verify(jiraClientMock).addComment(jiraIssueKey, "2024-05-08 14:09 Kommentar");
 		verify(jiraClientMock).deleteAttachment(attachmentId);
-		verify(jiraClientMock).addAttachment(jiraIssueKey, new File(TEMP_DIR + "/happy_dog.png"));
+		verify(jiraClientMock).addAttachment(jiraIssueKey, new File(TEMP_DIR + "/" + pobIssueKey + "/happy_dog.png"));
 		verify(pobClientMock).getCase(pobIssueKey);
 		verify(pobClientMock).getCaseInternalNotesCustom(pobIssueKey);
 		verify(pobClientMock).getProblemMemo(pobIssueKey);
 		verify(pobClientMock).getAttachments(pobIssueKey);
 		verify(pobClientMock).getAttachment(pobIssueKey, "1628120");
+		verify(pobClientMock).getReceivedMailIds(pobIssueKey);
+		verify(pobClientMock).getMail(mailId);
 
 		final var capturedIncidentEntity = incidentEntityCaptor.getValue();
 		assertThat(capturedIncidentEntity).isNotNull();
@@ -422,27 +438,77 @@ class IncidentServiceTest {
 	}
 
 	@Test
+	void updateJiraIssueWhenIssueNotFoundInJira(
+		@Load(value = "/IncidentServiceTest/pobPayloadCase.json", as = JSON) final PobPayload pobPayload,
+		@Load(value = "/IncidentServiceTest/pobPayloadCaseInternalNotesCustomMemo.json", as = JSON) final PobPayload pobPayloadCaseInternalNotesCustomMemo,
+		@Load(value = "/IncidentServiceTest/pobPayloadProblemMemo.json", as = JSON) final PobPayload pobPayloadProblemMemo) {
+
+		// Arrange
+		final var pobIssueKey = "POB-12345";
+		final var jiraIssueKey = "JIR-12345";
+
+		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(empty());
+		when(pobClientMock.getCase(pobIssueKey)).thenReturn(Optional.ofNullable(pobPayload));
+		when(pobClientMock.getCaseInternalNotesCustom(pobIssueKey)).thenReturn(Optional.of(pobPayloadCaseInternalNotesCustomMemo));
+		when(pobClientMock.getProblemMemo(pobIssueKey)).thenReturn(Optional.of(pobPayloadProblemMemo));
+		when(incidentRepositoryMock.findByStatus(POB_INITIATED_EVENT)).thenReturn(List.of(
+			IncidentEntity.create()
+				.withId(UUID.randomUUID().toString())
+				.withPobIssueKey(pobIssueKey)
+				.withJiraIssueKey(jiraIssueKey)
+				.withStatus(POB_INITIATED_EVENT)));
+
+		// Act
+		incidentService.updateJira();
+
+		// Assert
+		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
+		verify(jiraClientMock, never()).createIssue(any(), any(), any(), any());
+		verify(jiraClientMock).getIssue(jiraIssueKey);
+
+		verify(pobClientMock).getCase(pobIssueKey);
+		verify(pobClientMock).getCaseInternalNotesCustom(pobIssueKey);
+		verify(pobClientMock).getProblemMemo(pobIssueKey);
+
+		final var capturedIncidentEntity = incidentEntityCaptor.getValue();
+		assertThat(capturedIncidentEntity).isNotNull();
+		assertThat(capturedIncidentEntity.getStatus()).isEqualTo(POB_INITIATED_EVENT);
+		assertThat(capturedIncidentEntity.getPobIssueKey()).isEqualTo(pobIssueKey);
+		assertThat(capturedIncidentEntity.getJiraIssueKey()).isNull();
+		assertThat(capturedIncidentEntity.getLastSynchronizedJira()).isNull();
+	}
+
+	@Test
 	void createJiraIssue(
 		@Load(value = "/IncidentServiceTest/pobPayloadCase.json", as = JSON) final PobPayload pobPayload,
 		@Load(value = "/IncidentServiceTest/pobPayloadCaseInternalNotesCustomMemo.json", as = JSON) final PobPayload pobPayloadCaseInternalNotesCustomMemo,
 		@Load(value = "/IncidentServiceTest/pobPayloadProblemMemo.json", as = JSON) final PobPayload pobPayloadProblemMemo,
-		@Load(value = "/IncidentServiceTest/pobPayloadAttachments.json", as = JSON) final PobPayload pobPayloadAttachments) throws Exception {
+		@Load(value = "/IncidentServiceTest/pobPayloadAttachments.json", as = JSON) final PobPayload pobPayloadAttachments,
+		@Load(value = "/IncidentServiceTest/pobPayloadMail.json", as = JSON) final PobPayload pobPayloadMail,
+		@Load(value = "/IncidentServiceTest/pobPayloadReceivedMailIds.json", as = JSON) final PobPayload pobPayloadReceivedMailId,
+		@Load(value = "/IncidentServiceTest/pobPayloadMailAttachments.json", as = JSON) final PobPayload pobPayloadMailAttachments) throws Exception {
 
 		// Arrange
 		final var pobIssueKey = "POB-12345";
 		final var jiraIssueKey = "JIR-12345";
 		final var jiraIssue = new Issue();
+		final var initialTransition = Transition.fromName("To Do");
+		final var mailId = "mailId";
 
 		when(synchronizationPropertiesMock.tempFolder()).thenReturn(TEMP_DIR);
 		when(jiraClientMock.createIssue(any(), any(), any(), any())).thenReturn(jiraIssueKey);
 		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(Optional.of(jiraIssue));
 		when(jiraClientMock.getProperties()).thenReturn(new JiraProperties("user", "pass", "http:://jira-test.com", "XX"));
-		when(jiraClientMock.getStatusesByIssueType(any(), any())).thenReturn(Map.of("To Do", com.chavaillaz.client.jira.domain.Status.fromName("To Do")));
+		when(jiraClientMock.getTransitions(jiraIssueKey)).thenReturn(Map.of(initialTransition.getName(), initialTransition));
 		when(pobClientMock.getCase(pobIssueKey)).thenReturn(Optional.ofNullable(pobPayload));
 		when(pobClientMock.getCaseInternalNotesCustom(pobIssueKey)).thenReturn(Optional.of(pobPayloadCaseInternalNotesCustomMemo));
 		when(pobClientMock.getProblemMemo(pobIssueKey)).thenReturn(Optional.of(pobPayloadProblemMemo));
 		when(pobClientMock.getAttachments(pobIssueKey)).thenReturn(Optional.ofNullable(pobPayloadAttachments));
-		when(pobClientMock.getAttachment(pobIssueKey, "1628120")).thenReturn(inputStreamResourceMock);
+		when(pobClientMock.getAttachment(pobIssueKey, "1628120")).thenReturn(responseEntityMock);
+		when(responseEntityMock.getBody()).thenReturn(inputStreamResourceMock);
+		when(responseEntityMock.getHeaders()).thenReturn(new HttpHeaders());
+		when(pobClientMock.getReceivedMailIds(pobIssueKey)).thenReturn(List.of(pobPayloadReceivedMailId));
+		when(pobClientMock.getMail(mailId)).thenReturn(Optional.of(pobPayloadMail));
 		when(inputStreamResourceMock.getInputStream()).thenReturn(new FileInputStream(file));
 		when(incidentRepositoryMock.findByStatus(POB_INITIATED_EVENT)).thenReturn(List.of(
 			IncidentEntity.create()
@@ -456,23 +522,19 @@ class IncidentServiceTest {
 		// Assert
 		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
 		verify(jiraClientMock).createIssue("Bug", List.of("support-ticket"), "Supportärende POB-12345 (This works!)", "This is a description");
-		verify(jiraClientMock).updateIssue(jiraIssueCaptor.capture());
+		verify(jiraClientMock).getTransitions(jiraIssueKey);
+		verify(jiraClientMock).performTransition(jiraIssueKey, initialTransition);
 		verify(jiraClientMock).getIssue(jiraIssueKey);
 		verify(jiraClientMock).addComment(jiraIssueKey, "2024-05-08 14:09 Kommentar");
-		verify(jiraClientMock).addAttachment(jiraIssueKey, new File(TEMP_DIR + "/happy_dog.png"));
-		verify(jiraClientMock, times(2)).getProperties();
-		verify(jiraClientMock).getStatusesByIssueType("XX", "Bug");
+		verify(jiraClientMock).addAttachment(jiraIssueKey, new File(TEMP_DIR + "/" + pobIssueKey + "/happy_dog.png"));
 		verify(pobClientMock).getCase(pobIssueKey);
 		verify(pobClientMock).getCaseInternalNotesCustom(pobIssueKey);
 		verify(pobClientMock).getProblemMemo(pobIssueKey);
 		verify(pobClientMock).getAttachments(pobIssueKey);
 		verify(pobClientMock).getAttachment(pobIssueKey, "1628120");
+		verify(pobClientMock).getReceivedMailIds(pobIssueKey);
+		verify(pobClientMock).getMail(mailId);
 		verify(slackServiceMock).sendToSlack("A new Jira issue has been created for you: http:://jira-test.com/browse/JIR-12345");
-
-		final var capturedJiraIssuey = jiraIssueCaptor.getValue();
-		assertThat(capturedJiraIssuey).isNotNull();
-		assertThat(capturedJiraIssuey.getFields()).hasAllNullFieldsOrPropertiesExcept("status", "customFields");
-		assertThat(capturedJiraIssuey.getFields().getStatus()).isEqualTo(com.chavaillaz.client.jira.domain.Status.fromName("To Do"));
 
 		final var capturedIncidentEntity = incidentEntityCaptor.getValue();
 		assertThat(capturedIncidentEntity).isNotNull();

@@ -45,8 +45,8 @@ class IncidentEntityTest {
 		final var lastSynchronizedJira = now();
 		final var lastSynchronizedPob = now();
 		final var modified = now();
+		final var municipalityId = "municipalityId";
 		final var pobIssueKey = "pobIssueKey";
-		now();
 		final var status = Status.SYNCHRONIZED;
 
 		final var bean = IncidentEntity.create()
@@ -56,6 +56,7 @@ class IncidentEntityTest {
 			.withLastSynchronizedJira(lastSynchronizedJira)
 			.withLastSynchronizedPob(lastSynchronizedPob)
 			.withModified(modified)
+			.withMunicipalityId(municipalityId)
 			.withPobIssueKey(pobIssueKey)
 			.withStatus(status);
 
@@ -66,6 +67,7 @@ class IncidentEntityTest {
 		assertThat(bean.getLastSynchronizedJira()).isEqualTo(lastSynchronizedJira);
 		assertThat(bean.getLastSynchronizedPob()).isEqualTo(lastSynchronizedPob);
 		assertThat(bean.getModified()).isEqualTo(modified);
+		assertThat(bean.getMunicipalityId()).isEqualTo(municipalityId);
 		assertThat(bean.getPobIssueKey()).isEqualTo(pobIssueKey);
 		assertThat(bean.getStatus()).isEqualTo(status);
 	}

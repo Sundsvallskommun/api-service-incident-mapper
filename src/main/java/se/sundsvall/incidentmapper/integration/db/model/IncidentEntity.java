@@ -27,6 +27,7 @@ import se.sundsvall.incidentmapper.integration.db.model.enums.Status;
 		@UniqueConstraint(name = "uq_jira_issue_key", columnNames = { "jira_issue_key" })
 	},
 	indexes = {
+		@Index(name = "ix_municipality_id", columnList = "municipality_id"),
 		@Index(name = "ix_pob_issue_key", columnList = "pob_issue_key"),
 		@Index(name = "ix_jira_issue_key", columnList = "jira_issue_key"),
 		@Index(name = "ix_status", columnList = "status")
@@ -40,6 +41,9 @@ public class IncidentEntity implements Serializable {
 	@UuidGenerator
 	@Column(name = "id")
 	private String id;
+
+	@Column(name = "municipality_id")
+	private String municipalityId;
 
 	@Column(name = "pob_issue_key")
 	private String pobIssueKey;
@@ -80,6 +84,19 @@ public class IncidentEntity implements Serializable {
 
 	public IncidentEntity withId(String id) {
 		this.id = id;
+		return this;
+	}
+
+	public String getMunicipalityId() {
+		return municipalityId;
+	}
+
+	public void setMunicipalityId(String municipalityId) {
+		this.municipalityId = municipalityId;
+	}
+
+	public IncidentEntity withMunicipalityId(String municipalityId) {
+		this.municipalityId = municipalityId;
 		return this;
 	}
 
@@ -176,7 +193,7 @@ public class IncidentEntity implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(created, id, jiraIssueKey, lastSynchronizedJira, lastSynchronizedPob, modified, pobIssueKey, status);
+		return Objects.hash(created, id, jiraIssueKey, lastSynchronizedJira, lastSynchronizedPob, modified, municipalityId, pobIssueKey, status);
 	}
 
 	@Override
@@ -184,14 +201,14 @@ public class IncidentEntity implements Serializable {
 		if (this == obj) { return true; }
 		if (!(obj instanceof final IncidentEntity other)) { return false; }
 		return Objects.equals(created, other.created) && Objects.equals(id, other.id) && Objects.equals(jiraIssueKey, other.jiraIssueKey) && Objects.equals(lastSynchronizedJira, other.lastSynchronizedJira) && Objects.equals(lastSynchronizedPob,
-			other.lastSynchronizedPob) && Objects.equals(modified, other.modified) && Objects.equals(pobIssueKey, other.pobIssueKey) && (status == other.status);
+			other.lastSynchronizedPob) && Objects.equals(modified, other.modified) && Objects.equals(municipalityId, other.municipalityId) && Objects.equals(pobIssueKey, other.pobIssueKey) && (status == other.status);
 	}
 
 	@Override
 	public String toString() {
 		final StringBuilder builder = new StringBuilder();
-		builder.append("IncidentEntity [id=").append(id).append(", pobIssueKey=").append(pobIssueKey).append(", jiraIssueKey=").append(jiraIssueKey).append(", status=").append(status).append(", created=").append(created).append(", modified=").append(
-			modified).append(", lastSynchronizedJira=").append(lastSynchronizedJira).append(", lastSynchronizedPob=").append(lastSynchronizedPob).append("]");
+		builder.append("IncidentEntity [id=").append(id).append(", municipalityId=").append(municipalityId).append(", pobIssueKey=").append(pobIssueKey).append(", jiraIssueKey=").append(jiraIssueKey).append(", status=").append(status).append(", created=")
+			.append(created).append(", modified=").append(modified).append(", lastSynchronizedJira=").append(lastSynchronizedJira).append(", lastSynchronizedPob=").append(lastSynchronizedPob).append("]");
 		return builder.toString();
 	}
 }

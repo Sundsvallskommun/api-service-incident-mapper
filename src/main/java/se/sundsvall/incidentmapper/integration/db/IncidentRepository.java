@@ -13,20 +13,13 @@ import se.sundsvall.incidentmapper.integration.db.model.enums.Status;
 public interface IncidentRepository extends JpaRepository<IncidentEntity, String> {
 
 	/**
-	 * Find by Jira issue key.
-	 *
-	 * @param  jiraIssueKey the Jira issue key
-	 * @return              an Optional IncidentEntity.
-	 */
-	Optional<IncidentEntity> findByJiraIssueKey(String jiraIssueKey);
-
-	/**
 	 * Find by POB issue key.
 	 *
-	 * @param  pobIssueKey the POB issue key
-	 * @return             an Optional IncidentEntity.
+	 * @param  municipalityId the municipality ID.
+	 * @param  pobIssueKey    the POB issue key
+	 * @return                an Optional IncidentEntity.
 	 */
-	Optional<IncidentEntity> findByPobIssueKey(String jiraIssueKey);
+	Optional<IncidentEntity> findByMunicipalityIdAndPobIssueKey(String municipalityId, String jiraIssueKey);
 
 	/**
 	 * Find all by status.

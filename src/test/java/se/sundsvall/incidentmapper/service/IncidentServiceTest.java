@@ -120,17 +120,18 @@ class IncidentServiceTest {
 	void handleIncidentRequestNew() {
 
 		// Arrange
+		final var municipalityId = "2281";
 		final var pobIssueKey = "POB-12345";
 		final var incidentRequest = IncidentRequest.create()
 			.withIncidentKey(pobIssueKey);
 
-		when(incidentRepositoryMock.findByPobIssueKey(pobIssueKey)).thenReturn(empty());
+		when(incidentRepositoryMock.findByMunicipalityIdAndPobIssueKey(municipalityId, pobIssueKey)).thenReturn(empty());
 
 		// Act
-		incidentService.handleIncidentRequest(incidentRequest);
+		incidentService.handleIncidentRequest(municipalityId, incidentRequest);
 
 		// Assert
-		verify(incidentRepositoryMock).findByPobIssueKey(pobIssueKey);
+		verify(incidentRepositoryMock).findByMunicipalityIdAndPobIssueKey(municipalityId, pobIssueKey);
 		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
 
 		final var capturedValue = incidentEntityCaptor.getValue();
@@ -142,6 +143,7 @@ class IncidentServiceTest {
 	void handleIncidentRequestExisting() {
 
 		// Arrange
+		final var municipalityId = "2281";
 		final var pobIssueKey = "POB-12345";
 		final var jiraIssueKey = "JIR-12345";
 		final var incidentRequest = IncidentRequest.create()
@@ -152,13 +154,13 @@ class IncidentServiceTest {
 			.withPobIssueKey(pobIssueKey)
 			.withStatus(SYNCHRONIZED);
 
-		when(incidentRepositoryMock.findByPobIssueKey(pobIssueKey)).thenReturn(Optional.of(existingEntity));
+		when(incidentRepositoryMock.findByMunicipalityIdAndPobIssueKey(municipalityId, pobIssueKey)).thenReturn(Optional.of(existingEntity));
 
 		// Act
-		incidentService.handleIncidentRequest(incidentRequest);
+		incidentService.handleIncidentRequest(municipalityId, incidentRequest);
 
 		// Assert
-		verify(incidentRepositoryMock).findByPobIssueKey(pobIssueKey);
+		verify(incidentRepositoryMock).findByMunicipalityIdAndPobIssueKey(municipalityId, pobIssueKey);
 		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
 
 		final var capturedValue = incidentEntityCaptor.getValue();
@@ -170,6 +172,7 @@ class IncidentServiceTest {
 	void handleIncidentRequestStatusIsNotModifiable() {
 
 		// Arrange
+		final var municipalityId = "2281";
 		final var pobIssueKey = "POB-12345";
 		final var jiraIssueKey = "JIR-12345";
 		final var incidentRequest = IncidentRequest.create()
@@ -180,13 +183,13 @@ class IncidentServiceTest {
 			.withPobIssueKey(pobIssueKey)
 			.withStatus(JIRA_INITIATED_EVENT);
 
-		when(incidentRepositoryMock.findByPobIssueKey(pobIssueKey)).thenReturn(Optional.of(existingEntity));
+		when(incidentRepositoryMock.findByMunicipalityIdAndPobIssueKey(municipalityId, pobIssueKey)).thenReturn(Optional.of(existingEntity));
 
 		// Act
-		incidentService.handleIncidentRequest(incidentRequest);
+		incidentService.handleIncidentRequest(municipalityId, incidentRequest);
 
 		// Assert
-		verify(incidentRepositoryMock).findByPobIssueKey(pobIssueKey);
+		verify(incidentRepositoryMock).findByMunicipalityIdAndPobIssueKey(municipalityId, pobIssueKey);
 		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
 
 		final var capturedIncidentEntity = incidentEntityCaptor.getValue();

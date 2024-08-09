@@ -21,7 +21,8 @@ import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
 })
 class IncidentsIT extends AbstractAppTest {
 
-	private static final String PATH = "/2281/incidents";
+	private static final String MUNICIPALITY_ID = "2281";
+	private static final String PATH = "/%s/incidents".formatted(MUNICIPALITY_ID);
 	private static final String REQUEST_FILE = "request.json";
 
 	@Autowired
@@ -45,7 +46,7 @@ class IncidentsIT extends AbstractAppTest {
 		incidentRepository.saveAndFlush(IncidentEntity.create()
 			.withPobIssueKey("12345")
 			.withJiraIssueKey("UF-5974")
-			.withMunicipalityId("2281")
+			.withMunicipalityId(MUNICIPALITY_ID)
 			.withStatus(SYNCHRONIZED));
 
 		setupCall()
@@ -64,7 +65,7 @@ class IncidentsIT extends AbstractAppTest {
 		incidentRepository.saveAndFlush(IncidentEntity.create()
 			.withPobIssueKey("12345")
 			.withJiraIssueKey("UF-5974")
-			.withMunicipalityId("2281")
+			.withMunicipalityId(MUNICIPALITY_ID)
 			.withStatus(JIRA_INITIATED_EVENT));
 
 		// Not necessary for this test case, but must be called in order to call verifyStubs().

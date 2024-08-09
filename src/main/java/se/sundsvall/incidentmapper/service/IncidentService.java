@@ -90,6 +90,7 @@ public class IncidentService {
 		final var issueKey = incidentRequest.getIncidentKey();
 		final var incidentEntity = incidentRepository.findByMunicipalityIdAndPobIssueKey(municipalityId, issueKey)
 			.orElse(IncidentEntity.create()
+				.withMunicipalityId(municipalityId)
 				.withPobIssueKey(issueKey)
 				.withStatus(POB_INITIATED_EVENT));
 

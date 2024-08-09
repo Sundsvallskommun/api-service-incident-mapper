@@ -136,6 +136,7 @@ class IncidentServiceTest {
 
 		final var capturedValue = incidentEntityCaptor.getValue();
 		assertThat(capturedValue.getPobIssueKey()).isEqualTo(pobIssueKey);
+		assertThat(capturedValue.getMunicipalityId()).isEqualTo(municipalityId);
 		assertThat(capturedValue.getStatus()).isEqualTo(POB_INITIATED_EVENT);
 	}
 

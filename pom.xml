@@ -12,7 +12,7 @@
 	</parent>
 	<groupId>se.sundsvall</groupId>
 	<artifactId>api-service-incident-mapper</artifactId>
-	<version>1.0</version>
+	<version>2.0</version>
 	<name>api-service-incident-mapper</name>
 	<properties>
 		<generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
@@ -32,6 +32,10 @@
 		<dependency>
 			<groupId>se.sundsvall.dept44</groupId>
 			<artifactId>dept44-starter-feign</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>se.sundsvall.dept44</groupId>
+			<artifactId>dept44-common-validators</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.jsoup</groupId>

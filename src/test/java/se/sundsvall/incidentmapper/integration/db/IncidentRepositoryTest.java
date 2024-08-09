@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.api.Assertions.within;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
-import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
 
 import java.util.UUID;
@@ -40,42 +39,14 @@ class IncidentRepositoryTest {
 	private IncidentRepository repository;
 
 	@Test
-	void findByJiraIssueKey() {
-
-		// Arrange
-		final var jiraIssueKey = "JIR-007";
-
-		// Act
-		final var result = repository.findByJiraIssueKey(jiraIssueKey).orElseThrow();
-
-		// Assert
-		assertThat(result)
-			.isNotNull()
-			.extracting(IncidentEntity::getJiraIssueKey, IncidentEntity::getPobIssueKey, IncidentEntity::getStatus)
-			.containsExactly("JIR-007", "POB-007", JIRA_INITIATED_EVENT);
-	}
-
-	@Test
-	void findByJiraIssueKeyNotFound() {
-
-		// Arrange
-		final var jiraIssueKey = "non-existing";
-
-		// Act
-		final var result = repository.findByJiraIssueKey(jiraIssueKey);
-
-		// Assert
-		assertThat(result).isNotNull().isEmpty();
-	}
-
-	@Test
 	void findByPobIssueKey() {
 
 		// Arrange
+		final var municipalityId = "2281";
 		final var pobIssueKey = "POB-001";
 
 		// Act
-		final var result = repository.findByPobIssueKey(pobIssueKey).orElseThrow();
+		final var result = repository.findByMunicipalityIdAndPobIssueKey(municipalityId, pobIssueKey).orElseThrow();
 
 		// Assert
 		assertThat(result)
@@ -88,10 +59,11 @@ class IncidentRepositoryTest {
 	void findByPobIssueKeyNotFound() {
 
 		// Arrange
+		final var municipalityId = "2281";
 		final var pobIssueKey = "non-existing";
 
 		// Act
-		final var result = repository.findByPobIssueKey(pobIssueKey);
+		final var result = repository.findByMunicipalityIdAndPobIssueKey(municipalityId, pobIssueKey);
 
 		// Assert
 		assertThat(result).isNotNull().isEmpty();

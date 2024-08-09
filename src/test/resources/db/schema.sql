@@ -6,10 +6,14 @@
         last_synchronized_jira datetime(6),
         last_synchronized_pob datetime(6),
         modified datetime(6),
+        municipality_id varchar(255),
         pob_issue_key varchar(255),
         status varchar(255),
         primary key (id)
     ) engine=InnoDB;
+
+    create index ix_municipality_id 
+       on incident (municipality_id);
 
     create index ix_pob_issue_key 
        on incident (pob_issue_key);

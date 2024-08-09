@@ -83,11 +83,12 @@ public class IncidentService {
 	/**
 	 * Takes an IncidentRequest and map it to an IncidentEntity in the database, with status POB_INITIATED_EVENT.
 	 *
+	 * @param municipalityId  the municipalityId.
 	 * @param incidentRequest the request (from POB).
 	 */
-	public synchronized void handleIncidentRequest(final IncidentRequest incidentRequest) {
+	public synchronized void handleIncidentRequest(final String municipalityId, final IncidentRequest incidentRequest) {
 		final var issueKey = incidentRequest.getIncidentKey();
-		final var incidentEntity = incidentRepository.findByPobIssueKey(issueKey)
+		final var incidentEntity = incidentRepository.findByMunicipalityIdAndPobIssueKey(municipalityId, issueKey)
 			.orElse(IncidentEntity.create()
 				.withPobIssueKey(issueKey)
 				.withStatus(POB_INITIATED_EVENT));

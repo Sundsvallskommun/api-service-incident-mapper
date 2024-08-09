@@ -21,6 +21,8 @@ import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
 })
 class IncidentsIT extends AbstractAppTest {
 
+	private static final String MUNICIPALITY_ID = "2281";
+	private static final String PATH = "/%s/incidents".formatted(MUNICIPALITY_ID);
 	private static final String REQUEST_FILE = "request.json";
 
 	@Autowired
@@ -29,7 +31,7 @@ class IncidentsIT extends AbstractAppTest {
 	@Test
 	void test01_newIssueFromPob() {
 		setupCall()
-			.withServicePath("/incidents")
+			.withServicePath(PATH)
 			.withHttpMethod(POST)
 			.withRequest(REQUEST_FILE)
 			.withExpectedResponseStatus(ACCEPTED)
@@ -44,10 +46,11 @@ class IncidentsIT extends AbstractAppTest {
 		incidentRepository.saveAndFlush(IncidentEntity.create()
 			.withPobIssueKey("12345")
 			.withJiraIssueKey("UF-5974")
+			.withMunicipalityId(MUNICIPALITY_ID)
 			.withStatus(SYNCHRONIZED));
 
 		setupCall()
-			.withServicePath("/incidents")
+			.withServicePath(PATH)
 			.withHttpMethod(POST)
 			.withRequest(REQUEST_FILE)
 			.withExpectedResponseStatus(ACCEPTED)
@@ -62,12 +65,13 @@ class IncidentsIT extends AbstractAppTest {
 		incidentRepository.saveAndFlush(IncidentEntity.create()
 			.withPobIssueKey("12345")
 			.withJiraIssueKey("UF-5974")
+			.withMunicipalityId(MUNICIPALITY_ID)
 			.withStatus(JIRA_INITIATED_EVENT));
 
 		// Not necessary for this test case, but must be called in order to call verifyStubs().
 		// The updatePob-logic is a scheduled job and is not depending on any user inputs to this micro-service.
 		setupCall()
-			.withServicePath("/incidents")
+			.withServicePath(PATH)
 			.withHttpMethod(POST)
 			.withRequest(REQUEST_FILE)
 			.withExpectedResponseStatus(ACCEPTED)

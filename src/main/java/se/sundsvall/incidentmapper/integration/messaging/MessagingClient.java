@@ -18,6 +18,7 @@ public interface MessagingClient {
 	/**
 	 * Send a single Slack message.
 	 *
+	 * @param  municipalityId the municipality ID.
 	 * @param  slackRequest containing the message to send
 	 * @return              response containing id and delivery results for sent message
 	 */

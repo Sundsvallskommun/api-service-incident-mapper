@@ -32,17 +32,18 @@ class SlackServiceTest {
 		final var token = "token";
 		final var channel = "channel";
 		final var message = "This is a testmessage";
+		final var municipalityId = "municipalityId";
 
 		when(messagingPropertiesMock.channel()).thenReturn(channel);
 		when(messagingPropertiesMock.token()).thenReturn(token);
 
 		// Act
-		slackService.sendToSlack(message);
+		slackService.sendToSlack(municipalityId,message);
 
 		// Assert
 		verify(messagingPropertiesMock).channel();
 		verify(messagingPropertiesMock).token();
-		verify(messagingClientMock).sendSlack(new SlackRequest()
+		verify(messagingClientMock).sendSlack(municipalityId,new SlackRequest()
 			.channel(channel)
 			.token(token)
 			.message(message));

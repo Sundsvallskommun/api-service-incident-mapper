@@ -165,11 +165,11 @@ public class IncidentService {
 			jiraIncidentClient.updateIssue(updateIssue);
 
 			// Delete all existing comments in Jira.
-			issue.getFields().getComments().stream()
+			issue.getFields().getComments()
 				.forEach(comment -> jiraIncidentClient.deleteComment(jiraIssueKey, comment.getId()));
 
 			// Delete all attachments in Jira.
-			issue.getFields().getAttachments().stream()
+			issue.getFields().getAttachments()
 				.forEach(attachment -> jiraIncidentClient.deleteAttachment(attachment.getId()));
 
 			// Add POB mails to Jira (as comments and attachments).
@@ -249,8 +249,8 @@ public class IncidentService {
 				.withJiraIssueKey(jiraIssueKey)
 				.withLastSynchronizedJira(now(systemDefault())));
 
-			// Send slack notification.
-			slackService.sendToSlack(JIRA_ISSUE_CREATED.formatted(jiraIncidentClient.getProperties().url(), jiraIssueKey));
+			// Send Slack notification.
+			slackService.sendToSlack(incidentEntity.getMunicipalityId(),JIRA_ISSUE_CREATED.formatted(jiraIncidentClient.getProperties().url(), jiraIssueKey));
 		});
 	}
 
@@ -335,7 +335,7 @@ public class IncidentService {
 						final var attachmentResponse = pobClient.getAttachment(incidentEntity.getPobIssueKey(), attachmentId);
 						final var contentType = attachmentResponse.getHeaders().getContentType();
 						if (!attachmentFileName.contains(".") && nonNull(contentType)) {
-							// Attachment doesn't have a suffix, use contentType mime sub-type instead.
+							// Attachment doesn't have a suffix, use contentType mime subtype instead.
 							attachmentFileName += "." + contentType.getSubtype();
 						}
 						final var file = new File(APPLICATION_TEMP_FOLDER_PATH_TEMPLATE.formatted(synchronizationProperties.tempFolder(), incidentEntity.getPobIssueKey(), attachmentFileName));

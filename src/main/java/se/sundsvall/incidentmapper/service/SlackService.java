@@ -17,8 +17,8 @@ public class SlackService {
 		this.messagingProperties = messagingProperties;
 	}
 
-	public void sendToSlack(String message) {
-		messagingClient.sendSlack(new SlackRequest()
+	public void sendToSlack(String municipalityId, String message) {
+		messagingClient.sendSlack(municipalityId,new SlackRequest()
 			.channel(messagingProperties.channel())
 			.token(messagingProperties.token())
 			.message(message));

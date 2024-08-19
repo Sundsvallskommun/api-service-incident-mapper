@@ -498,6 +498,7 @@ class IncidentServiceTest {
 		final var jiraIssue = new Issue();
 		final var initialTransition = Transition.fromName("To Do");
 		final var mailId = "mailId";
+		final var municipalityId = "2281";
 
 		when(synchronizationPropertiesMock.tempFolder()).thenReturn(TEMP_DIR);
 		when(jiraClientMock.createIssue(any(), any(), any(), any())).thenReturn(jiraIssueKey);
@@ -518,6 +519,7 @@ class IncidentServiceTest {
 			IncidentEntity.create()
 				.withId(UUID.randomUUID().toString())
 				.withPobIssueKey(pobIssueKey)
+				.withMunicipalityId(municipalityId)
 				.withStatus(POB_INITIATED_EVENT)));
 
 		// Act
@@ -538,7 +540,7 @@ class IncidentServiceTest {
 		verify(pobClientMock).getAttachment(pobIssueKey, "1628120");
 		verify(pobClientMock).getReceivedMailIds(pobIssueKey);
 		verify(pobClientMock).getMail(mailId);
-		verify(slackServiceMock).sendToSlack("A new Jira issue has been created for you: http:://jira-test.com/browse/JIR-12345");
+		verify(slackServiceMock).sendToSlack(municipalityId,"A new Jira issue has been created for you: http:://jira-test.com/browse/JIR-12345");
 
 		final var capturedIncidentEntity = incidentEntityCaptor.getValue();
 		assertThat(capturedIncidentEntity).isNotNull();

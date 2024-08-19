@@ -2,6 +2,7 @@ package se.sundsvall.incidentmapper.integration.jira;
 
 import static java.util.Optional.empty;
 import static java.util.stream.Collectors.toMap;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.util.StringUtils.hasText;
 
 import java.io.File;
@@ -13,15 +14,18 @@ import java.util.function.Function;
 
 import org.springframework.stereotype.Component;
 
+import com.chavaillaz.client.common.exception.ResponseException;
 import com.chavaillaz.client.jira.JiraClient;
 import com.chavaillaz.client.jira.domain.Comment;
 import com.chavaillaz.client.jira.domain.Issue;
 import com.chavaillaz.client.jira.domain.IssueTransition;
 import com.chavaillaz.client.jira.domain.Transition;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import se.sundsvall.incidentmapper.integration.jira.configuration.JiraProperties;
 
 @Component
+@CircuitBreaker(name = "jiraIntegration")
 public class JiraIncidentClient {
 
 	private final JiraClient<Issue> jiraClient;
@@ -37,17 +41,20 @@ public class JiraIncidentClient {
 	}
 
 	/**
-	 * Fetch a Jira issue, as an Optional.
+	 * Fetch Jira issue, as an Optional.
 	 *
 	 * @param  issueKey the Jira issue key
-	 * @return          the issue as an Optional.
+	 * @return          the issue as an Optional (Optional.empty if it doesn't exist)
 	 */
 	public Optional<Issue> getIssue(final String issueKey) {
 		try {
 			return Optional.of(jiraClient.getIssueApi().getIssue(issueKey).get());
 		} catch (final Exception e) {
+			if ((e.getCause() instanceof final ResponseException responseException) && responseException.getStatusCode().equals(NOT_FOUND.value())) {
+				return empty();
+			}
 			Thread.currentThread().interrupt();
-			return empty();
+			throw new JiraIntegrationException(e);
 		}
 	}
 

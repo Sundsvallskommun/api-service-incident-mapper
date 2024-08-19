@@ -123,7 +123,7 @@ public class IncidentService {
 					incidentRepository.saveAndFlush(incidentEntity.withStatus(JIRA_INITIATED_EVENT));
 				}
 			}, () -> {
-				LOGGER.warn("No jira issue with key '{}' found. Delete incident mapping from database.", incidentEntity.getJiraIssueKey());
+				LOGGER.warn("No jira issue with key '{}' found. Creating new Jira-issue and updating incident mapping in DB...", incidentEntity.getJiraIssueKey());
 
 				// Issue does not exist. Save the mapping as POB_INITIATED_EVENT with empty jiraIssueKey (this will trigger a create).
 				incidentRepository.saveAndFlush(incidentEntity
@@ -197,7 +197,8 @@ public class IncidentService {
 
 		}, () -> // Issue is not present in Jira.
 
-		// Issue does not exist. Save the mapping as POB_INITIATED_EVENT with empty jiraIssueKey (this will trigger a create).
+		// Issue does not exist in Jira. Save the mapping as POB_INITIATED_EVENT with empty jiraIssueKey (this will trigger a
+		// create).
 		incidentRepository.saveAndFlush(incidentEntity
 			.withStatus(POB_INITIATED_EVENT)
 			.withJiraIssueKey(null)

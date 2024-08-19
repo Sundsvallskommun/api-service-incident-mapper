@@ -23,6 +23,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.chavaillaz.client.common.exception.ResponseException;
 import com.chavaillaz.client.jira.JiraClient;
 import com.chavaillaz.client.jira.api.IssueApi;
 import com.chavaillaz.client.jira.api.ProjectApi;
@@ -218,7 +219,7 @@ class JiraIncidentClientTest {
 		// Arrange
 		final var issueKey = "TEST-1";
 
-		when(jiraClientMock.getIssueApi()).thenThrow(new RuntimeException("Error occured"));
+		when(jiraClientMock.getIssueApi()).thenThrow(new RuntimeException("Error occured", new ResponseException(404, "Error occured")));
 
 		// Act
 		final var result = jiraClient.getIssue(issueKey);

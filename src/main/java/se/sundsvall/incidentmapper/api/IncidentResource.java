@@ -1,5 +1,6 @@
 package se.sundsvall.incidentmapper.api;
 
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.ALL_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
@@ -48,7 +49,11 @@ public class IncidentResource {
 	public ResponseEntity<Void> postIncident(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Valid @NotNull @RequestBody final IncidentRequest body) {
+
 		incidentService.handleIncidentRequest(municipalityId, body);
-		return accepted().build();
+
+		return accepted()
+			.header(CONTENT_TYPE, ALL_VALUE)
+			.build();
 	}
 }

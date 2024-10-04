@@ -10,7 +10,7 @@ import se.sundsvall.dept44.ServiceApplication;
 import se.sundsvall.dept44.util.jacoco.ExcludeFromJacocoGeneratedCoverageReport;
 
 /**
- * Future improvements:
+ * TODO: Future improvements:
  *
  * 1. Remove the Status-enum from persistence layer (and in DB)
  * 2. Add a new entity: Event {id, incidentEntityId, Type [POB_UPDATED, JIRA_UPDATED, JIRA_CLOSED, etc], created

@@ -2,7 +2,7 @@
   "id" : "550cff1c-31db-48ac-84c2-07bad2e1ec6a",
   "name" : "messaging_slack",
   "request" : {
-    "url" : "/messaging/2281/slack",
+    "urlPath" : "/messaging/2281/slack",
     "method" : "POST",
     "bodyPatterns" : [ {
       "equalToJson" : "{\r\n  \"token\" : \"the-token\",\r\n  \"channel\" : \"the-channel\",\r\n  \"message\" : \"${json-unit.any-string}\"\r\n}",

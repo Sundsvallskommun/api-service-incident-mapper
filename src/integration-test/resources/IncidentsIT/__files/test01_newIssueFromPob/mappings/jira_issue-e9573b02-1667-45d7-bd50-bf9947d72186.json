@@ -2,7 +2,7 @@
   "id" : "e9573b02-1667-45d7-bd50-bf9947d72186",
   "name" : "jira_issue",
   "request" : {
-    "url" : "/jira/rest/api/2/issue/",
+    "urlPath" : "/jira/rest/api/2/issue/",
     "method" : "POST",
     "bodyPatterns" : [ {
       "equalToJson" : "{\"fields\":{\"summary\":\"Supportärende 12345 (testärende draken 240522)\",\"description\":\"2024-05-23 12:59 System API Utvecklingsfabriken Utvecklingsfabriken\\ntest2\\n\\n\\n___________________________________________________________\\n\\n\\n\\n2024-05-23 12:36 System API Utvecklingsfabriken Utvecklingsfabriken\\nAndreas test\\n\\n\\n___________________________________________________________\",\"labels\":[\"support-ticket\"],\"project\":{\"key\":\"UF\"},\"issuetype\":{\"name\":\"Bug\",\"statuses\":[]}}}",

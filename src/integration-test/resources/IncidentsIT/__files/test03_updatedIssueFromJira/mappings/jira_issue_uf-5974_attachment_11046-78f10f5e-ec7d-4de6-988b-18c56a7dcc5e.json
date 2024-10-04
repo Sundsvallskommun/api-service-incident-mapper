@@ -2,7 +2,7 @@
   "id" : "78f10f5e-ec7d-4de6-988b-18c56a7dcc5e",
   "name" : "rest_api_2_attachment_11046",
   "request" : {
-    "url" : "/jira/rest/api/2/attachment/11046",
+    "urlPath" : "/jira/rest/api/2/attachment/11046",
     "method" : "DELETE"
   },
   "response" : {

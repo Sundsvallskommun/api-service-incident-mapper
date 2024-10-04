@@ -2,7 +2,7 @@
   "id" : "6b8e25db-b498-45cc-829d-55dabdf60668",
   "name" : "rest_api_2_issue_uf-5974_transitions",
   "request" : {
-    "url" : "/jira/rest/api/2/issue/UF-5974/transitions",
+    "urlPath" : "/jira/rest/api/2/issue/UF-5974/transitions",
     "method" : "GET"
   },
   "response" : {

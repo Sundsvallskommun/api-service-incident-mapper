@@ -29,6 +29,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
@@ -54,11 +56,11 @@ import se.sundsvall.dept44.test.extension.ResourceLoaderExtension;
 import se.sundsvall.incidentmapper.api.model.IncidentRequest;
 import se.sundsvall.incidentmapper.integration.db.IncidentRepository;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
-import se.sundsvall.incidentmapper.integration.db.model.enums.Status;
 import se.sundsvall.incidentmapper.integration.jira.JiraIncidentClient;
 import se.sundsvall.incidentmapper.integration.jira.configuration.JiraProperties;
 import se.sundsvall.incidentmapper.integration.pob.POBClient;
 import se.sundsvall.incidentmapper.service.configuration.SynchronizationProperties;
+import se.sundsvall.incidentmapper.service.mapper.PobMapper;
 
 @ExtendWith({ MockitoExtension.class, ResourceLoaderExtension.class })
 class IncidentServiceTest {
@@ -94,9 +96,6 @@ class IncidentServiceTest {
 
 	@Captor
 	private ArgumentCaptor<OffsetDateTime> offsetDateTimeCaptor;
-
-	@Captor
-	private ArgumentCaptor<Status> statusCaptor;
 
 	@Captor
 	private ArgumentCaptor<Issue> jiraIssueCaptor;
@@ -199,7 +198,7 @@ class IncidentServiceTest {
 	}
 
 	@Test
-	void pollJiraWhenUpdatesFound() {
+	void pollJiraIssuesWhenUpdatesFound() {
 
 		// Arrange
 		final var jiraIssueKey = "JIR-12345";
@@ -216,7 +215,7 @@ class IncidentServiceTest {
 		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(Optional.of(jiraIssue));
 
 		// Act
-		incidentService.pollJira();
+		incidentService.pollJiraIssues();
 
 		// Assert
 		verify(jiraClientMock).getIssue(jiraIssueKey);
@@ -229,7 +228,7 @@ class IncidentServiceTest {
 	}
 
 	@Test
-	void pollJiraWhenUpdatesNotFound() {
+	void pollJiraIssuesWhenUpdatesNotFound() {
 
 		// Arrange
 		final var jiraIssueKey = "JIR-12345";
@@ -248,7 +247,7 @@ class IncidentServiceTest {
 		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(Optional.of(jiraIssue));
 
 		// Act
-		incidentService.pollJira();
+		incidentService.pollJiraIssues();
 
 		// Assert
 		verify(jiraClientMock).getIssue(jiraIssueKey);
@@ -257,7 +256,7 @@ class IncidentServiceTest {
 	}
 
 	@Test
-	void pollJiraWhenJiraIssueNotFound() {
+	void pollJiraIssuesWhenJiraIssueNotFound() {
 
 		// Arrange
 		final var jiraIssueKey = "JIR-12345";
@@ -273,7 +272,7 @@ class IncidentServiceTest {
 		when(jiraClientMock.getIssue(jiraIssueKey)).thenReturn(Optional.empty());
 
 		// Act
-		incidentService.pollJira();
+		incidentService.pollJiraIssues();
 
 		// Assert
 		verify(incidentRepositoryMock).findByStatus(SYNCHRONIZED);
@@ -289,12 +288,12 @@ class IncidentServiceTest {
 	}
 
 	@Test
-	void pollJiraWhenIncidentMappingsNotFound() {
+	void pollJiraIssuesWhenIncidentMappingsNotFound() {
 
 		when(incidentRepositoryMock.findByStatus(SYNCHRONIZED)).thenReturn(emptyList());
 
 		// Act
-		incidentService.pollJira();
+		incidentService.pollJiraIssues();
 
 		// Assert
 		verifyNoInteractions(jiraClientMock);
@@ -303,7 +302,7 @@ class IncidentServiceTest {
 	}
 
 	@Test
-	void updatePob() {
+	void updatePobIssues() {
 
 		// Arrange
 		final var incidentEntity = IncidentEntity.create()
@@ -346,7 +345,6 @@ class IncidentServiceTest {
 		jiraIssue.setFields(fields);
 
 		when(synchronizationPropertiesMock.tempFolder()).thenReturn(TEMP_DIR);
-		when(synchronizationPropertiesMock.responsibleUserGroupInPob()).thenReturn("The-user-group");
 		when(incidentRepositoryMock.findByStatus(JIRA_INITIATED_EVENT)).thenReturn(List.of(incidentEntity));
 		when(jiraClientMock.getIssue(incidentEntity.getJiraIssueKey())).thenReturn(Optional.of(jiraIssue));
 		when(jiraClientMock.getProperties()).thenReturn(new JiraProperties("user", null, null, null));
@@ -354,16 +352,56 @@ class IncidentServiceTest {
 		when(pobClientMock.getProblemMemo(incidentEntity.getPobIssueKey())).thenReturn(Optional.of(memoPayload));
 
 		// Act
-		incidentService.updatePob();
+		incidentService.updatePobIssues();
 
 		// Assert
 		verify(incidentRepositoryMock).findByStatus(JIRA_INITIATED_EVENT);
 		verify(jiraClientMock, times(2)).getIssue(incidentEntity.getJiraIssueKey());
 		verify(pobClientMock, times(2)).getAttachments(incidentEntity.getPobIssueKey());
 		verify(pobClientMock, times(2)).getProblemMemo(incidentEntity.getPobIssueKey());
-		verify(pobClientMock, times(3)).updateCase(any());
+		verify(pobClientMock, times(2)).updateCase(any());
 		verify(pobClientMock).createAttachment(any(), any());
-		verify(incidentRepositoryMock).saveAndFlush(incidentEntity);
+		verify(incidentRepositoryMock, times(2)).saveAndFlush(incidentEntity);
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "Closed", "Done", "Review Done", "Resolved", "Won't Do" })
+	void closeIssues(String statusName) {
+
+		// Arrange
+		final var pobIssueKey = "POB-12345";
+		final var jiraIssueKey = "JIR-12345";
+		final var pobFirstLineUserGroup = "The-user-group";
+		final var incidentEntity = IncidentEntity.create()
+			.withId(UUID.randomUUID().toString())
+			.withJiraIssueKey(jiraIssueKey)
+			.withPobIssueKey(pobIssueKey)
+			.withLastSynchronizedPob(now().minusDays(1))
+			.withStatus(SYNCHRONIZED);
+
+		final var pobPayload = PobMapper.toResponsibleGroupPayload(pobIssueKey, pobFirstLineUserGroup);
+
+		final var status = new com.chavaillaz.client.jira.domain.Status();
+		status.setName(statusName);
+
+		final var fields = new Fields();
+		fields.setStatus(status);
+
+		final var jiraIssue = new Issue();
+		jiraIssue.setFields(fields);
+
+		when(synchronizationPropertiesMock.responsibleUserGroupInPob()).thenReturn(pobFirstLineUserGroup);
+		when(incidentRepositoryMock.findAll()).thenReturn(List.of(incidentEntity));
+		when(jiraClientMock.getIssue(incidentEntity.getJiraIssueKey())).thenReturn(Optional.of(jiraIssue));
+
+		// Act
+		incidentService.closeIssues();
+
+		// Assert
+		verify(incidentRepositoryMock).findAll();
+		verify(jiraClientMock).getIssue(incidentEntity.getJiraIssueKey());
+		verify(pobClientMock).updateCase(pobPayload);
+		verify(incidentRepositoryMock).delete(incidentEntity);
 	}
 
 	@Test
@@ -409,7 +447,7 @@ class IncidentServiceTest {
 				.withStatus(POB_INITIATED_EVENT)));
 
 		// Act
-		incidentService.updateJira();
+		incidentService.updateJiraIssues();
 
 		// Assert
 		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
@@ -463,7 +501,7 @@ class IncidentServiceTest {
 				.withStatus(POB_INITIATED_EVENT)));
 
 		// Act
-		incidentService.updateJira();
+		incidentService.updateJiraIssues();
 
 		// Assert
 		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
@@ -523,7 +561,7 @@ class IncidentServiceTest {
 				.withStatus(POB_INITIATED_EVENT)));
 
 		// Act
-		incidentService.updateJira();
+		incidentService.updateJiraIssues();
 
 		// Assert
 		verify(incidentRepositoryMock).saveAndFlush(incidentEntityCaptor.capture());
@@ -540,7 +578,7 @@ class IncidentServiceTest {
 		verify(pobClientMock).getAttachment(pobIssueKey, "1628120");
 		verify(pobClientMock).getReceivedMailIds(pobIssueKey);
 		verify(pobClientMock).getMail(mailId);
-		verify(slackServiceMock).sendToSlack(municipalityId,"A new Jira issue has been created for you: http:://jira-test.com/browse/JIR-12345");
+		verify(slackServiceMock).sendToSlack(municipalityId, "A new Jira issue has been created for you: http:://jira-test.com/browse/JIR-12345");
 
 		final var capturedIncidentEntity = incidentEntityCaptor.getValue();
 		assertThat(capturedIncidentEntity).isNotNull();

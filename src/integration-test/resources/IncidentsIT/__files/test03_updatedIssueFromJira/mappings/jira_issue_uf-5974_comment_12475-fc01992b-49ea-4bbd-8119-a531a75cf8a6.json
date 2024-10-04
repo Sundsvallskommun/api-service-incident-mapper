@@ -2,7 +2,7 @@
   "id" : "fc01992b-49ea-4bbd-8119-a531a75cf8a6",
   "name" : "rest_api_2_issue_uf-5974_comment_12475",
   "request" : {
-    "url" : "/jira/rest/api/2/issue/UF-5974/comment/12475",
+    "urlPath" : "/jira/rest/api/2/issue/UF-5974/comment/12475",
     "method" : "DELETE"
   },
   "response" : {

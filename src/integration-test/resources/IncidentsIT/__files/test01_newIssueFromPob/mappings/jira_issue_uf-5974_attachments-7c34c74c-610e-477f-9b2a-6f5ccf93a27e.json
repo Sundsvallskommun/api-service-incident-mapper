@@ -2,7 +2,7 @@
   "id" : "7c34c74c-610e-477f-9b2a-6f5ccf93a27e",
   "name" : "jira_issue_uf-5974_attachments",
   "request" : {
-    "url" : "/jira/rest/api/2/issue/UF-5974/attachments",
+    "urlPath" : "/jira/rest/api/2/issue/UF-5974/attachments",
     "method" : "POST",
     "bodyPatterns" : [ {
       "anything" : "anything"

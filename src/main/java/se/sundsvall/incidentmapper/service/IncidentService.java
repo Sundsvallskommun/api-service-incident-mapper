@@ -7,7 +7,9 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.springframework.util.FileSystemUtils.deleteRecursively;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
@@ -54,13 +56,11 @@ public class IncidentService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(IncidentService.class);
 
 	private static final List<Status> OPEN_FOR_MODIFICATION_STATUS_LIST = asList(SYNCHRONIZED); // Status is only modifiable if current value is one of these.
-	private static final List<String> JIRA_CLOSED_STATUSES = List.of("Closed", "Done", "Review Done", "Resolved", "Won't Do", "wont-do");
-
+	private static final List<String> JIRA_CLOSED_STATUSES = List.of("Closed", "Done", "Review done", "Resolved", "Won't do");
+	private static final List<String> JIRA_ISSUE_LABELS = List.of("support-ticket");
 	private static final String JIRA_ISSUE_CREATED = "A new Jira issue has been created for you: %s/browse/%s";
-
 	private static final String JIRA_ISSUE_TYPE = "Bug";
 	private static final String JIRA_TODO_STATUS = "To Do";
-	private static final String JIRA_ISSUE_LABEL = "support-ticket";
 	private static final String JIRA_ISSUE_TITLE_TEMPLATE = "Supportärende %s (%s)";
 	private static final String APPLICATION_TEMP_FOLDER_PATH_TEMPLATE = "%s/%s/%s";
 
@@ -70,8 +70,12 @@ public class IncidentService {
 	private final SynchronizationProperties synchronizationProperties;
 	private final SlackService slackService;
 
-	public IncidentService(IncidentRepository incidentRepository, JiraIncidentClient jiraClient, POBClient pobClient,
-		SynchronizationProperties synchronizationProperties, SlackService slackService) {
+	public IncidentService(
+		IncidentRepository incidentRepository,
+		JiraIncidentClient jiraClient,
+		POBClient pobClient,
+		SynchronizationProperties synchronizationProperties,
+		SlackService slackService) {
 
 		this.incidentRepository = incidentRepository;
 		this.jiraIncidentClient = jiraClient;
@@ -103,6 +107,29 @@ public class IncidentService {
 	}
 
 	/**
+	 * Search for all issues (mappings) that have a closed Jira-issue (See definition of closed in: JIRA_CLOSED_STATUSES).
+	 *
+	 * All closed Jira-issues will have the corresponding POB-issue assigned back to first line and then the mapping will be
+	 * deleted.
+	 */
+	public void closeIssues() {
+		incidentRepository.findAll().stream()
+			.filter(incidentEntity -> isNotBlank(incidentEntity.getJiraIssueKey()))
+			.forEach(incidentEntity -> jiraIncidentClient.getIssue(incidentEntity.getJiraIssueKey()).ifPresent(jiraIssue -> {
+				final var statusName = jiraIssue.getFields().getStatus().getName();
+				final var doCloseIssue = JIRA_CLOSED_STATUSES.stream().anyMatch(status -> equalsIgnoreCase(status, statusName));
+
+				LOGGER.info("Issue: '{}' has status: '{}'. Issue will be closed: '{}'", incidentEntity.getJiraIssueKey(), statusName, doCloseIssue);
+
+				// Issue is processed in Jira.
+				if (doCloseIssue) {
+					updatePobUser(incidentEntity);
+					incidentRepository.delete(incidentEntity);
+				}
+			}));
+	}
+
+	/**
 	 * Poll JIRA for updates on mapped issues.
 	 * <p>
 	 * All incidents with status "SYNCHRONIZED" (in DB) will be compared with the last-update-timestamp on the Jira-issue.
@@ -111,7 +138,7 @@ public class IncidentService {
 	 * the status will be changed to "JIRA_INITIATED_EVENT". This status will make the issue a candidate for synchronization
 	 * towards Pob.
 	 */
-	public void pollJira() {
+	public void pollJiraIssues() {
 		incidentRepository.findByStatus(SYNCHRONIZED)
 			.forEach(incidentEntity -> jiraIncidentClient.getIssue(incidentEntity.getJiraIssueKey()).ifPresentOrElse(jiraIssue -> {
 				final var lastModifiedJira = Optional.ofNullable(jiraIssue.getFields().getUpdated()).orElse(MIN);
@@ -133,7 +160,7 @@ public class IncidentService {
 			}));
 	}
 
-	public void updateJira() {
+	public void updateJiraIssues() {
 		incidentRepository.findByStatus(POB_INITIATED_EVENT)
 			.forEach(incidentEntity -> {
 				if (isBlank(incidentEntity.getJiraIssueKey())) {
@@ -144,7 +171,7 @@ public class IncidentService {
 			});
 	}
 
-	public void updateJiraIssue(final IncidentEntity incidentEntity) {
+	private void updateJiraIssue(final IncidentEntity incidentEntity) {
 
 		// Fetch from POB.
 		final var pobIssueKey = incidentEntity.getPobIssueKey();
@@ -205,7 +232,7 @@ public class IncidentService {
 			.withLastSynchronizedJira(null)));
 	}
 
-	public void createJiraIssue(final IncidentEntity incidentEntity) {
+	private void createJiraIssue(final IncidentEntity incidentEntity) {
 
 		// Fetch from POB.
 		final var pobIssueKey = incidentEntity.getPobIssueKey();
@@ -214,7 +241,7 @@ public class IncidentService {
 		final var comments = toCaseInternalNotesCustomMemo(pobClient.getCaseInternalNotesCustom(pobIssueKey).orElse(null));
 
 		// Create issue in Jira.
-		final var jiraIssueKey = jiraIncidentClient.createIssue(JIRA_ISSUE_TYPE, List.of(JIRA_ISSUE_LABEL), JIRA_ISSUE_TITLE_TEMPLATE.formatted(pobIssueKey, summary), description);
+		final var jiraIssueKey = jiraIncidentClient.createIssue(JIRA_ISSUE_TYPE, JIRA_ISSUE_LABELS, JIRA_ISSUE_TITLE_TEMPLATE.formatted(pobIssueKey, summary), description);
 		final var jiraIssue = jiraIncidentClient.getIssue(jiraIssueKey);
 
 		jiraIssue.ifPresent(issue -> {
@@ -250,11 +277,11 @@ public class IncidentService {
 				.withLastSynchronizedJira(now(systemDefault())));
 
 			// Send Slack notification.
-			slackService.sendToSlack(incidentEntity.getMunicipalityId(),JIRA_ISSUE_CREATED.formatted(jiraIncidentClient.getProperties().url(), jiraIssueKey));
+			slackService.sendToSlack(incidentEntity.getMunicipalityId(), JIRA_ISSUE_CREATED.formatted(jiraIncidentClient.getProperties().url(), jiraIssueKey));
 		});
 	}
 
-	public void updatePob() {
+	public void updatePobIssues() {
 		incidentRepository.findByStatus(JIRA_INITIATED_EVENT)
 			.forEach(incidentEntity -> {
 				final var jiraIssue = jiraIncidentClient.getIssue(incidentEntity.getJiraIssueKey()).orElse(null);
@@ -269,15 +296,9 @@ public class IncidentService {
 		updatePobAttachments(incidentEntity, jiraIssue.getFields().getAttachments().getAttachments(), pobAttachments);
 		updateJiraIssue(incidentEntity);
 
-		final var statusName = jiraIssue.getFields().getStatus().getName();
-		if (JIRA_CLOSED_STATUSES.contains(statusName)) {
-			updatePobUser(incidentEntity);
-			incidentRepository.delete(incidentEntity);
-		} else {
-			incidentRepository.saveAndFlush(incidentEntity
-				.withStatus(SYNCHRONIZED)
-				.withLastSynchronizedPob(now(systemDefault())));
-		}
+		incidentRepository.saveAndFlush(incidentEntity
+			.withStatus(SYNCHRONIZED)
+			.withLastSynchronizedPob(now(systemDefault())));
 
 		LOGGER.info("Issue '{}' synchronized in POB", incidentEntity.getPobIssueKey());
 	}

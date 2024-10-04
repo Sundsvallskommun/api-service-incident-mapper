@@ -2,7 +2,7 @@
   "id" : "20e3d78b-cfd1-4e6a-8142-0f30445631d0",
   "name" : "jira_issue_uf-5974_comment-1",
   "request" : {
-    "url" : "/jira/rest/api/2/issue/UF-5974/comment",
+    "urlPath" : "/jira/rest/api/2/issue/UF-5974/comment",
     "method" : "POST",
     "bodyPatterns" : [ {
       "equalToJson" : "{\"body\":\"_____________________________________________________\\nTo: incidents@host.com\\nFrom: joe.doe@host.com\\nSubject: Testärende 12345\\nDate: 2024-06-28 11:57:39\\nAttachments: \\n_____________________________________________________\\n\\nThis is a mail body\\n\"}",

@@ -2,7 +2,7 @@
   "id" : "39a269be-4e1d-4bb8-be39-5e2385379094",
   "name" : "pob_case_12345_attachments_1628625",
   "request" : {
-    "url" : "/pob/case/12345/attachments/1628625",
+    "urlPath" : "/pob/case/12345/attachments/1628625",
     "method" : "GET"
   },
   "response" : {

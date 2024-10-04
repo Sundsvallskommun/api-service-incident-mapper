@@ -2,7 +2,7 @@
   "id" : "36b806f2-e596-4b36-9251-b06de2cd3bc2",
   "name" : "rest_api_2_issue_uf-5974_comment",
   "request" : {
-    "url" : "/jira/rest/api/2/issue/UF-5974/comment",
+    "urlPath" : "/jira/rest/api/2/issue/UF-5974/comment",
     "method" : "POST",
     "bodyPatterns" : [ {
       "equalToJson" : "{\"body\":\"2024-05-24 15:26 System API Utvecklingsfabriken Utvecklingsfabriken\\nCarlsson Andreas:\\n hello\\n\\n\\n___________________________________________________________\\n\\n\\n\\n2024-05-24 10:51 System API Utvecklingsfabriken Utvecklingsfabriken\\nCarlsson Andreas:\\n ||Rubrik 1||Rubrik 2||\\n|Kol A1|Col A2|\\n\\n:)(y)\\n\\n&nbsp;\\n{code:java}\\n// kod platshållare\\n{code}\\n\\n\\n___________________________________________________________\\n\\n\\n\\n2024-05-24 10:48 System API Utvecklingsfabriken Utvecklingsfabriken\\nCarlsson Andreas: ||Rubrik 1||Rubrik 2||\\n|hej|hå|\\n|kalle|anka|\\n\\n:D\\n{code:java}\\n// kod platshållare\\n{code}\\n\\n\\n___________________________________________________________\\n\\n\\n\\n2024-05-24 10:45 System API Utvecklingsfabriken Utvecklingsfabriken\\nCarlsson Andreas: Detta är en text för att testa namn.\\nBorde fungera\\n\\n\\n___________________________________________________________\\n\\n\\n\\n2024-05-23 12:32 System API Utvecklingsfabriken Utvecklingsfabriken\\nNu funkar det!\\n\\n\\n___________________________________________________________\\n\\n\\n\\n2024-05-23 09:58 System API Utvecklingsfabriken Utvecklingsfabriken\\nOk\\n\\n\\n___________________________________________________________\"}",

@@ -19,9 +19,9 @@ public interface MessagingClient {
 	 * Send a single Slack message.
 	 *
 	 * @param  municipalityId the municipality ID.
-	 * @param  slackRequest containing the message to send
-	 * @return              response containing id and delivery results for sent message
+	 * @param  slackRequest   containing the message to send
+	 * @return                response containing id and delivery results for sent message
 	 */
 	@PostMapping(path = "/{municipalityId}/slack", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
-	MessageResult sendSlack(@PathVariable String municipalityId,  @RequestBody SlackRequest slackRequest);
+	MessageResult sendSlackMessage(@PathVariable String municipalityId, @RequestBody SlackRequest slackRequest);
 }

@@ -29,27 +29,26 @@ public class POBConfiguration {
 	@Bean
 	FeignBuilderCustomizer feignBuilderCustomizer(final POBProperties pobProperties) {
 		return FeignMultiCustomizer.create()
-			.withRequestInterceptor(requestInterceptor(pobProperties.apiKey()))
+			.withRequestInterceptor(requestInterceptor(pobProperties))
+			.withEncoder(encoder())
 			.withErrorDecoder(errorDecoder())
 			.withRequestTimeoutsInSeconds(pobProperties.connectTimeout(), pobProperties.readTimeout())
 			.composeCustomizersToOne();
 	}
 
-	@Bean
-	Encoder encoder() {
-		return new JacksonEncoder(new ObjectMapper()
-			.setDefaultPropertyInclusion(ALWAYS)); // Feign must be able to send null values.
+	private Encoder encoder() {
+		// Feign must be able to send null values.
+		return new JacksonEncoder(new ObjectMapper().setDefaultPropertyInclusion(ALWAYS));
 	}
 
-	@Bean
-	ErrorDecoder errorDecoder() {
+	private ErrorDecoder errorDecoder() {
 		// JsonPath below is constructed to only extract values from the attributes if they exist.
 		// UserMessage and Message should never exist at the same time (according to API-spec).
 		// 404:s should be thrown as 404:s and not 502:s
 		return new JsonPathErrorDecoder(CLIENT_ID, List.of(NOT_FOUND.value()), new JsonPathSetup("concat($[?(@.UserMessage != null)].UserMessage, $[?(@.Message != null)].Message)", "concat($[?(@.InternalMessage != null)].InternalMessage)"));
 	}
 
-	RequestInterceptor requestInterceptor(final String apiKey) {
-		return requestTemplate -> requestTemplate.header(AUTHORIZATION, apiKey);
+	private RequestInterceptor requestInterceptor(final POBProperties pobProperties) {
+		return requestTemplate -> requestTemplate.header(AUTHORIZATION, pobProperties.apiKey());
 	}
 }

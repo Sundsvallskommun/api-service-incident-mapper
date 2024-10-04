@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import generated.se.sundsvall.pob.PobPayload;
-import generated.se.sundsvall.pob.PobPayloadWithTriggerResults;
 import se.sundsvall.incidentmapper.integration.pob.configuration.POBConfiguration;
 
 @FeignClient(name = CLIENT_ID, url = "${integration.pob.url}", configuration = POBConfiguration.class, dismiss404 = true)
@@ -29,15 +28,6 @@ public interface POBClient {
 	 */
 	@PostMapping(path = "case", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
 	Void updateCase(@RequestBody PobPayload payload);
-
-	/**
-	 * Creates a case in POB.
-	 *
-	 * @param  payload payload the object with the item to create.
-	 * @return         a list of payload trigger results
-	 */
-	@PutMapping(path = "case", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
-	List<PobPayloadWithTriggerResults> createCase(@RequestBody PobPayload payload);
 
 	/**
 	 * Get an existing case in POB.
@@ -94,17 +84,6 @@ public interface POBClient {
 	Void createAttachment(@PathVariable("caseId") String caseId, @RequestBody PobPayload payload);
 
 	/**
-	 * Returns a list of all sent mails for a case (mailStatus=2).
-	 *
-	 * lease note: The payload will only contain an "Id". Use the readMail-method to fetch the content.
-	 *
-	 * @param  caseId the ID of the case.
-	 * @return        a payload with the mail information.
-	 */
-	@GetMapping(path = "case/{caseId}/mails?Filter=MailStatus=2&Fields=Id", produces = APPLICATION_JSON_VALUE)
-	List<PobPayload> getSentMailIds(@PathVariable("caseId") String caseId);
-
-	/**
 	 * Returns a list of all received mails for a case (mailStatus=3).
 	 *
 	 * Please note: The payload will only contain an "Id". Use the readMail-method to fetch the content.
@@ -123,23 +102,4 @@ public interface POBClient {
 	 */
 	@GetMapping(path = "mail/{mailId}", produces = APPLICATION_JSON_VALUE)
 	Optional<PobPayload> getMail(@PathVariable("mailId") String mailId);
-
-	/**
-	 * Returns a list of all mail attachments for a mail in POB.
-	 *
-	 * @param  mailId the mail ID.
-	 * @return        a payload with the attachments.
-	 */
-	@GetMapping(path = "mail/{mailId}/attachments", produces = APPLICATION_JSON_VALUE)
-	Optional<PobPayload> getMailAttachments(@PathVariable("mailId") String mailId);
-
-	/**
-	 * Returns an attachment for a mail in POB.
-	 *
-	 * @param  mailId       the ID of the mail.
-	 * @param  attachmentId the ID of the attachment.
-	 * @return              the attachment
-	 */
-	@GetMapping(path = "mail/{mailId}/attachments/{attachmentId}", produces = APPLICATION_JSON_VALUE)
-	InputStreamResource getMailAttachment(@PathVariable("mailId") String mailId, @PathVariable("attachmentId") String attachmentId);
 }

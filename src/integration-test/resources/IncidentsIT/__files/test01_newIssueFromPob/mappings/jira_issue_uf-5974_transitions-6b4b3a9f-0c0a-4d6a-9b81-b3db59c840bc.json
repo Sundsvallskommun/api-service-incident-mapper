@@ -2,7 +2,7 @@
   "id" : "6b4b3a9f-0c0a-4d6a-9b81-b3db59c840bc",
   "name" : "rest_api_2_issue_uf-5974_transitions",
   "request" : {
-    "url" : "/jira/rest/api/2/issue/UF-5974/transitions",
+    "urlPath" : "/jira/rest/api/2/issue/UF-5974/transitions",
     "method" : "POST",
     "bodyPatterns" : [ {
       "equalToJson" : "{\"transition\":{\"id\":\"51\",\"name\":\"To Do\",\"to\":{\"id\":\"10000\",\"name\":\"To Do\",\"self\":\"https://jira-test.sundsvall.se/rest/api/2/status/10000\",\"description\":\"\",\"iconUrl\":\"https://jira-test.sundsvall.se/\",\"statusCategory\":{\"id\":\"2\",\"key\":\"new\",\"name\":\"To Do\",\"self\":\"https://jira-test.sundsvall.se/rest/api/2/statuscategory/2\",\"colorName\":\"default\"}}}}",

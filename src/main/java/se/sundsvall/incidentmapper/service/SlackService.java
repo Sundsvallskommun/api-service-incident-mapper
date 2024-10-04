@@ -18,9 +18,13 @@ public class SlackService {
 	}
 
 	public void sendToSlack(String municipalityId, String message) {
-		messagingClient.sendSlack(municipalityId,new SlackRequest()
+		messagingClient.sendSlackMessage(municipalityId, createSlackRequest(message));
+	}
+
+	private SlackRequest createSlackRequest(String message) {
+		return new SlackRequest()
 			.channel(messagingProperties.channel())
 			.token(messagingProperties.token())
-			.message(message));
+			.message(message);
 	}
 }

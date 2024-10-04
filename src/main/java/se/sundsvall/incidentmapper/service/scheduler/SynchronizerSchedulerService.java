@@ -24,15 +24,19 @@ public class SynchronizerSchedulerService {
 	public void execute() {
 
 		LOGGER.info("Start polling for Jira modifications");
-		incidentService.pollJira();
+		incidentService.pollJiraIssues();
 		LOGGER.info("End polling for Jira modifications");
 
 		LOGGER.info("Start POB synchronization");
-		incidentService.updatePob();
+		incidentService.updatePobIssues();
 		LOGGER.info("End POB synchronization");
 
 		LOGGER.info("Start Jira synchronization");
-		incidentService.updateJira();
+		incidentService.updateJiraIssues();
 		LOGGER.info("End Jira synchronization");
+
+		LOGGER.info("Start close issues");
+		incidentService.closeIssues();
+		LOGGER.info("End close issues");
 	}
 }

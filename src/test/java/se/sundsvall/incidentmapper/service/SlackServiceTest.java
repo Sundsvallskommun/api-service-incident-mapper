@@ -43,7 +43,7 @@ class SlackServiceTest {
 		// Assert
 		verify(messagingPropertiesMock).channel();
 		verify(messagingPropertiesMock).token();
-		verify(messagingClientMock).sendSlack(municipalityId,new SlackRequest()
+		verify(messagingClientMock).sendSlackMessage(municipalityId,new SlackRequest()
 			.channel(channel)
 			.token(token)
 			.message(message));

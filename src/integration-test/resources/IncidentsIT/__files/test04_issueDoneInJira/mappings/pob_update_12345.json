@@ -2,7 +2,7 @@
   "id" : "ab60c5e4-39d7-4f0a-81f8-ba2cf139df08",
   "name" : "pob_case_12345",
   "request" : {
-    "urlPath" : "/pob/case",
+    "url" : "/pob/case",
     "method" : "POST"
   },
   "response" : {

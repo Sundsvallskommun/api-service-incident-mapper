@@ -3,10 +3,9 @@ package se.sundsvall.incidentmapper.apptest;
 import static java.time.OffsetDateTime.now;
 import static java.time.ZoneId.systemDefault;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.ACCEPTED;
-import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
 
@@ -29,9 +28,9 @@ class IncidentsIT extends AbstractAppTest {
 	private static final String POB_ISSUE_KEY = "12345";
 	private static final String JIRA_ISSUE_KEY = "UF-5974";
 	private static final String MUNICIPALITY_ID = "2281";
-	private static final String PATH = "/%s/incidents".formatted(MUNICIPALITY_ID);
+	private static final String INCIDENTS_PATH = "/%s/incidents".formatted(MUNICIPALITY_ID);
+	private static final String SYNCHRONIZER_PATH = "/%s/jobs/synchronizer".formatted(MUNICIPALITY_ID);
 	private static final String REQUEST_FILE = "request.json";
-	private static final int WAIT_IN_SECONDS = 9;
 
 	@Autowired
 	private IncidentRepository incidentRepository;
@@ -39,13 +38,18 @@ class IncidentsIT extends AbstractAppTest {
 	@Test
 	void test01_newIssueFromPob() {
 		setupCall()
-			.withServicePath(PATH)
+			.withServicePath(INCIDENTS_PATH)
 			.withHttpMethod(POST)
 			.withRequest(REQUEST_FILE)
 			.withExpectedResponseStatus(ACCEPTED)
-			.withMaxVerificationDelayInSeconds(WAIT_IN_SECONDS)
-			.sendRequest()
-			.verifyStubs();
+			.sendRequest();
+
+		setupCall()
+			.withServicePath(SYNCHRONIZER_PATH)
+			.withHttpMethod(POST)
+			.withRequest(REQUEST_FILE)
+			.withExpectedResponseStatus(NO_CONTENT)
+			.sendRequestAndVerifyResponse();
 	}
 
 	@Test
@@ -58,11 +62,17 @@ class IncidentsIT extends AbstractAppTest {
 			.withStatus(SYNCHRONIZED));
 
 		setupCall()
-			.withServicePath(PATH)
+			.withServicePath(INCIDENTS_PATH)
 			.withHttpMethod(POST)
 			.withRequest(REQUEST_FILE)
 			.withExpectedResponseStatus(ACCEPTED)
-			.withMaxVerificationDelayInSeconds(WAIT_IN_SECONDS)
+			.sendRequest();
+
+		setupCall()
+			.withServicePath(SYNCHRONIZER_PATH)
+			.withHttpMethod(POST)
+			.withRequest(REQUEST_FILE)
+			.withExpectedResponseStatus(NO_CONTENT)
 			.sendRequestAndVerifyResponse();
 	}
 
@@ -75,13 +85,11 @@ class IncidentsIT extends AbstractAppTest {
 			.withMunicipalityId(MUNICIPALITY_ID)
 			.withStatus(JIRA_INITIATED_EVENT));
 
-		// Not necessary for this test case, but must be called in order to call verifyStubs().
-		// The updatePob-logic is a scheduled job and is not depending on any user inputs to this micro-service.
 		setupCall()
-			.withServicePath("/api-docs")
-			.withHttpMethod(GET)
-			.withExpectedResponseStatus(OK)
-			.withMaxVerificationDelayInSeconds(WAIT_IN_SECONDS)
+			.withServicePath(SYNCHRONIZER_PATH)
+			.withHttpMethod(POST)
+			.withRequest(REQUEST_FILE)
+			.withExpectedResponseStatus(NO_CONTENT)
 			.sendRequestAndVerifyResponse();
 	}
 
@@ -99,13 +107,11 @@ class IncidentsIT extends AbstractAppTest {
 		assertThat(incidentRepository.findByMunicipalityIdAndPobIssueKey(MUNICIPALITY_ID, POB_ISSUE_KEY))
 			.isPresent();
 
-		// Not necessary for this test case, but must be called in order to call verifyStubs().
-		// The updatePob-logic is a scheduled job and is not depending on any user inputs to this micro-service.
 		setupCall()
-			.withServicePath("/api-docs")
-			.withHttpMethod(GET)
-			.withExpectedResponseStatus(OK)
-			.withMaxVerificationDelayInSeconds(WAIT_IN_SECONDS)
+			.withServicePath(SYNCHRONIZER_PATH)
+			.withHttpMethod(POST)
+			.withRequest(REQUEST_FILE)
+			.withExpectedResponseStatus(NO_CONTENT)
 			.sendRequestAndVerifyResponse();
 
 		assertThat(incidentRepository.findByMunicipalityIdAndPobIssueKey(MUNICIPALITY_ID, POB_ISSUE_KEY))

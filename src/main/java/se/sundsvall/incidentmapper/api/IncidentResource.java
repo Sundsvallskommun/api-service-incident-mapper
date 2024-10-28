@@ -32,7 +32,9 @@ import se.sundsvall.incidentmapper.service.IncidentService;
 @Validated
 @RequestMapping("/{municipalityId}/incidents")
 @Tag(name = "Incidents", description = "incident operations")
-@ApiResponse(responseCode = "400", description = "Bad request", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(oneOf = { Problem.class, ConstraintViolationProblem.class })))
+@ApiResponse(responseCode = "400", description = "Bad request", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(oneOf = {
+	Problem.class, ConstraintViolationProblem.class
+})))
 @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 @ApiResponse(responseCode = "500", description = "Internal Server error", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 public class IncidentResource {
@@ -43,7 +45,11 @@ public class IncidentResource {
 		this.incidentService = incidentService;
 	}
 
-	@PostMapping(consumes = { APPLICATION_JSON_VALUE }, produces = { ALL_VALUE, APPLICATION_PROBLEM_JSON_VALUE })
+	@PostMapping(consumes = {
+		APPLICATION_JSON_VALUE
+	}, produces = {
+		ALL_VALUE, APPLICATION_PROBLEM_JSON_VALUE
+	})
 	@Operation(summary = "Post new or updated incidents")
 	@ApiResponse(responseCode = "202", description = "Successful Operation", useReturnTypeSchema = true)
 	public ResponseEntity<Void> postIncident(

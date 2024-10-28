@@ -31,6 +31,7 @@ class IncidentsIT extends AbstractAppTest {
 	private static final String MUNICIPALITY_ID = "2281";
 	private static final String PATH = "/%s/incidents".formatted(MUNICIPALITY_ID);
 	private static final String REQUEST_FILE = "request.json";
+	private static final int WAIT_IN_SECONDS = 9;
 
 	@Autowired
 	private IncidentRepository incidentRepository;
@@ -42,7 +43,7 @@ class IncidentsIT extends AbstractAppTest {
 			.withHttpMethod(POST)
 			.withRequest(REQUEST_FILE)
 			.withExpectedResponseStatus(ACCEPTED)
-			.withMaxVerificationDelayInSeconds(9)
+			.withMaxVerificationDelayInSeconds(WAIT_IN_SECONDS)
 			.sendRequest()
 			.verifyStubs();
 	}
@@ -61,7 +62,7 @@ class IncidentsIT extends AbstractAppTest {
 			.withHttpMethod(POST)
 			.withRequest(REQUEST_FILE)
 			.withExpectedResponseStatus(ACCEPTED)
-			.withMaxVerificationDelayInSeconds(5)
+			.withMaxVerificationDelayInSeconds(WAIT_IN_SECONDS)
 			.sendRequest()
 			.verifyStubs();
 	}
@@ -81,7 +82,7 @@ class IncidentsIT extends AbstractAppTest {
 			.withServicePath("/api-docs")
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(OK)
-			.withMaxVerificationDelayInSeconds(5)
+			.withMaxVerificationDelayInSeconds(WAIT_IN_SECONDS)
 			.sendRequest()
 			.verifyStubs();
 	}
@@ -106,7 +107,7 @@ class IncidentsIT extends AbstractAppTest {
 			.withServicePath("/api-docs")
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(OK)
-			.withMaxVerificationDelayInSeconds(5)
+			.withMaxVerificationDelayInSeconds(WAIT_IN_SECONDS)
 			.sendRequest()
 			.verifyStubs();
 

@@ -20,7 +20,7 @@ public class SynchronizerSchedulerService {
 	}
 
 	@Scheduled(cron = "${scheduler.synchronizer.cron:-}")
-	@SchedulerLock(name = "jira-polling", lockAtMostFor = "${scheduler.synchronizer.shedlock-lock-at-most-for}")
+	@SchedulerLock(name = "synchronizer", lockAtMostFor = "${scheduler.synchronizer.shedlock-lock-at-most-for}")
 	public void execute() {
 
 		LOGGER.info("Start polling for Jira modifications");

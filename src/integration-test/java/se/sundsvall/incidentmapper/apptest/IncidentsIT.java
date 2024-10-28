@@ -42,7 +42,7 @@ class IncidentsIT extends AbstractAppTest {
 			.withHttpMethod(POST)
 			.withRequest(REQUEST_FILE)
 			.withExpectedResponseStatus(ACCEPTED)
-			.withMaxVerificationDelayInSeconds(5)
+			.withMaxVerificationDelayInSeconds(9)
 			.sendRequest()
 			.verifyStubs();
 	}

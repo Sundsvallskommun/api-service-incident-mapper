@@ -27,7 +27,6 @@ import se.sundsvall.dept44.util.jacoco.ExcludeFromJacocoGeneratedCoverageReport;
  * Question: What will we do with the events after processing? Save event with execute-date and status[EXECUTED] or
  * delete?
  */
-
 @ServiceApplication
 @EnableFeignClients
 @EnableScheduling

@@ -333,7 +333,7 @@ public class IncidentService {
 	}
 
 	private void updatePobAttachment(final IncidentEntity incidentEntity, final PobPayload pobAttachments, final Attachment jiraAttachment) {
-		final boolean attachmentExists = pobAttachments.getLinks().stream()
+		final boolean attachmentExists = Optional.ofNullable(pobAttachments).orElse(new PobPayload()).getLinks().stream()
 			.anyMatch(pobAttachment -> Objects.equals(pobAttachment.getRelation(), jiraAttachment.getFilename()));
 
 		if (!attachmentExists) {

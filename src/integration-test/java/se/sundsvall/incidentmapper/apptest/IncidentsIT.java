@@ -63,8 +63,7 @@ class IncidentsIT extends AbstractAppTest {
 			.withRequest(REQUEST_FILE)
 			.withExpectedResponseStatus(ACCEPTED)
 			.withMaxVerificationDelayInSeconds(WAIT_IN_SECONDS)
-			.sendRequest()
-			.verifyStubs();
+			.sendRequestAndVerifyResponse();
 	}
 
 	@Test
@@ -83,8 +82,7 @@ class IncidentsIT extends AbstractAppTest {
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(OK)
 			.withMaxVerificationDelayInSeconds(WAIT_IN_SECONDS)
-			.sendRequest()
-			.verifyStubs();
+			.sendRequestAndVerifyResponse();
 	}
 
 	@Test
@@ -108,8 +106,7 @@ class IncidentsIT extends AbstractAppTest {
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(OK)
 			.withMaxVerificationDelayInSeconds(WAIT_IN_SECONDS)
-			.sendRequest()
-			.verifyStubs();
+			.sendRequestAndVerifyResponse();
 
 		assertThat(incidentRepository.findByMunicipalityIdAndPobIssueKey(MUNICIPALITY_ID, POB_ISSUE_KEY))
 			.isNotPresent();

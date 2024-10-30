@@ -1,24 +1,20 @@
 {
-  "id" : "8a4cc98b-24f3-44a7-8902-d58e4448704a",
-  "name" : "rest_api_2_issue_uf-5974_attachments",
-  "request" : {
-    "urlPath" : "/jira/rest/api/2/issue/UF-5974/attachments",
-    "method" : "POST",
-    "bodyPatterns" : [ {
-      "anything" : "anything"
-    } ]
-  },
-  "response" : {
-    "status" : 200,
-    "body" : "[{\"self\":\"https://jira.localhost/rest/api/2/attachment/11047\",\"id\":\"11047\",\"filename\":\"helloworld.txt\",\"author\":{\"self\":\"https://jira.localhost/rest/api/2/user?username=some-username\",\"name\":\"some-username\",\"key\":\"JIRAUSER11601\",\"emailAddress\":\"pob2jira@sundsvall.se\",\"avatarUrls\":{\"48x48\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=48\",\"24x24\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=24\",\"16x16\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=16\",\"32x32\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=32\"},\"displayName\":\"Utvecklingsfabriken\",\"active\":true,\"timeZone\":\"Europe/Stockholm\"},\"created\":\"2024-05-29T15:26:02.149+0200\",\"size\":12,\"mimeType\":\"text/plain\",\"content\":\"https://jira.localhost/secure/attachment/11047/helloworld.txt\"}]",
-    "headers" : {
-      "Content-Type" : "application/json;charset=UTF-8"
-    }
-  },
-  "uuid" : "8a4cc98b-24f3-44a7-8902-d58e4448704a",
-  "persistent" : true,
-  "scenarioName" : "scenario-1-rest-api-2-issue-UF-5974-attachments",
-  "requiredScenarioState" : "Started",
-  "newScenarioState" : "scenario-1-rest-api-2-issue-UF-5974-attachments-2",
-  "insertionIndex" : 17
+	"request": {
+		"method": "POST",
+		"bodyPatterns": [{"anything": "anything"}],
+		"urlPath": "/jira/rest/api/2/issue/UF-5974/attachments"
+	},
+	"newScenarioState": "scenario-1-rest-api-2-issue-UF-5974-attachments-2",
+	"response": {
+		"headers": {"Content-Type": "application/json;charset=UTF-8"},
+		"body": "[{\"self\":\"https://jira.localhost/rest/api/2/attachment/11047\",\"id\":\"11047\",\"filename\":\"helloworld.txt\",\"author\":{\"self\":\"https://jira.localhost/rest/api/2/user?username=some-username\",\"name\":\"some-username\",\"key\":\"JIRAUSER11601\",\"emailAddress\":\"pob2jira@sundsvall.se\",\"avatarUrls\":{\"48x48\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=48\",\"24x24\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=24\",\"16x16\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=16\",\"32x32\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=32\"},\"displayName\":\"Utvecklingsfabriken\",\"active\":true,\"timeZone\":\"Europe/Stockholm\"},\"created\":\"2024-05-29T15:26:02.149+0200\",\"size\":12,\"mimeType\":\"text/plain\",\"content\":\"https://jira.localhost/secure/attachment/11047/helloworld.txt\"}]",
+		"status": 200
+	},
+	"name": "rest_api_2_issue_uf-5974_attachments",
+	"requiredScenarioState": "Started",
+	"id": "8a4cc98b-24f3-44a7-8902-d58e4448704a",
+	"persistent": true,
+	"insertionIndex": 17,
+	"uuid": "8a4cc98b-24f3-44a7-8902-d58e4448704a",
+	"scenarioName": "scenario-1-rest-api-2-issue-UF-5974-attachments"
 }

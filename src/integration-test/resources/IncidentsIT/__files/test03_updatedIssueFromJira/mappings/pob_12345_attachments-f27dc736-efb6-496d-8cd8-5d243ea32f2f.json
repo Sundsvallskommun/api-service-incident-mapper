@@ -1,21 +1,19 @@
 {
-  "id" : "f27dc736-efb6-496d-8cd8-5d243ea32f2f",
-  "name" : "pob_case_12345_attachments",
-  "request" : {
-    "urlPath" : "/pob/case/12345/attachments",
-    "method" : "GET"
-  },
-  "response" : {
-    "status" : 200,
-    "body" : "{\"Type\":\"Case\",\"Links\":[{\"Relation\":\"helloworld.txt\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628533\"},{\"Relation\":\"helloworld2.txt\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628534\"},{\"Relation\":\"cat.png\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628625\"},{\"Relation\":\"chewbacca.png\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628827\"}],\"Data\":{\"Id\":\"12345\"},\"Memo\":{}}",
-    "headers" : {
-      "Content-Type" : "application/json; charset=utf-8"
-    }
-  },
-  "uuid" : "f27dc736-efb6-496d-8cd8-5d243ea32f2f",
-  "persistent" : true,
-  "scenarioName" : "scenario-1-pobg6-api-v20-case-12345-attachments",
-  "requiredScenarioState" : "Started",
-  "newScenarioState" : "scenario-1-pobg6-api-v20-case-12345-attachments-2",
-  "insertionIndex" : 11
+	"request": {
+		"method": "GET",
+		"urlPath": "/pob/case/12345/attachments"
+	},
+	"newScenarioState": "scenario-1-pobg6-api-v20-case-12345-attachments-2",
+	"response": {
+		"headers": {"Content-Type": "application/json; charset=utf-8"},
+		"body": "{\"Type\":\"Case\",\"Links\":[{\"Relation\":\"helloworld.txt\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628533\"},{\"Relation\":\"helloworld2.txt\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628534\"},{\"Relation\":\"cat.png\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628625\"},{\"Relation\":\"chewbacca.png\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628827\"}],\"Data\":{\"Id\":\"12345\"},\"Memo\":{}}",
+		"status": 200
+	},
+	"name": "pob_case_12345_attachments",
+	"requiredScenarioState": "Started",
+	"id": "f27dc736-efb6-496d-8cd8-5d243ea32f2f",
+	"persistent": true,
+	"insertionIndex": 11,
+	"uuid": "f27dc736-efb6-496d-8cd8-5d243ea32f2f",
+	"scenarioName": "scenario-1-pobg6-api-v20-case-12345-attachments"
 }

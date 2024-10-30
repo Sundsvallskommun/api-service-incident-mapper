@@ -1,17 +1,15 @@
 {
-  "id" : "3728df95-a27d-46bd-b473-b34560b826b9",
-  "name" : "rest_api_2_attachment_11032",
-  "request" : {
-    "urlPath" : "/jira/rest/api/2/attachment/11032",
-    "method" : "DELETE"
-  },
-  "response" : {
-    "status" : 204,
-    "headers" : {
-      "Content-Type" : "application/json;charset=UTF-8"
-    }
-  },
-  "uuid" : "3728df95-a27d-46bd-b473-b34560b826b9",
-  "persistent" : true,
-  "insertionIndex" : 17
+	"request": {
+		"method": "DELETE",
+		"urlPath": "/jira/rest/api/2/attachment/11032"
+	},
+	"response": {
+		"headers": {"Content-Type": "application/json;charset=UTF-8"},
+		"status": 204
+	},
+	"name": "rest_api_2_attachment_11032",
+	"id": "3728df95-a27d-46bd-b473-b34560b826b9",
+	"persistent": true,
+	"insertionIndex": 17,
+	"uuid": "3728df95-a27d-46bd-b473-b34560b826b9"
 }

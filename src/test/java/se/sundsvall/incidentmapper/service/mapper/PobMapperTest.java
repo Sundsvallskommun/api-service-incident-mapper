@@ -127,22 +127,22 @@ class PobMapperTest {
 			.isEqualToNormalizingWhitespace("""
 				2024-04-10 10:02 Systemuser för POB WS  Admin
 
-				  Hej! Ville bara berätta att allt fungerar!
+				Hej! Ville bara berätta att allt fungerar!
 
 
-				  Hälsningar
+				Hälsningar
 
-				  Joe Doe
-				  Handläggare
+				Joe Doe
+				Handläggare
 
-				  Avdelning 44
-				  Telefon: 060-00 00 00
+				Avdelning 44
+				Telefon: 060-00 00 00
 
 
-				  851 85 Sundsvall
-				  Besöksadress: Norrmalmsgatan 4
-				  Växel: 060-00 00 00
-				  www.sundsvall.se""");
+				851 85 Sundsvall
+				Besöksadress: Norrmalmsgatan 4
+				Växel: 060-00 00 00
+				www.sundsvall.se""");
 	}
 
 	@Test

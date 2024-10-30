@@ -1,17 +1,15 @@
 {
-  "id" : "43194cd0-bfd9-49f7-a9d9-f71b4c5f2cf0",
-  "name" : "rest_api_2_issue_uf-5974_comment_12471",
-  "request" : {
-    "urlPath" : "/jira/rest/api/2/issue/UF-5974/comment/12471",
-    "method" : "DELETE"
-  },
-  "response" : {
-    "status" : 204,
-    "headers" : {
-      "Content-Type" : "application/json;charset=UTF-8"
-    }
-  },
-  "uuid" : "43194cd0-bfd9-49f7-a9d9-f71b4c5f2cf0",
-  "persistent" : true,
-  "insertionIndex" : 19
+	"request": {
+		"method": "DELETE",
+		"urlPath": "/jira/rest/api/2/issue/UF-5974/comment/12471"
+	},
+	"response": {
+		"headers": {"Content-Type": "application/json;charset=UTF-8"},
+		"status": 204
+	},
+	"name": "rest_api_2_issue_uf-5974_comment_12471",
+	"id": "43194cd0-bfd9-49f7-a9d9-f71b4c5f2cf0",
+	"persistent": true,
+	"insertionIndex": 19,
+	"uuid": "43194cd0-bfd9-49f7-a9d9-f71b4c5f2cf0"
 }

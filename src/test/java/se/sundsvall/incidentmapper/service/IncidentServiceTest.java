@@ -62,7 +62,9 @@ import se.sundsvall.incidentmapper.integration.pob.POBClient;
 import se.sundsvall.incidentmapper.service.configuration.SynchronizationProperties;
 import se.sundsvall.incidentmapper.service.mapper.PobMapper;
 
-@ExtendWith({ MockitoExtension.class, ResourceLoaderExtension.class })
+@ExtendWith({
+	MockitoExtension.class, ResourceLoaderExtension.class
+})
 class IncidentServiceTest {
 
 	private static final String TEMP_DIR = "target/tmp";
@@ -365,7 +367,9 @@ class IncidentServiceTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { "Closed", "Done", "Review Done", "Resolved", "Won't Do" })
+	@ValueSource(strings = {
+		"Closed", "Done", "Review Done", "Resolved", "Won't Do"
+	})
 	void closeIssues(String statusName) {
 
 		// Arrange

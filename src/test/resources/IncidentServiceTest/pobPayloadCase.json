@@ -2,50 +2,218 @@
 	"Type": "Case",
 	"Links": [],
 	"Data": {
-		"CasePK": "117975707",
-		"Id": "1022952",
-		"Description": "This works!",
-		"DeleteDate": "",
-		"Approved": "",
-		"AssignStatus": "0",
-		"Callback": "",
-		"ChildrenCount": "0",
-		"ShouldUpdateChildren": "",
-		"PercentFinished": "0",
-		"InboundMailCount": "1",
-		"InvoiceDate": "",
-		"ImpactFrom": "",
-		"PercentOccupied": "0",
-		"IsOkForWeb": "",
-		"AllUsers": "",
-		"AllCustomers": "",
-		"OrganizationMail": "",
-		"Reference": "",
-		"Revision": "",
-		"CaseStatus": "1",
-		"UserNotifyBy": "",
-		"ContactNotifyBy": "0",
 		"Origin": "1",
-		"CaseSubstatusHistory": "",
+		"Virtual.CAS_VIR_NETIP": "",
+		"Virtual.CAS_VIR_FOLTAG": "",
+		"Virtual.CAS_VIR_FOLLOW_KOP": "",
+		"Virtual.CAS_VIR_AKTNR": "",
+		"Virtual.Print_taggar_antal": "",
 		"EUUpdateCount": "0",
-		"MailStatusColor": "",
-		"UnreadMailCount": "",
-		"TotalTasks": "",
-		"CompletedTasks": "",
-		"AlertPercent": "",
-		"AlertColor": "",
+		"UserNotifyBy": "",
 		"ShortDescription": "",
-		"ConversationId": "",
-		"Source": "",
+		"Virtual.CAS_VIR_PRINTNAME": "",
+		"Virtual.Tel_Byt_Ab_Telefonnr_CI_Name": "",
+		"Virtual.CAS_VIR_FOLIP": "",
+		"IsOkForWeb": "",
+		"Virtual.CAS_VIR_NETMASK": "",
+		"Virtual.CAS_VIR_NET": "",
+		"Virtual.print_kop_extrafack_antal": "",
+		"Times.RegisteredTime": "0,00",
+		"Virtual.ROO_ACTION": "",
+		"PercentFinished": "0",
+		"Virtual.CAS_VIR_ELEVATOR": "",
+		"ResponsibleGroup": {
+			"Type": "UserGroup",
+			"Links": [{
+				"Relation": "self",
+				"Href": "pobg6/api/v20/usergroups/IT Support"
+			}],
+			"Data": {
+				"Description": "IT Support",
+				"Id": "IT Support"
+			},
+			"Memo": {}
+		},
+		"Virtual.IsRfc": "",
+		"Virtual.NewMail": "0",
+		"CIInfo.Type": {
+			"Type": "ConfigurationItemType",
+			"Links": [{
+				"Relation": "self",
+				"Href": "pobg6/api/v20/configurationitemtype/System"
+			}],
+			"Data": {
+				"Description": "Mjukvara med relation till server eller databas",
+				"Id": "System"
+			},
+			"Memo": {}
+		},
+		"Virtual.CAS_VIR_SOC": "",
+		"Virtual.CAS_VIR_EFTER3_Mellan": "",
+		"Virtual.Shop_Kst_Ansvarsnummer": "",
+		"AlertColor": "",
+		"Virtual.Print_Extrafack_Antal": "",
+		"Virtual.CAS_CHANGE_CASE": "",
+		"Virtual.Tel_Ny_Tillv_MEX_Bool": "",
+		"Virtual.Shop_AntalArtiklarIOrder": "",
+		"Virtual.Koneo_solved": "",
+		"CIInfo.Item": {
+			"Type": "Item",
+			"Links": [{
+				"Relation": "self",
+				"Href": "pobg6/api/v20/item/100690"
+			}],
+			"Data": {
+				"ItemStatus": "1",
+				"Description": "Intern instans av Open ePlatform (Kommunkoncernens interna e-tjänster)",
+				"Id": "100690"
+			},
+			"Memo": {}
+		},
+		"Virtual.OriginType2": "",
+		"Virtual.Tel_Avsl_Tillv_MEX_Bool": "",
+		"CaseSubstatusHistory": "",
+		"Virtual.Shop_PersonligGemensam": "",
+		"InvoiceDate": "",
+		"Times.InProcessDate": "2024-04-10 10:12:37",
+		"Virtual.CAS_VIR_EFACK_KOP": "",
+		"Virtual.CAS_VIR_STAIRS": "",
+		"Virtual.Tel_Byt_Ers_IMEI_nr": "",
+		"Virtual.CAS_EDT_STA2": "",
+		"Contact.Customer": {
+			"Type": "Customer",
+			"Links": [{
+				"Relation": "self",
+				"Href": "pobg6/api/v20/customer/user01"
+			}],
+			"Data": {
+				"FirstName": "Joe",
+				"Phone": "060-111111",
+				"Id": "user01",
+				"LastName": "Doe",
+				"Mobile": ""
+			},
+			"Memo": {}
+		},
+		"Virtual.CAS_VIR_SHORTSERIAL": "",
+		"Virtual.CAS_VIR_BOX": "",
+		"Times.TimeInSuspend": "0,00",
+		"Times.OnsiteDate": "",
+		"Virtual.Shop_Kst_Motpart": "",
+		"Virtual.CAS_VIR_NETGW": "",
+		"Virtual.CAS_VIR_FOLLOW": "",
+		"Times.SuspendTimeWhileOpened": "",
+		"Virtual.CAS_VIR_PRONR": "",
+		"Virtual.CAS_VIR_SUSP_DATE_TIME": "",
+		"Virtual.UsersForEvaluation": "",
+		"UnregisteredCI": "",
+		"Virtual.CAS_VIR_KVOTA": "",
+		"Virtual.Shop_Adr_Gatuadress": "",
+		"Virtual.Shop_ForvaltningBolag": "",
+		"Contact.Organization": {
+			"Type": "Organization",
+			"Links": [{
+				"Relation": "self",
+				"Href": "pobg6/api/v20/organization/7408"
+			}],
+			"Data": {
+				"Virtual.DefaultContractId": "12017",
+				"Description": "IAF MoP Myndighetsutövning",
+				"Address2": "",
+				"Id": "7408"
+			},
+			"Memo": {}
+		},
+		"ChildrenCount": "0",
+		"Virtual.CAS_SEND_MAIL_VIRT": "",
+		"Virtual.Tel_Byt_Anv_Beskrivning": "",
+		"Times.OpenedDate": "2024-04-10 10:02:30",
+		"Virtual.Tel_Ny_Tillv_Expressbest_Bool": "",
+		"Approved": "",
+		"Virtual.CAS_VIR_FAXAVS": "",
+		"Virtual.CAS_VIR_AXISIP": "",
+		"CasePK": "117975707",
+		"Times.ActualOnsiteDate": "",
+		"Virtual.Shop_Kst_Objektnummer": "",
+		"Virtual.InvoiceReference": "2MIA03SEL",
+		"PriorityInfo.Priority": {
+			"Type": "Priority",
+			"Links": [{
+				"Relation": "self",
+				"Href": "pobg6/api/v20/priority/IT4"
+			}],
+			"Data": {
+				"Description": "Löst inom 8 arbetsdagar",
+				"Id": "IT4"
+			},
+			"Memo": {}
+		},
+		"PriorityInfo.Impact": {
+			"Type": "Impact",
+			"Links": [{
+				"Relation": "self",
+				"Href": "pobg6/api/v20/impact/3. Låg: Enstaka användare"
+			}],
+			"Data": {"Id": "3. Låg: Enstaka användare"},
+			"Memo": {}
+		},
+		"Virtual.CAS_VIR_NETCON": "",
+		"Virtual.Shop_Kst_Verksamhetsnummer": "",
+		"TimeLimits.IsEscalationOnHold": "",
+		"Virtual.Shop_Kst_Projektnummer": "",
+		"Virtual.MultiUpdate_Text": "",
+		"Virtual.CAS_VIR_SEM": "",
+		"Virtual.CAS_VIR_EFACK": "",
+		"AllCustomers": "",
+		"UnregisteredContact.Data3": "",
+		"UnregisteredContact.Data4": "",
+		"Virtual.Shop_Fritext": "",
+		"UnregisteredContact.Data5": "",
+		"Virtual.Shop_Kontaktperson": "",
+		"CIInfo.Ci": {
+			"Type": "ConfigurationItem",
+			"Links": [{
+				"Relation": "self",
+				"Href": "pobg6/api/v20/configurationitem/187305"
+			}],
+			"Data": {
+				"Description": "Intern instans av Open ePlatform (Kommunkoncernens interna e-tjänster)",
+				"SerialNumber": "",
+				"OptionalNumber": "Open ePlatform Interna (https://domain.com/)",
+				"Id": "187305"
+			},
+			"Memo": {}
+		},
+		"Virtual.ActionId": "",
+		"Virtual.ExternalCaseId": "",
 		"LMOffline": "",
+		"Virtual.CAS_CHANGE_CASE2": "",
+		"Virtual.Tel_Description": "",
+		"Virtual.CAS_VIR_LEVDAT": "",
+		"UnregisteredContact.Mail": "",
+		"PercentOccupied": "0",
+		"Virtual.CAS_VIR_AXISGW": "",
+		"TotalTasks": "",
+		"Virtual.CAS_VIR_EFTER2": "",
+		"Virtual.OriginId": "",
+		"Virtual.Tel_Byt_ErsPh_IMEI_nr": "",
+		"Virtual.Shop_Epost": "",
+		"Virtual.Tel_Byt_ErsPh_Serienr": "",
+		"Virtual.MailFailedMaxValue": "",
+		"Virtual.Tel_Byt_ErsPh_Beskrivning": "",
+		"UnregisteredContact.Data1": "",
+		"Virtual.CAS_EDT_SOL2": "2024-04-22 10:02:30",
+		"UnregisteredContact.Data2": "",
+		"CompletedTasks": "",
+		"Virtual.Shop_CI_Name": "",
+		"Virtual.Tel_Ny_Tel_IMEI_nr": "",
+		"Times.ActualOkDate": "",
 		"OpenedBy": {
 			"Type": "User",
-			"Links": [
-				{
-					"Relation": "self",
-					"Href": "pobg6/api/v20/users/z_support@domain.com"
-				}
-			],
+			"Links": [{
+				"Relation": "self",
+				"Href": "pobg6/api/v20/users/z_support@domain.com"
+			}],
 			"Data": {
 				"FirstName": "ServiceDesk Incident",
 				"Id": "z_support@domain.com",
@@ -53,84 +221,166 @@
 			},
 			"Memo": {}
 		},
+		"Virtual.Shop_Telefonnummer": "",
+		"Virtual.CAS_VIR_PBANK": "",
+		"Times.SuspendTimeWhileInProcess": "",
+		"Virtual.CAS_VIR_PORTNO": "",
+		"Virtual.CAS_VIR_UNDER": "",
+		"OrganizationMail": "",
+		"CIInfo.OperationStatus": "",
+		"Virtual.Tel_Byt_Tjanst_IMEI_nr": "",
+		"Virtual.OriginType": "",
+		"Times.TimeUntilStarted": "10,12",
+		"Virtual.CAS_VIR_AXISMASK": "",
+		"Times.ClosedDate": "",
+		"Virtual.EscalationStateCustom": "",
+		"Virtual.Tel_Ny_Tillv_Phoniro_Serienr": "",
+		"TimeLimits.ServiceHours": {
+			"Type": "ServiceHours",
+			"Links": [{
+				"Relation": "self",
+				"Href": "pobg6/api/v20/servicehours/Default"
+			}],
+			"Data": {
+				"Description": "Default set up",
+				"Id": "Default"
+			},
+			"Memo": {}
+		},
+		"Virtual.Shop_ExterntArtikelnummer": "",
+		"Virtual.Shop_Kst_Aktivitetsnummer": "",
+		"Times.OkDate": "",
+		"Virtual.CAS_VIR_FOLTAG_KOP": "",
+		"Virtual.Shop_Office": "",
+		"Virtual.TriggerId": "",
+		"Virtual.WebserviceResponse": "",
+		"CaseStatus": "1",
+		"Id": "1022952",
+		"Virtual.CAS_VIR_UNDER_KOP": "",
+		"ConversationId": "",
+		"Description": "This works!",
 		"OpenedByGroup": {
 			"Type": "UserGroup",
-			"Links": [
-				{
-					"Relation": "self",
-					"Href": "pobg6/api/v20/usergroups/IT Support"
-				}
-			],
+			"Links": [{
+				"Relation": "self",
+				"Href": "pobg6/api/v20/usergroups/IT Support"
+			}],
 			"Data": {
-				"Id": "IT Support",
-				"Description": "IT Support"
-			},
-			"Memo": {}
-		},
-		"CaseType": {
-			"Type": "CaseType",
-			"Links": [
-				{
-					"Relation": "self",
-					"Href": "pobg6/api/v20/casetype/Incident"
-				}
-			],
-			"Data": {
-				"Id": "Incident",
-				"Description": "Incidenter, fel"
-			},
-			"Memo": {}
-		},
-		"CaseCategory": {
-			"Type": "CaseCategory",
-			"Links": [
-				{
-					"Relation": "self",
-					"Href": "pobg6/api/v20/casecategory/IT Ej tillgängligt system/tjänst"
-				}
-			],
-			"Data": {
-				"Id": "IT Ej tillgängligt system/tjänst",
-				"Description": "Ex. avbrott i tjänst(ej kommunikationsproblem)"
+				"Description": "IT Support",
+				"Id": "IT Support"
 			},
 			"Memo": {}
 		},
 		"CoordinatorGroup": {
 			"Type": "UserGroup",
-			"Links": [
-				{
-					"Relation": "self",
-					"Href": "pobg6/api/v20/usergroups/IT Ute"
-				}
-			],
+			"Links": [{
+				"Relation": "self",
+				"Href": "pobg6/api/v20/usergroups/IT Ute"
+			}],
 			"Data": {
-				"Id": "IT Ute",
-				"Description": "IT Utesupport"
+				"Description": "IT Utesupport",
+				"Id": "IT Ute"
 			},
 			"Memo": {}
 		},
-		"ResponsibleGroup": {
-			"Type": "UserGroup",
-			"Links": [
-				{
-					"Relation": "self",
-					"Href": "pobg6/api/v20/usergroups/IT Support"
-				}
-			],
+		"MailStatusColor": "",
+		"Times.SolvedDate": "",
+		"Virtual.CaseLockedByUserId": "hak20zac",
+		"Virtual.Shop_WebbshopOrdernummer": "",
+		"Virtual.CAS_VIR_ANSNR": "",
+		"Reference": "",
+		"Virtual.ActionNeededDescription": "",
+		"Virtual.CAS_VIR_EFTER": "",
+		"ContactNotifyBy": "0",
+		"CaseCategory": {
+			"Type": "CaseCategory",
+			"Links": [{
+				"Relation": "self",
+				"Href": "pobg6/api/v20/casecategory/IT Ej tillgängligt system/tjänst"
+			}],
 			"Data": {
-				"Id": "IT Support",
-				"Description": "IT Support"
+				"Description": "Ex. avbrott i tjänst(ej kommunikationsproblem)",
+				"Id": "IT Ej tillgängligt system/tjänst"
 			},
 			"Memo": {}
 		},
+		"Virtual.Tel_Ny_Tillv_Phoniro_Bluetoothadress": "",
+		"Virtual.Shop_Adr_Postnr": "",
+		"ImpactFrom": "",
+		"ShouldUpdateChildren": "",
+		"AllUsers": "",
+		"AssignStatus": "0",
+		"InboundMailCount": "1",
+		"Virtual.CAS_VIR_BOX_KOP": "",
+		"Virtual.OriginId2": "",
+		"SLAInfo.Contract": {
+			"Type": "Contract",
+			"Links": [{
+				"Relation": "self",
+				"Href": "pobg6/api/v20/contract/12017"
+			}],
+			"Data": {
+				"Description": "IAF MoP Myndighetsutövning",
+				"Id": "12017"
+			},
+			"Memo": {}
+		},
+		"Virtual.Tel_Byt_ErsPh_Phoniro_Bluetoothadress": "",
+		"Virtual.Tel_Ny_Tillv_Phoniro_Bool": "",
+		"Virtual.CAS_VIR_FAXNR": "",
+		"Times.PlannedTime": "0,00",
+		"Virtual.Shop_Kst_Underkonto": "",
+		"Virtual.CAS_VIR_FAX": "",
+		"Virtual.Shop_Adr_Postort": "",
+		"Virtual.ActionNeeded": "False",
+		"Virtual.Shop_CI_Description": "",
+		"Virtual.IsRfcApproved": "",
+		"Virtual.CAS_VIR_OBJNR": "",
+		"Virtual.CAS_VIR_PLACE": "",
+		"CIInfo2.OperationStatus": "",
+		"Virtual.LeveransdatumUtfall": "",
+		"Virtual.CAS_VIR_DRIVER": "",
+		"Revision": "",
+		"Virtual.CAS_VIR_ADSEM": "",
+		"CaseType": {
+			"Type": "CaseType",
+			"Links": [{
+				"Relation": "self",
+				"Href": "pobg6/api/v20/casetype/Incident"
+			}],
+			"Data": {
+				"Description": "Incidenter, fel",
+				"Id": "Incident"
+			},
+			"Memo": {}
+		},
+		"Virtual.Shop_InstallerasAv": "",
+		"Virtual.CustomerHasResponded": "False",
+		"PriorityInfo.Urgency": {
+			"Type": "Urgency",
+			"Links": [{
+				"Relation": "self",
+				"Href": "pobg6/api/v20/urgency/3. Låg: Ringa påverkan för verksamheten"
+			}],
+			"Data": {"Id": "3. Låg: Ringa påverkan för verksamheten"},
+			"Memo": {}
+		},
+		"AlertPercent": "",
+		"Virtual.CAS_VIR_SKANNING": "",
+		"Virtual.CAS_VIR_VERNR": "",
+		"Virtual.Shop_ServiceIdExternalSync": "",
+		"Times.UsedTime": "0,00",
+		"Source": "",
+		"Virtual.Shop_ExterntKundnummer": "",
+		"Virtual.ActionType": "",
+		"Virtual.MultiUpdate_SelectedCases": "",
+		"Virtual.Tel_CI_Name": "",
 		"Coordinator": {
 			"Type": "User",
-			"Links": [
-				{
-					"Relation": "self",
-					"Href": "pobg6/api/v20/users/URNO"
-				}
-			],
+			"Links": [{
+				"Relation": "self",
+				"Href": "pobg6/api/v20/users/URNO"
+			}],
 			"Data": {
 				"FirstName": "Urban",
 				"Id": "URNO",
@@ -138,305 +388,17 @@
 			},
 			"Memo": {}
 		},
-		"Contact.Customer": {
-			"Type": "Customer",
-			"Links": [
-				{
-					"Relation": "self",
-					"Href": "pobg6/api/v20/customer/user01"
-				}
-			],
-			"Data": {
-				"FirstName": "Joe",
-				"Id": "user01",
-				"LastName": "Doe",
-				"Mobile": "",
-				"Phone": "060-111111"
-			},
-			"Memo": {}
-		},
-		"Contact.Organization": {
-			"Type": "Organization",
-			"Links": [
-				{
-					"Relation": "self",
-					"Href": "pobg6/api/v20/organization/7408"
-				}
-			],
-			"Data": {
-				"Id": "7408",
-				"Description": "IAF MoP Myndighetsutövning",
-				"Address2": "",
-				"Virtual.DefaultContractId": "12017"
-			},
-			"Memo": {}
-		},
-		"UnregisteredContact.Data1": "",
-		"UnregisteredContact.Data2": "",
-		"UnregisteredContact.Data3": "",
-		"UnregisteredContact.Data4": "",
-		"UnregisteredContact.Data5": "",
-		"UnregisteredContact.Mail": "",
-		"CIInfo.Type": {
-			"Type": "ConfigurationItemType",
-			"Links": [
-				{
-					"Relation": "self",
-					"Href": "pobg6/api/v20/configurationitemtype/System"
-				}
-			],
-			"Data": {
-				"Id": "System",
-				"Description": "Mjukvara med relation till server eller databas"
-			},
-			"Memo": {}
-		},
-		"CIInfo.Ci": {
-			"Type": "ConfigurationItem",
-			"Links": [
-				{
-					"Relation": "self",
-					"Href": "pobg6/api/v20/configurationitem/187305"
-				}
-			],
-			"Data": {
-				"Id": "187305",
-				"Description": "Intern instans av Open ePlatform (Kommunkoncernens interna e-tjänster)",
-				"OptionalNumber": "Open ePlatform Interna (https://domain.com/)",
-				"SerialNumber": ""
-			},
-			"Memo": {}
-		},
-		"CIInfo.Item": {
-			"Type": "Item",
-			"Links": [
-				{
-					"Relation": "self",
-					"Href": "pobg6/api/v20/item/100690"
-				}
-			],
-			"Data": {
-				"Id": "100690",
-				"Description": "Intern instans av Open ePlatform (Kommunkoncernens interna e-tjänster)",
-				"ItemStatus": "1"
-			},
-			"Memo": {}
-		},
-		"CIInfo.OperationStatus": "",
-		"UnregisteredCI": "",
-		"CIInfo2.OperationStatus": "",
-		"SLAInfo.Contract": {
-			"Type": "Contract",
-			"Links": [
-				{
-					"Relation": "self",
-					"Href": "pobg6/api/v20/contract/12017"
-				}
-			],
-			"Data": {
-				"Id": "12017",
-				"Description": "IAF MoP Myndighetsutövning"
-			},
-			"Memo": {}
-		},
-		"PriorityInfo.Urgency": {
-			"Type": "Urgency",
-			"Links": [
-				{
-					"Relation": "self",
-					"Href": "pobg6/api/v20/urgency/3. Låg: Ringa påverkan för verksamheten"
-				}
-			],
-			"Data": {
-				"Id": "3. Låg: Ringa påverkan för verksamheten"
-			},
-			"Memo": {}
-		},
-		"PriorityInfo.Impact": {
-			"Type": "Impact",
-			"Links": [
-				{
-					"Relation": "self",
-					"Href": "pobg6/api/v20/impact/3. Låg: Enstaka användare"
-				}
-			],
-			"Data": {
-				"Id": "3. Låg: Enstaka användare"
-			},
-			"Memo": {}
-		},
-		"PriorityInfo.Priority": {
-			"Type": "Priority",
-			"Links": [
-				{
-					"Relation": "self",
-					"Href": "pobg6/api/v20/priority/IT4"
-				}
-			],
-			"Data": {
-				"Id": "IT4",
-				"Description": "Löst inom 8 arbetsdagar"
-			},
-			"Memo": {}
-		},
-		"TimeLimits.NextEscalationDate": "2024-04-22 10:02:30",
-		"TimeLimits.TimeLimitExceeded": "",
-		"TimeLimits.IsEscalationOnHold": "",
-		"TimeLimits.ServiceHours": {
-			"Type": "ServiceHours",
-			"Links": [
-				{
-					"Relation": "self",
-					"Href": "pobg6/api/v20/servicehours/Default"
-				}
-			],
-			"Data": {
-				"Id": "Default",
-				"Description": "Default set up"
-			},
-			"Memo": {}
-		},
-		"Times.OkDate": "",
-		"Times.ActualOkDate": "",
-		"Times.OnsiteDate": "",
-		"Times.ActualOnsiteDate": "",
-		"Times.OpenedDate": "2024-04-10 10:02:30",
-		"Times.SolvedDate": "",
-		"Times.PlannedTime": "0,00",
+		"DeleteDate": "",
 		"Times.RemainingTime": "0,00",
-		"Times.UsedTime": "0,00",
-		"Times.RegisteredTime": "0,00",
-		"Times.InProcessDate": "2024-04-10 10:12:37",
-		"Times.ClosedDate": "",
-		"Times.TimeUntilStarted": "10,12",
-		"Times.TimeUntilSolved": "0,00",
-		"Times.TimeInSuspend": "0,00",
-		"Times.SuspendTimeWhileOpened": "",
-		"Times.SuspendTimeWhileInProcess": "",
-		"Virtual.CustomerHasResponded": "False",
-		"Virtual.TriggerId": "",
-		"Virtual.MultiUpdate_SelectedCases": "",
-		"Virtual.MultiUpdate_Text": "",
-		"Virtual.CAS_VIR_EFTER3_Mellan": "",
-		"Virtual.LeveransdatumUtfall": "",
-		"Virtual.ActionType": "",
-		"Virtual.ActionId": "",
-		"Virtual.Shop_Adr_Gatuadress": "",
-		"Virtual.Shop_Adr_Postnr": "",
-		"Virtual.Shop_Kst_Verksamhetsnummer": "",
-		"Virtual.ExternalCaseId": "",
-		"Virtual.Shop_Adr_Postort": "",
-		"Virtual.Shop_CI_Description": "",
-		"Virtual.Shop_CI_Name": "",
-		"Virtual.Shop_Epost": "",
-		"Virtual.Shop_ExterntArtikelnummer": "",
-		"Virtual.Shop_ExterntKundnummer": "",
-		"Virtual.Shop_ForvaltningBolag": "",
-		"Virtual.Shop_Fritext": "",
-		"Virtual.Shop_InstallerasAv": "",
-		"Virtual.Shop_Kontaktperson": "",
-		"Virtual.Shop_Kst_Aktivitetsnummer": "",
-		"Virtual.Shop_Kst_Ansvarsnummer": "",
-		"Virtual.Shop_Kst_Motpart": "",
-		"Virtual.Shop_Kst_Objektnummer": "",
-		"Virtual.Shop_Kst_Projektnummer": "",
-		"Virtual.Shop_Kst_Underkonto": "",
-		"Virtual.Shop_Office": "",
-		"Virtual.Shop_PersonligGemensam": "",
-		"Virtual.Shop_ServiceIdExternalSync": "",
-		"Virtual.Shop_Telefonnummer": "",
-		"Virtual.WebserviceResponse": "",
-		"Virtual.ActionNeeded": "False",
-		"Virtual.ActionNeededDescription": "",
-		"Virtual.Shop_AntalArtiklarIOrder": "",
-		"Virtual.CAS_VIR_LEVDAT": "",
-		"Virtual.CAS_VIR_SEM": "",
-		"Virtual.CAS_VIR_ADSEM": "",
-		"Virtual.CAS_VIR_SKANNING": "",
-		"Virtual.CAS_VIR_FOLLOW": "",
-		"Virtual.CAS_VIR_KVOTA": "",
 		"Virtual.CAS_VIR_RETAKE": "",
-		"Virtual.CAS_VIR_STAIRS": "",
-		"Virtual.CAS_VIR_ELEVATOR": "",
-		"Virtual.CAS_VIR_SOC": "",
-		"Virtual.CAS_VIR_NETCON": "",
-		"Virtual.CAS_VIR_PORTNO": "",
-		"Virtual.CAS_VIR_PRINTNAME": "",
-		"Virtual.CAS_VIR_NET": "",
-		"Virtual.CAS_VIR_NETIP": "",
-		"Virtual.CAS_VIR_NETMASK": "",
-		"Virtual.CAS_VIR_NETGW": "",
-		"Virtual.CAS_VIR_AXISIP": "",
-		"Virtual.CAS_VIR_AXISMASK": "",
-		"Virtual.CAS_VIR_AXISGW": "",
-		"Virtual.CAS_VIR_DRIVER": "",
-		"Virtual.CAS_VIR_SHORTSERIAL": "",
-		"Virtual.CAS_VIR_EFTER": "",
-		"Virtual.CAS_VIR_BOX": "",
-		"Virtual.CAS_VIR_EFTER2": "",
-		"Virtual.CAS_VIR_EFACK": "",
-		"Virtual.CAS_VIR_PBANK": "",
-		"Virtual.CAS_VIR_FAX": "",
-		"Virtual.CAS_VIR_UNDER": "",
-		"Virtual.CAS_VIR_PLACE": "",
-		"Virtual.CAS_VIR_ANSNR": "",
-		"Virtual.CAS_VIR_VERNR": "",
-		"Virtual.CAS_VIR_AKTNR": "",
-		"Virtual.CAS_VIR_PRONR": "",
-		"Virtual.CAS_VIR_OBJNR": "",
-		"Virtual.CAS_VIR_FOLIP": "",
-		"Virtual.CAS_VIR_FAXNR": "",
-		"Virtual.CAS_VIR_FAXAVS": "",
-		"Virtual.CAS_VIR_FOLTAG": "",
-		"Virtual.Shop_WebbshopOrdernummer": "",
-		"Virtual.CAS_CHANGE_CASE": "",
-		"Virtual.CAS_CHANGE_CASE2": "",
-		"Virtual.CAS_SEND_MAIL_VIRT": "",
-		"Virtual.UsersForEvaluation": "",
-		"Virtual.InvoiceReference": "2MIA03SEL",
-		"Virtual.EscalationStateCustom": "",
-		"Virtual.Tel_CI_Name": "",
-		"Virtual.Tel_Description": "",
-		"Virtual.OriginId2": "",
-		"Virtual.OriginType2": "",
-		"Virtual.Tel_Ny_Tel_IMEI_nr": "",
-		"Virtual.Tel_Ny_Tillv_Phoniro_Bool": "",
-		"Virtual.Tel_Ny_Tillv_Phoniro_Serienr": "",
-		"Virtual.Tel_Ny_Tillv_Phoniro_Bluetoothadress": "",
-		"Virtual.Tel_Ny_Tillv_MEX_Bool": "",
-		"Virtual.Tel_Ny_Tillv_Expressbest_Bool": "",
-		"Virtual.Tel_Byt_Ers_IMEI_nr": "",
-		"Virtual.Tel_Byt_ErsPh_Beskrivning": "",
-		"Virtual.Tel_Byt_ErsPh_IMEI_nr": "",
-		"Virtual.Tel_Byt_ErsPh_Serienr": "",
-		"Virtual.Tel_Byt_ErsPh_Phoniro_Bluetoothadress": "",
-		"Virtual.Tel_Byt_Ab_Telefonnr_CI_Name": "",
-		"Virtual.Tel_Byt_Tjanst_IMEI_nr": "",
-		"Virtual.Tel_Avsl_Tillv_MEX_Bool": "",
+		"Callback": "",
+		"TimeLimits.TimeLimitExceeded": "",
 		"Virtual.Tel_Avsl_Anknytning": "",
-		"Virtual.Tel_Byt_Anv_Beskrivning": "",
-		"Virtual.CaseLockedByUserId": "hak20zac",
-		"Virtual.Print_Extrafack_Antal": "",
-		"Virtual.Print_taggar_antal": "",
 		"Virtual.print_kop_taggar_antal": "",
-		"Virtual.print_kop_extrafack_antal": "",
+		"UnreadMailCount": "",
+		"Times.TimeUntilSolved": "0,00",
 		"Virtual.CAS_VIR_Servername": "",
-		"Virtual.ROO_ACTION": "",
-		"Virtual.CAS_EDT_STA2": "",
-		"Virtual.CAS_EDT_SOL2": "2024-04-22 10:02:30",
-		"Virtual.CAS_VIR_SUSP_DATE_TIME": "",
-		"Virtual.IsRfc": "",
-		"Virtual.IsRfcApproved": "",
-		"Virtual.Koneo_solved": "",
-		"Virtual.CAS_VIR_EFACK_KOP": "",
-		"Virtual.CAS_VIR_BOX_KOP": "",
-		"Virtual.CAS_VIR_FOLLOW_KOP": "",
-		"Virtual.CAS_VIR_UNDER_KOP": "",
-		"Virtual.CAS_VIR_FOLTAG_KOP": "",
-		"Virtual.MailFailedMaxValue": "",
-		"Virtual.NewMail": "0",
-		"Virtual.OriginType": "",
-		"Virtual.OriginId": ""
+		"TimeLimits.NextEscalationDate": "2024-04-22 10:02:30"
 	},
 	"Memo": {}
 }

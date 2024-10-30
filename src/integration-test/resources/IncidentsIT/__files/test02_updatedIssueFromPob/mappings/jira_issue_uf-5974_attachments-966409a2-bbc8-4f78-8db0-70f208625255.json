@@ -1,23 +1,19 @@
 {
-  "id" : "966409a2-bbc8-4f78-8db0-70f208625255",
-  "name" : "rest_api_2_issue_uf-5974_attachments",
-  "request" : {
-    "urlPath" : "/jira/rest/api/2/issue/UF-5974/attachments",
-    "method" : "POST",
-    "bodyPatterns" : [ {
-      "anything" : "anything"
-    } ]
-  },
-  "response" : {
-    "status" : 200,
-    "body" : "[{\"self\":\"https://jira.localhost/rest/api/2/attachment/11038\",\"id\":\"11038\",\"filename\":\"chewbacca.png\",\"author\":{\"self\":\"https://jira.localhost/rest/api/2/user?username=utvecklingsfabriken\",\"name\":\"utvecklingsfabriken\",\"key\":\"JIRAUSER11601\",\"emailAddress\":\"pob2jira@sundsvall.se\",\"avatarUrls\":{\"48x48\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=48\",\"24x24\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=24\",\"16x16\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=16\",\"32x32\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=32\"},\"displayName\":\"Utvecklingsfabriken\",\"active\":true,\"timeZone\":\"Europe/Stockholm\"},\"created\":\"2024-05-29T13:40:03.025+0200\",\"size\":1264059,\"mimeType\":\"image/png\",\"content\":\"https://jira.localhost/secure/attachment/11038/chewbacca.png\",\"thumbnail\":\"https://jira.localhost/secure/thumbnail/11038/_thumb_11038.png\"}]",
-    "headers" : {
-      "Content-Type" : "application/json;charset=UTF-8"
-    }
-  },
-  "uuid" : "966409a2-bbc8-4f78-8db0-70f208625255",
-  "persistent" : true,
-  "scenarioName" : "scenario-1-rest-api-2-issue-UF-5974-attachments",
-  "requiredScenarioState" : "scenario-1-rest-api-2-issue-UF-5974-attachments-4",
-  "insertionIndex" : 9
+	"request": {
+		"method": "POST",
+		"bodyPatterns": [{"anything": "anything"}],
+		"urlPath": "/jira/rest/api/2/issue/UF-5974/attachments"
+	},
+	"response": {
+		"headers": {"Content-Type": "application/json;charset=UTF-8"},
+		"body": "[{\"self\":\"https://jira.localhost/rest/api/2/attachment/11038\",\"id\":\"11038\",\"filename\":\"chewbacca.png\",\"author\":{\"self\":\"https://jira.localhost/rest/api/2/user?username=utvecklingsfabriken\",\"name\":\"utvecklingsfabriken\",\"key\":\"JIRAUSER11601\",\"emailAddress\":\"pob2jira@sundsvall.se\",\"avatarUrls\":{\"48x48\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=48\",\"24x24\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=24\",\"16x16\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=16\",\"32x32\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=32\"},\"displayName\":\"Utvecklingsfabriken\",\"active\":true,\"timeZone\":\"Europe/Stockholm\"},\"created\":\"2024-05-29T13:40:03.025+0200\",\"size\":1264059,\"mimeType\":\"image/png\",\"content\":\"https://jira.localhost/secure/attachment/11038/chewbacca.png\",\"thumbnail\":\"https://jira.localhost/secure/thumbnail/11038/_thumb_11038.png\"}]",
+		"status": 200
+	},
+	"name": "rest_api_2_issue_uf-5974_attachments",
+	"requiredScenarioState": "scenario-1-rest-api-2-issue-UF-5974-attachments-4",
+	"id": "966409a2-bbc8-4f78-8db0-70f208625255",
+	"persistent": true,
+	"insertionIndex": 9,
+	"uuid": "966409a2-bbc8-4f78-8db0-70f208625255",
+	"scenarioName": "scenario-1-rest-api-2-issue-UF-5974-attachments"
 }

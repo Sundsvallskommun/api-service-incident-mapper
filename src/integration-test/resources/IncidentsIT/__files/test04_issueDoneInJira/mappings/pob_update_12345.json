@@ -1,17 +1,15 @@
 {
-  "id" : "ab60c5e4-39d7-4f0a-81f8-ba2cf139df08",
-  "name" : "pob_case_12345",
-  "request" : {
-    "url" : "/pob/case",
-    "method" : "POST"
-  },
-  "response" : {
-    "status" : 200,
-    "body" : "{\"Type\":\"Case\",\"Links\":[],\"Data\":{\"Id\":\"12345\",\"Responsible\":null,\"ResponsibleGroup\":\"IT Support\"},\"Memo\":{}}",
-    "headers" : {
-      "Content-Type" : "application/json; charset=utf-8"
-    }
-  },
-  "uuid" : "ab60c5e4-39d7-4f0a-81f8-ba2cf139df08",
-  "persistent" : true
+	"request": {
+		"method": "POST",
+		"url": "/pob/case"
+	},
+	"response": {
+		"headers": {"Content-Type": "application/json; charset=utf-8"},
+		"body": "{\"Type\":\"Case\",\"Links\":[],\"Data\":{\"Id\":\"12345\",\"Responsible\":null,\"ResponsibleGroup\":\"IT Support\"},\"Memo\":{}}",
+		"status": 200
+	},
+	"name": "pob_case_12345",
+	"id": "ab60c5e4-39d7-4f0a-81f8-ba2cf139df08",
+	"persistent": true,
+	"uuid": "ab60c5e4-39d7-4f0a-81f8-ba2cf139df08"
 }

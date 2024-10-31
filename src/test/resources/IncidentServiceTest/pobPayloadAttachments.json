@@ -1,13 +1,9 @@
 {
 	"Type": "Case",
-	"Links": [
-		{
-			"Relation": "happy_dog.png",
-			"Href": "pobg6/api/v20/case/1022960/attachments/1628120"
-		}
-	],
-	"Data": {
-		"Id": "1022952"
-	},
+	"Links": [{
+		"Relation": "happy_dog.png",
+		"Href": "pobg6/api/v20/case/1022960/attachments/1628120"
+	}],
+	"Data": {"Id": "1022952"},
 	"Memo": {}
 }

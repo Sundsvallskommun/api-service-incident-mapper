@@ -35,7 +35,9 @@ class StatusConverterTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { "SYNCHRONIZED", "POB_INITIATED_EVENT", "JIRA_INITIATED_EVENT" })
+	@ValueSource(strings = {
+		"SYNCHRONIZED", "POB_INITIATED_EVENT", "JIRA_INITIATED_EVENT"
+	})
 	void testConvertToEntityAttribute(String string) {
 		final var value = converter.convertToEntityAttribute(string);
 		assertThat(value)

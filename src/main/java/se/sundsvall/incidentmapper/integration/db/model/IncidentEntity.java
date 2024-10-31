@@ -23,8 +23,12 @@ import se.sundsvall.incidentmapper.integration.db.model.enums.Status;
 @Table(
 	name = "incident",
 	uniqueConstraints = {
-		@UniqueConstraint(name = "uq_pob_issue_key", columnNames = { "pob_issue_key" }),
-		@UniqueConstraint(name = "uq_jira_issue_key", columnNames = { "jira_issue_key" })
+		@UniqueConstraint(name = "uq_pob_issue_key", columnNames = {
+			"pob_issue_key"
+		}),
+		@UniqueConstraint(name = "uq_jira_issue_key", columnNames = {
+			"jira_issue_key"
+		})
 	},
 	indexes = {
 		@Index(name = "ix_municipality_id", columnList = "municipality_id"),

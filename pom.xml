@@ -1,12 +1,11 @@
-<?xml version="1.0"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>se.sundsvall.dept44</groupId>
 		<artifactId>dept44-service-parent</artifactId>
-		<version>6.0.2</version>
-		<relativePath/>
+		<version>6.0.3</version>
+		<relativePath />
 		<!-- lookup parent from repository -->
 	</parent>
 	<groupId>se.sundsvall</groupId>
@@ -106,8 +105,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>src/main/resources/integrations/messaging-api.yml
-							</inputSpec>
+							<inputSpec>src/main/resources/integrations/messaging-api.yml</inputSpec>
 							<output>${generated-sources-path}</output>
 							<generatorName>spring</generatorName>
 							<generateApis>false</generateApis>
@@ -132,8 +130,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>src/main/resources/integrations/pob-api.yml
-							</inputSpec>
+							<inputSpec>src/main/resources/integrations/pob-api.yml</inputSpec>
 							<output>${generated-sources-path}</output>
 							<generatorName>spring</generatorName>
 							<generateApis>false</generateApis>
@@ -161,14 +158,13 @@
 				<executions>
 					<execution>
 						<id>add-generated-source</id>
-						<phase>initialize</phase>
 						<goals>
 							<goal>add-source</goal>
 						</goals>
+						<phase>initialize</phase>
 						<configuration>
 							<sources>
-								<source>${generated-sources-path}/${generated-sources-java-path}
-								</source>
+								<source>${generated-sources-path}/${generated-sources-java-path}</source>
 							</sources>
 						</configuration>
 					</execution>

@@ -1,18 +1,16 @@
 {
-  "id" : "d73a365b-3345-4550-bd97-44b043e6392d",
-  "name" : "pobg6_api_v20_case_12345_attachments_1628534",
-  "request" : {
-    "url" : "/pob/case/12345/attachments/1628534",
-    "method" : "GET"
-  },
-  "response" : {
-    "status" : 200,
-    "body" : "Hello World.",
-    "headers" : {
-      "Content-Type" : "text/plain"
-    }
-  },
-  "uuid" : "d73a365b-3345-4550-bd97-44b043e6392d",
-  "persistent" : true,
-  "insertionIndex" : 17
+	"request": {
+		"method": "GET",
+		"url": "/pob/case/12345/attachments/1628534"
+	},
+	"response": {
+		"headers": {"Content-Type": "text/plain"},
+		"body": "Hello World.",
+		"status": 200
+	},
+	"name": "pobg6_api_v20_case_12345_attachments_1628534",
+	"id": "d73a365b-3345-4550-bd97-44b043e6392d",
+	"persistent": true,
+	"insertionIndex": 17,
+	"uuid": "d73a365b-3345-4550-bd97-44b043e6392d"
 }

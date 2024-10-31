@@ -12,13 +12,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class JiraConfigurationTest {
 
-
 	@Mock
 	private JiraProperties jiraPropertiesMock;
 
 	@InjectMocks
 	private JiraConfiguration jiraConfiguration;
-
 
 	@Test
 	void testJiraRestClient() {

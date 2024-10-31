@@ -1,20 +1,18 @@
 {
-  "id" : "e914161d-b4be-4750-af32-14df5043afc3",
-  "name" : "pob_case_12345_attachments",
-  "request" : {
-    "urlPath" : "/pob/case/12345/attachments",
-    "method" : "GET"
-  },
-  "response" : {
-    "status" : 200,
-    "body" : "{\"Type\":\"Case\",\"Links\":[{\"Relation\":\"helloworld.txt\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628533\"},{\"Relation\":\"helloworld2.txt\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628534\"},{\"Relation\":\"cat.png\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628625\"},{\"Relation\":\"chewbacca.png\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628827\"}],\"Data\":{\"Id\":\"12345\"},\"Memo\":{}}",
-    "headers" : {
-      "Content-Type" : "application/json; charset=utf-8"
-    }
-  },
-  "uuid" : "e914161d-b4be-4750-af32-14df5043afc3",
-  "persistent" : true,
-  "scenarioName" : "scenario-1-pobg6-api-v20-case-12345-attachments",
-  "requiredScenarioState" : "scenario-1-pobg6-api-v20-case-12345-attachments-2",
-  "insertionIndex" : 6
+	"request": {
+		"method": "GET",
+		"urlPath": "/pob/case/12345/attachments"
+	},
+	"response": {
+		"headers": {"Content-Type": "application/json; charset=utf-8"},
+		"body": "{\"Type\":\"Case\",\"Links\":[{\"Relation\":\"helloworld.txt\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628533\"},{\"Relation\":\"helloworld2.txt\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628534\"},{\"Relation\":\"cat.png\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628625\"},{\"Relation\":\"chewbacca.png\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628827\"}],\"Data\":{\"Id\":\"12345\"},\"Memo\":{}}",
+		"status": 200
+	},
+	"name": "pob_case_12345_attachments",
+	"requiredScenarioState": "scenario-1-pobg6-api-v20-case-12345-attachments-2",
+	"id": "e914161d-b4be-4750-af32-14df5043afc3",
+	"persistent": true,
+	"insertionIndex": 6,
+	"uuid": "e914161d-b4be-4750-af32-14df5043afc3",
+	"scenarioName": "scenario-1-pobg6-api-v20-case-12345-attachments"
 }

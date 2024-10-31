@@ -38,12 +38,12 @@ class SlackServiceTest {
 		when(messagingPropertiesMock.token()).thenReturn(token);
 
 		// Act
-		slackService.sendToSlack(municipalityId,message);
+		slackService.sendToSlack(municipalityId, message);
 
 		// Assert
 		verify(messagingPropertiesMock).channel();
 		verify(messagingPropertiesMock).token();
-		verify(messagingClientMock).sendSlackMessage(municipalityId,new SlackRequest()
+		verify(messagingClientMock).sendSlackMessage(municipalityId, new SlackRequest()
 			.channel(channel)
 			.token(token)
 			.message(message));

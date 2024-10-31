@@ -1,24 +1,24 @@
 {
-  "id" : "20e3d78b-cfd1-4e6a-8142-0f30445631d0",
-  "name" : "jira_issue_uf-5974_comment-1",
-  "request" : {
-    "urlPath" : "/jira/rest/api/2/issue/UF-5974/comment",
-    "method" : "POST",
-    "bodyPatterns" : [ {
-      "equalToJson" : "{\"body\":\"_____________________________________________________\\nTo: incidents@host.com\\nFrom: joe.doe@host.com\\nSubject: Testärende 12345\\nDate: 2024-06-28 11:57:39\\nAttachments: \\n_____________________________________________________\\n\\nThis is a mail body\\n\"}",
-      "ignoreArrayOrder" : true,
-      "ignoreExtraElements" : true
-    } ]
-  },
-  "response" : {
-    "status" : 201,
-    "body" : "{\"self\":\"https://jira.localhost/rest/api/2/issue/18711/comment/12907\",\"id\":\"12907\",\"author\":{\"self\":\"https://jira.localhost/rest/api/2/user?username=utvecklingsfabriken\",\"name\":\"utvecklingsfabriken\",\"key\":\"JIRAUSER11601\",\"emailAddress\":\"pob2jira@sundsvall.se\",\"avatarUrls\":{\"48x48\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=48\",\"24x24\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=24\",\"16x16\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=16\",\"32x32\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=32\"},\"displayName\":\"Utvecklingsfabriken\",\"active\":true,\"timeZone\":\"Europe/Stockholm\"},\"body\":\"_____________________________________________________\\nTo: G6_servicedesk@sundsvall.se\\nFrom: samy.lidner@accero.se\\nSubject: Testärende 240628\\nDate: 2024-06-28 11:57:39\\nAttachments: \\n_____________________________________________________\\n\\n2024-06-28 12:05((UTC+01:00) Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna) POBAS Admin\\r\\n\\n\\r\\n\\n&nbsp;\\r\\n\\nInline image\\r\\n\\n&nbsp;\\r\\n\\n\\r\\n\\n&nbsp;\\r\\n\\n&nbsp;\\r\\n\\nMed vänlig hälsning\\r\\n\\n&nbsp;\\r\\n\\nSamy Lidner\\r\\n\\n&nbsp;\\r\\n\\n\\r\\n\\n&nbsp;&nbsp;\\r\\n\\r\\n\\nMobile: +46&nbsp;769 46 56 77\\r\\n\\nsamy.lidner@accero.se\\r\\n\\n&nbsp;\\n\",\"updateAuthor\":{\"self\":\"https://jira-test.sundsvall.se/rest/api/2/user?username=utvecklingsfabriken\",\"name\":\"utvecklingsfabriken\",\"key\":\"JIRAUSER11601\",\"emailAddress\":\"pob2jira@sundsvall.se\",\"avatarUrls\":{\"48x48\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=48\",\"24x24\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=24\",\"16x16\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=16\",\"32x32\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=32\"},\"displayName\":\"Utvecklingsfabriken\",\"active\":true,\"timeZone\":\"Europe/Stockholm\"},\"created\":\"2024-08-08T09:35:02.387+0200\",\"updated\":\"2024-08-08T09:35:02.387+0200\"}",
-    "headers" : {
-      "Content-Type" : "application/json;charset=UTF-8",
-      "Location" : "https://jira.localhost/rest/api/2/issue/18301/comment/12907"
-    }
-  },
-  "uuid" : "20e3d78b-cfd1-4e6a-8142-0f30445631d0",
-  "persistent" : true,
-  "insertionIndex" : 66
+	"request": {
+		"method": "POST",
+		"bodyPatterns": [{
+			"equalToJson": "{\"body\":\"_____________________________________________________\\nTo: incidents@host.com\\nFrom: joe.doe@host.com\\nSubject: Testärende 12345\\nDate: 2024-06-28 11:57:39\\nAttachments: \\n_____________________________________________________\\n\\nThis is a mail body\\n\"}",
+			"ignoreExtraElements": true,
+			"ignoreArrayOrder": true
+		}],
+		"urlPath": "/jira/rest/api/2/issue/UF-5974/comment"
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json;charset=UTF-8",
+			"Location": "https://jira.localhost/rest/api/2/issue/18301/comment/12907"
+		},
+		"body": "{\"self\":\"https://jira.localhost/rest/api/2/issue/18711/comment/12907\",\"id\":\"12907\",\"author\":{\"self\":\"https://jira.localhost/rest/api/2/user?username=utvecklingsfabriken\",\"name\":\"utvecklingsfabriken\",\"key\":\"JIRAUSER11601\",\"emailAddress\":\"pob2jira@sundsvall.se\",\"avatarUrls\":{\"48x48\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=48\",\"24x24\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=24\",\"16x16\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=16\",\"32x32\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=32\"},\"displayName\":\"Utvecklingsfabriken\",\"active\":true,\"timeZone\":\"Europe/Stockholm\"},\"body\":\"_____________________________________________________\\nTo: G6_servicedesk@sundsvall.se\\nFrom: samy.lidner@accero.se\\nSubject: Testärende 240628\\nDate: 2024-06-28 11:57:39\\nAttachments: \\n_____________________________________________________\\n\\n2024-06-28 12:05((UTC+01:00) Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna) POBAS Admin\\r\\n\\n\\r\\n\\n&nbsp;\\r\\n\\nInline image\\r\\n\\n&nbsp;\\r\\n\\n\\r\\n\\n&nbsp;\\r\\n\\n&nbsp;\\r\\n\\nMed vänlig hälsning\\r\\n\\n&nbsp;\\r\\n\\nSamy Lidner\\r\\n\\n&nbsp;\\r\\n\\n\\r\\n\\n&nbsp;&nbsp;\\r\\n\\r\\n\\nMobile: +46&nbsp;769 46 56 77\\r\\n\\nsamy.lidner@accero.se\\r\\n\\n&nbsp;\\n\",\"updateAuthor\":{\"self\":\"https://jira-test.sundsvall.se/rest/api/2/user?username=utvecklingsfabriken\",\"name\":\"utvecklingsfabriken\",\"key\":\"JIRAUSER11601\",\"emailAddress\":\"pob2jira@sundsvall.se\",\"avatarUrls\":{\"48x48\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=48\",\"24x24\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=24\",\"16x16\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=16\",\"32x32\":\"https://www.gravatar.com/avatar/c72541d2c29e92c2d60b43baa24c406e?d=mm&s=32\"},\"displayName\":\"Utvecklingsfabriken\",\"active\":true,\"timeZone\":\"Europe/Stockholm\"},\"created\":\"2024-08-08T09:35:02.387+0200\",\"updated\":\"2024-08-08T09:35:02.387+0200\"}",
+		"status": 201
+	},
+	"name": "jira_issue_uf-5974_comment-1",
+	"id": "20e3d78b-cfd1-4e6a-8142-0f30445631d0",
+	"persistent": true,
+	"insertionIndex": 66,
+	"uuid": "20e3d78b-cfd1-4e6a-8142-0f30445631d0"
 }

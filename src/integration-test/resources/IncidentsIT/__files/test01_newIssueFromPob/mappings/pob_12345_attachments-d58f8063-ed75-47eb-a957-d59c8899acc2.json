@@ -1,18 +1,16 @@
 {
-  "id" : "d58f8063-ed75-47eb-a957-d59c8899acc2",
-  "name" : "pobg6_api_v20_case_12345_attachments",
-  "request" : {
-    "url" : "/pob/case/12345/attachments",
-    "method" : "GET"
-  },
-  "response" : {
-    "status" : 200,
-    "body" : "{\"Type\":\"Case\",\"Links\":[{\"Relation\":\"helloworld.txt\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628533\"},{\"Relation\":\"helloworld2.txt\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628534\"},{\"Relation\":\"cat.png\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628625\"}],\"Data\":{\"Id\":\"12345\"},\"Memo\":{}}",
-    "headers" : {
-      "Content-Type" : "application/json; charset=utf-8"
-    }
-  },
-  "uuid" : "d58f8063-ed75-47eb-a957-d59c8899acc2",
-  "persistent" : true,
-  "insertionIndex" : 19
+	"request": {
+		"method": "GET",
+		"url": "/pob/case/12345/attachments"
+	},
+	"response": {
+		"headers": {"Content-Type": "application/json; charset=utf-8"},
+		"body": "{\"Type\":\"Case\",\"Links\":[{\"Relation\":\"helloworld.txt\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628533\"},{\"Relation\":\"helloworld2.txt\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628534\"},{\"Relation\":\"cat.png\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628625\"}],\"Data\":{\"Id\":\"12345\"},\"Memo\":{}}",
+		"status": 200
+	},
+	"name": "pobg6_api_v20_case_12345_attachments",
+	"id": "d58f8063-ed75-47eb-a957-d59c8899acc2",
+	"persistent": true,
+	"insertionIndex": 19,
+	"uuid": "d58f8063-ed75-47eb-a957-d59c8899acc2"
 }

@@ -2,13 +2,6 @@ package se.sundsvall.incidentmapper.integration.db.model;
 
 import static org.hibernate.annotations.TimeZoneStorageType.NORMALIZE;
 
-import java.io.Serializable;
-import java.time.OffsetDateTime;
-import java.util.Objects;
-
-import org.hibernate.annotations.TimeZoneStorage;
-import org.hibernate.annotations.UuidGenerator;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -16,6 +9,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.io.Serializable;
+import java.time.OffsetDateTime;
+import java.util.Objects;
+import org.hibernate.annotations.TimeZoneStorage;
+import org.hibernate.annotations.UuidGenerator;
 import se.sundsvall.incidentmapper.integration.db.listener.IncidentEntityListener;
 import se.sundsvall.incidentmapper.integration.db.model.enums.Status;
 

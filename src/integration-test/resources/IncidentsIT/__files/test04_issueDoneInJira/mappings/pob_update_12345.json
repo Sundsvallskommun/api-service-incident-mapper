@@ -4,7 +4,9 @@
 		"url": "/pob/case"
 	},
 	"response": {
-		"headers": {"Content-Type": "application/json; charset=utf-8"},
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8"
+		},
 		"body": "{\"Type\":\"Case\",\"Links\":[],\"Data\":{\"Id\":\"12345\",\"Responsible\":null,\"ResponsibleGroup\":\"IT Support\"},\"Memo\":{}}",
 		"status": 200
 	},

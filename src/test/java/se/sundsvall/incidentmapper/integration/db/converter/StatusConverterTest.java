@@ -10,7 +10,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import se.sundsvall.incidentmapper.integration.db.model.enums.Status;
 
 @ExtendWith(MockitoExtension.class)

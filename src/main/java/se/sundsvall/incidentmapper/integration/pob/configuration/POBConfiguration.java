@@ -4,18 +4,15 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.ALWAYS;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
-import java.util.List;
-
-import org.springframework.cloud.openfeign.FeignBuilderCustomizer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import feign.RequestInterceptor;
 import feign.codec.Encoder;
 import feign.codec.ErrorDecoder;
 import feign.jackson.JacksonEncoder;
+import java.util.List;
+import org.springframework.cloud.openfeign.FeignBuilderCustomizer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import se.sundsvall.dept44.configuration.feign.FeignConfiguration;
 import se.sundsvall.dept44.configuration.feign.FeignMultiCustomizer;
 import se.sundsvall.dept44.configuration.feign.decoder.JsonPathErrorDecoder;

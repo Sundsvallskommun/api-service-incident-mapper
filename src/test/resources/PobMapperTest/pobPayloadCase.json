@@ -24,10 +24,12 @@
 		"Virtual.CAS_VIR_ELEVATOR": "",
 		"ResponsibleGroup": {
 			"Type": "UserGroup",
-			"Links": [{
-				"Relation": "self",
-				"Href": "pobg6/api/v20/usergroups/IT Support"
-			}],
+			"Links": [
+				{
+					"Relation": "self",
+					"Href": "pobg6/api/v20/usergroups/IT Support"
+				}
+			],
 			"Data": {
 				"Description": "IT Support",
 				"Id": "IT Support"
@@ -38,10 +40,12 @@
 		"Virtual.NewMail": "0",
 		"CIInfo.Type": {
 			"Type": "ConfigurationItemType",
-			"Links": [{
-				"Relation": "self",
-				"Href": "pobg6/api/v20/configurationitemtype/System"
-			}],
+			"Links": [
+				{
+					"Relation": "self",
+					"Href": "pobg6/api/v20/configurationitemtype/System"
+				}
+			],
 			"Data": {
 				"Description": "Mjukvara med relation till server eller databas",
 				"Id": "System"
@@ -59,10 +63,12 @@
 		"Virtual.Koneo_solved": "",
 		"CIInfo.Item": {
 			"Type": "Item",
-			"Links": [{
-				"Relation": "self",
-				"Href": "pobg6/api/v20/item/100690"
-			}],
+			"Links": [
+				{
+					"Relation": "self",
+					"Href": "pobg6/api/v20/item/100690"
+				}
+			],
 			"Data": {
 				"ItemStatus": "1",
 				"Description": "Intern instans av Open ePlatform (Kommunkoncernens interna e-tjänster)",
@@ -82,10 +88,12 @@
 		"Virtual.CAS_EDT_STA2": "",
 		"Contact.Customer": {
 			"Type": "Customer",
-			"Links": [{
-				"Relation": "self",
-				"Href": "pobg6/api/v20/customer/user01"
-			}],
+			"Links": [
+				{
+					"Relation": "self",
+					"Href": "pobg6/api/v20/customer/user01"
+				}
+			],
 			"Data": {
 				"FirstName": "Joe",
 				"Phone": "060-111111",
@@ -112,10 +120,12 @@
 		"Virtual.Shop_ForvaltningBolag": "",
 		"Contact.Organization": {
 			"Type": "Organization",
-			"Links": [{
-				"Relation": "self",
-				"Href": "pobg6/api/v20/organization/7408"
-			}],
+			"Links": [
+				{
+					"Relation": "self",
+					"Href": "pobg6/api/v20/organization/7408"
+				}
+			],
 			"Data": {
 				"Virtual.DefaultContractId": "12017",
 				"Description": "IAF MoP Myndighetsutövning",
@@ -138,10 +148,12 @@
 		"Virtual.InvoiceReference": "2MIA03SEL",
 		"PriorityInfo.Priority": {
 			"Type": "Priority",
-			"Links": [{
-				"Relation": "self",
-				"Href": "pobg6/api/v20/priority/IT4"
-			}],
+			"Links": [
+				{
+					"Relation": "self",
+					"Href": "pobg6/api/v20/priority/IT4"
+				}
+			],
 			"Data": {
 				"Description": "Löst inom 8 arbetsdagar",
 				"Id": "IT4"
@@ -150,11 +162,15 @@
 		},
 		"PriorityInfo.Impact": {
 			"Type": "Impact",
-			"Links": [{
-				"Relation": "self",
-				"Href": "pobg6/api/v20/impact/3. Låg: Enstaka användare"
-			}],
-			"Data": {"Id": "3. Låg: Enstaka användare"},
+			"Links": [
+				{
+					"Relation": "self",
+					"Href": "pobg6/api/v20/impact/3. Låg: Enstaka användare"
+				}
+			],
+			"Data": {
+				"Id": "3. Låg: Enstaka användare"
+			},
 			"Memo": {}
 		},
 		"Virtual.CAS_VIR_NETCON": "",
@@ -172,10 +188,12 @@
 		"Virtual.Shop_Kontaktperson": "",
 		"CIInfo.Ci": {
 			"Type": "ConfigurationItem",
-			"Links": [{
-				"Relation": "self",
-				"Href": "pobg6/api/v20/configurationitem/187305"
-			}],
+			"Links": [
+				{
+					"Relation": "self",
+					"Href": "pobg6/api/v20/configurationitem/187305"
+				}
+			],
 			"Data": {
 				"Description": "Intern instans av Open ePlatform (Kommunkoncernens interna e-tjänster)",
 				"SerialNumber": "",
@@ -210,10 +228,12 @@
 		"Times.ActualOkDate": "",
 		"OpenedBy": {
 			"Type": "User",
-			"Links": [{
-				"Relation": "self",
-				"Href": "pobg6/api/v20/users/z_support@domain.com"
-			}],
+			"Links": [
+				{
+					"Relation": "self",
+					"Href": "pobg6/api/v20/users/z_support@domain.com"
+				}
+			],
 			"Data": {
 				"FirstName": "ServiceDesk Incident",
 				"Id": "z_support@domain.com",
@@ -237,10 +257,12 @@
 		"Virtual.Tel_Ny_Tillv_Phoniro_Serienr": "",
 		"TimeLimits.ServiceHours": {
 			"Type": "ServiceHours",
-			"Links": [{
-				"Relation": "self",
-				"Href": "pobg6/api/v20/servicehours/Default"
-			}],
+			"Links": [
+				{
+					"Relation": "self",
+					"Href": "pobg6/api/v20/servicehours/Default"
+				}
+			],
 			"Data": {
 				"Description": "Default set up",
 				"Id": "Default"
@@ -261,10 +283,12 @@
 		"Description": "This works!",
 		"OpenedByGroup": {
 			"Type": "UserGroup",
-			"Links": [{
-				"Relation": "self",
-				"Href": "pobg6/api/v20/usergroups/IT Support"
-			}],
+			"Links": [
+				{
+					"Relation": "self",
+					"Href": "pobg6/api/v20/usergroups/IT Support"
+				}
+			],
 			"Data": {
 				"Description": "IT Support",
 				"Id": "IT Support"
@@ -273,10 +297,12 @@
 		},
 		"CoordinatorGroup": {
 			"Type": "UserGroup",
-			"Links": [{
-				"Relation": "self",
-				"Href": "pobg6/api/v20/usergroups/IT Ute"
-			}],
+			"Links": [
+				{
+					"Relation": "self",
+					"Href": "pobg6/api/v20/usergroups/IT Ute"
+				}
+			],
 			"Data": {
 				"Description": "IT Utesupport",
 				"Id": "IT Ute"
@@ -294,10 +320,12 @@
 		"ContactNotifyBy": "0",
 		"CaseCategory": {
 			"Type": "CaseCategory",
-			"Links": [{
-				"Relation": "self",
-				"Href": "pobg6/api/v20/casecategory/IT Ej tillgängligt system/tjänst"
-			}],
+			"Links": [
+				{
+					"Relation": "self",
+					"Href": "pobg6/api/v20/casecategory/IT Ej tillgängligt system/tjänst"
+				}
+			],
 			"Data": {
 				"Description": "Ex. avbrott i tjänst(ej kommunikationsproblem)",
 				"Id": "IT Ej tillgängligt system/tjänst"
@@ -315,10 +343,12 @@
 		"Virtual.OriginId2": "",
 		"SLAInfo.Contract": {
 			"Type": "Contract",
-			"Links": [{
-				"Relation": "self",
-				"Href": "pobg6/api/v20/contract/12017"
-			}],
+			"Links": [
+				{
+					"Relation": "self",
+					"Href": "pobg6/api/v20/contract/12017"
+				}
+			],
 			"Data": {
 				"Description": "IAF MoP Myndighetsutövning",
 				"Id": "12017"
@@ -344,10 +374,12 @@
 		"Virtual.CAS_VIR_ADSEM": "",
 		"CaseType": {
 			"Type": "CaseType",
-			"Links": [{
-				"Relation": "self",
-				"Href": "pobg6/api/v20/casetype/Incident"
-			}],
+			"Links": [
+				{
+					"Relation": "self",
+					"Href": "pobg6/api/v20/casetype/Incident"
+				}
+			],
 			"Data": {
 				"Description": "Incidenter, fel",
 				"Id": "Incident"
@@ -358,11 +390,15 @@
 		"Virtual.CustomerHasResponded": "False",
 		"PriorityInfo.Urgency": {
 			"Type": "Urgency",
-			"Links": [{
-				"Relation": "self",
-				"Href": "pobg6/api/v20/urgency/3. Låg: Ringa påverkan för verksamheten"
-			}],
-			"Data": {"Id": "3. Låg: Ringa påverkan för verksamheten"},
+			"Links": [
+				{
+					"Relation": "self",
+					"Href": "pobg6/api/v20/urgency/3. Låg: Ringa påverkan för verksamheten"
+				}
+			],
+			"Data": {
+				"Id": "3. Låg: Ringa påverkan för verksamheten"
+			},
 			"Memo": {}
 		},
 		"AlertPercent": "",
@@ -377,10 +413,12 @@
 		"Virtual.Tel_CI_Name": "",
 		"Coordinator": {
 			"Type": "User",
-			"Links": [{
-				"Relation": "self",
-				"Href": "pobg6/api/v20/users/URNO"
-			}],
+			"Links": [
+				{
+					"Relation": "self",
+					"Href": "pobg6/api/v20/users/URNO"
+				}
+			],
 			"Data": {
 				"FirstName": "Urban",
 				"Id": "URNO",

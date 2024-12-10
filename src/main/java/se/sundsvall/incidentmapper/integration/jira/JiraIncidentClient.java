@@ -5,23 +5,20 @@ import static java.util.stream.Collectors.toMap;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.util.StringUtils.hasText;
 
-import java.io.File;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-
-import org.springframework.stereotype.Component;
-
 import com.chavaillaz.client.common.exception.ResponseException;
 import com.chavaillaz.client.jira.JiraClient;
 import com.chavaillaz.client.jira.domain.Comment;
 import com.chavaillaz.client.jira.domain.Issue;
 import com.chavaillaz.client.jira.domain.IssueTransition;
 import com.chavaillaz.client.jira.domain.Transition;
-
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import java.io.File;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import org.springframework.stereotype.Component;
 import se.sundsvall.incidentmapper.integration.jira.configuration.JiraProperties;
 
 @Component

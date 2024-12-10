@@ -1,10 +1,9 @@
 package se.sundsvall.incidentmapper.integration.jira.configuration;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 import com.chavaillaz.client.jira.JiraClient;
 import com.chavaillaz.client.jira.domain.Issue;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class JiraConfiguration {

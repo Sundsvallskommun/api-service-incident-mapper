@@ -1,8 +1,7 @@
 package se.sundsvall.incidentmapper.service;
 
-import org.springframework.stereotype.Service;
-
 import generated.se.sundsvall.messaging.SlackRequest;
+import org.springframework.stereotype.Service;
 import se.sundsvall.incidentmapper.integration.messaging.MessagingClient;
 import se.sundsvall.incidentmapper.integration.messaging.configuration.MessagingProperties;
 

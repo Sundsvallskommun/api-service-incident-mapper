@@ -1,12 +1,16 @@
 {
 	"Type": "Case",
 	"Links": [],
-	"Data": {"Id": "1022960"},
-	"Memo": {"CaseInternalNotesCustom": {
-		"Extension": ".html",
-		"HandleSeparators": false,
-		"Style": 0,
-		"IsValidForWeb": false,
-		"Memo": "<html><head><\/head><body style=\"font-family:Segoe UI;font-size:9pt;\"><div id='memo1360031273'><div><div style=\"font-family:Segoe UI;font-size:9pt;\">2024-05-08 14:09 Kommentar<\/div><\/body><\/html>"
-	}}
+	"Data": {
+		"Id": "1022960"
+	},
+	"Memo": {
+		"CaseInternalNotesCustom": {
+			"Extension": ".html",
+			"HandleSeparators": false,
+			"Style": 0,
+			"IsValidForWeb": false,
+			"Memo": "<html><head></head><body style=\"font-family:Segoe UI;font-size:9pt;\"><div id='memo1360031273'><div><div style=\"font-family:Segoe UI;font-size:9pt;\">2024-05-08 14:09 Kommentar</div></body></html>"
+		}
+	}
 }

@@ -17,6 +17,16 @@ import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.POB_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
 
+import com.chavaillaz.client.jira.domain.Attachment;
+import com.chavaillaz.client.jira.domain.Attachments;
+import com.chavaillaz.client.jira.domain.Comment;
+import com.chavaillaz.client.jira.domain.Comments;
+import com.chavaillaz.client.jira.domain.Fields;
+import com.chavaillaz.client.jira.domain.Issue;
+import com.chavaillaz.client.jira.domain.Transition;
+import com.chavaillaz.client.jira.domain.User;
+import generated.se.sundsvall.pob.PobMemo;
+import generated.se.sundsvall.pob.PobPayload;
 import java.io.File;
 import java.io.FileInputStream;
 import java.time.OffsetDateTime;
@@ -24,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,18 +48,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-
-import com.chavaillaz.client.jira.domain.Attachment;
-import com.chavaillaz.client.jira.domain.Attachments;
-import com.chavaillaz.client.jira.domain.Comment;
-import com.chavaillaz.client.jira.domain.Comments;
-import com.chavaillaz.client.jira.domain.Fields;
-import com.chavaillaz.client.jira.domain.Issue;
-import com.chavaillaz.client.jira.domain.Transition;
-import com.chavaillaz.client.jira.domain.User;
-
-import generated.se.sundsvall.pob.PobMemo;
-import generated.se.sundsvall.pob.PobPayload;
 import se.sundsvall.dept44.test.annotation.resource.Load;
 import se.sundsvall.dept44.test.extension.ResourceLoaderExtension;
 import se.sundsvall.incidentmapper.api.model.IncidentRequest;

@@ -1,6 +1,8 @@
 {
 	"Type": "Mail",
 	"Links": [],
-	"Data": {"Id": "mailId"},
+	"Data": {
+		"Id": "mailId"
+	},
 	"Memo": {}
 }

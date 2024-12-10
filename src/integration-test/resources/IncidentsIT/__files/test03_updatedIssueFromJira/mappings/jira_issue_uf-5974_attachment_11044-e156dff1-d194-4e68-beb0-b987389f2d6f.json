@@ -4,7 +4,9 @@
 		"urlPath": "/jira/rest/api/2/attachment/11044"
 	},
 	"response": {
-		"headers": {"Content-Type": "application/json;charset=UTF-8"},
+		"headers": {
+			"Content-Type": "application/json;charset=UTF-8"
+		},
 		"status": 204
 	},
 	"name": "rest_api_2_attachment_11044",

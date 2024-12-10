@@ -24,21 +24,18 @@ import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toProblemMemo
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toProblemPayload;
 import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toResponsibleGroupPayload;
 
+import com.chavaillaz.client.jira.domain.Attachment;
+import com.chavaillaz.client.jira.domain.Issue;
+import generated.se.sundsvall.pob.PobPayload;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.chavaillaz.client.jira.domain.Attachment;
-import com.chavaillaz.client.jira.domain.Issue;
-
-import generated.se.sundsvall.pob.PobPayload;
 import se.sundsvall.incidentmapper.api.model.IncidentRequest;
 import se.sundsvall.incidentmapper.integration.db.IncidentRepository;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;

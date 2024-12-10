@@ -7,22 +7,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.util.Base64;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import com.chavaillaz.client.common.exception.ResponseException;
 import com.chavaillaz.client.jira.JiraClient;
 import com.chavaillaz.client.jira.api.IssueApi;
@@ -36,7 +20,20 @@ import com.chavaillaz.client.jira.domain.Issue;
 import com.chavaillaz.client.jira.domain.IssueType;
 import com.chavaillaz.client.jira.domain.Project;
 import com.chavaillaz.client.jira.domain.Transitions;
-
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.util.Base64;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import se.sundsvall.incidentmapper.integration.jira.configuration.JiraProperties;
 
 @ExtendWith(MockitoExtension.class)

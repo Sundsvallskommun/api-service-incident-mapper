@@ -1,15 +1,19 @@
 {
 	"request": {
 		"method": "PUT",
-		"bodyPatterns": [{
-			"equalToJson": "{\"key\":\"UF-5974\",\"fields\":{\"summary\":\"Supportärende 12345 (testärende draken 240522)\",\"description\":\"2024-05-23 12:59 System API Utvecklingsfabriken Utvecklingsfabriken\\ntest2\\n\\n\\n___________________________________________________________\\n\\n\\n\\n2024-05-23 12:36 System API Utvecklingsfabriken Utvecklingsfabriken\\nAndreas test\\n\\n\\n___________________________________________________________\"}}",
-			"ignoreExtraElements": true,
-			"ignoreArrayOrder": true
-		}],
+		"bodyPatterns": [
+			{
+				"equalToJson": "{\"key\":\"UF-5974\",\"fields\":{\"summary\":\"Supportärende 12345 (testärende draken 240522)\",\"description\":\"2024-05-23 12:59 System API Utvecklingsfabriken Utvecklingsfabriken\\ntest2\\n\\n\\n___________________________________________________________\\n\\n\\n\\n2024-05-23 12:36 System API Utvecklingsfabriken Utvecklingsfabriken\\nAndreas test\\n\\n\\n___________________________________________________________\"}}",
+				"ignoreExtraElements": true,
+				"ignoreArrayOrder": true
+			}
+		],
 		"urlPath": "/jira/rest/api/2/issue/UF-5974"
 	},
 	"response": {
-		"headers": {"Content-Type": "application/json;charset=UTF-8"},
+		"headers": {
+			"Content-Type": "application/json;charset=UTF-8"
+		},
 		"status": 204
 	},
 	"name": "rest_api_2_issue_uf-5974",

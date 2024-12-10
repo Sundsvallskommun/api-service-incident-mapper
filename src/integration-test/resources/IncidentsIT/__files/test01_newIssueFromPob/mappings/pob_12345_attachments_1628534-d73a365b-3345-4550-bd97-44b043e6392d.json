@@ -4,7 +4,9 @@
 		"url": "/pob/case/12345/attachments/1628534"
 	},
 	"response": {
-		"headers": {"Content-Type": "text/plain"},
+		"headers": {
+			"Content-Type": "text/plain"
+		},
 		"body": "Hello World.",
 		"status": 200
 	},

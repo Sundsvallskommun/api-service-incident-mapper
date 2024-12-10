@@ -1,11 +1,10 @@
 package se.sundsvall.incidentmapper.service.scheduler;
 
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import se.sundsvall.incidentmapper.service.IncidentService;
 
 @Component

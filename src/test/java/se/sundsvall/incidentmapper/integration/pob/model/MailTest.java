@@ -11,7 +11,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
 
 class MailTest {

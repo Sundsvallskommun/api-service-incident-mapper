@@ -4,7 +4,9 @@
 		"urlPath": "/jira/rest/api/2/issue/UF-5974/comment/12471"
 	},
 	"response": {
-		"headers": {"Content-Type": "application/json;charset=UTF-8"},
+		"headers": {
+			"Content-Type": "application/json;charset=UTF-8"
+		},
 		"status": 204
 	},
 	"name": "rest_api_2_issue_uf-5974_comment_12471",

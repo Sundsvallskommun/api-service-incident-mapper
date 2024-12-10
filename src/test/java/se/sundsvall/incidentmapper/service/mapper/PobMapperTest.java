@@ -3,12 +3,10 @@ package se.sundsvall.incidentmapper.service.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.dept44.test.annotation.resource.Load.ResourceType.JSON;
 
+import com.chavaillaz.client.jira.domain.Attachment;
+import generated.se.sundsvall.pob.PobPayload;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import com.chavaillaz.client.jira.domain.Attachment;
-
-import generated.se.sundsvall.pob.PobPayload;
 import se.sundsvall.dept44.test.annotation.resource.Load;
 import se.sundsvall.dept44.test.extension.ResourceLoaderExtension;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;

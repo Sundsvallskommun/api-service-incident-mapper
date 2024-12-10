@@ -4,7 +4,9 @@
 		"url": "/pob/mail/11831895"
 	},
 	"response": {
-		"headers": {"Content-Type": "application/json; charset=utf-8"},
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8"
+		},
 		"body": "{\"Type\":\"Mail\",\"$id\":\"11831895\",\"Links\":[],\"Data\":{\"MailPK\":\"117977696\",\"UserGroup\":{\"Type\":\"UserGroup\",\"$id\":\"IT Support\",\"Links\":[{\"Relation\":\"self\",\"Href\":\"pobg6/api/v20/usergroups/IT Support\"}],\"Data\":{\"Id\":\"IT Support\",\"Description\":\"IT Support\"},\"Memo\":{}},\"User\":{\"Type\":\"User\",\"$id\":\"z_First line\",\"Links\":[{\"Relation\":\"self\",\"Href\":\"pobg6/api/v20/users/z_First line\"}],\"Data\":{\"FirstName\":\"ServiceDesk\",\"Id\":\"z_First line\",\"LastName\":\"ServiceDesk\"},\"Memo\":{}},\"OrganisationPK\":\"\",\"ContactPersonPK\":\"\",\"CampaignPK\":\"\",\"BlindCarbonCopy\":\"\",\"CarbonCopy\":\"\",\"ScheduledDate\":\"\",\"SendDate\":\"2024-06-28 11:57:39\",\"DeleteDate\":\"\",\"NumberOfRetries\":\"0\",\"MailFrom\":\"joe.doe@host.com\",\"GenerateBody\":\"False\",\"Id\":\"11831895\",\"Description\":\"\",\"KeepMail\":\"False\",\"IsAutomatic\":\"False\",\"NumberOfAttachments\":\"2\",\"ReplyTo\":\"\",\"ErrorMessage\":\"\",\"MailStatus\":\"3\",\"MailCategories\":\"\",\"Subject\":\"Testärende 12345\",\"MailTo\":\"incidents@host.com\",\"PobEntityId\":\"Case\",\"EntityBaseId\":\"1022975\",\"RootPK\":\"117977797\",\"OutlookId\":\"AAMkAGUzMDFlNmU5LTM5YzMtNDhmYy05MTEzLWQ1YWMwNWQ2YzhiYQBGAAAAAACnsl8ZiT4+QKoFq1B8vn4PBwBGYQG3SdfrQL+Ma6z5+cUQAAAA0EUjAABFHYV/R+TBRZ1aHgo2OfZcAAXOp+PdAAA=\",\"MailImportance\":\"1\",\"ConversationTopic\":\"Testärende 12345\",\"Virtual.MailStatus\":\"0\"},\"Memo\":{\"Mail\":{\"Extension\":\".html\",\"IsValidForWeb\":false,\"Style\":0,\"Memo\":\"This is a mail body\",\"HandleSeparators\":false}}}",
 		"status": 200
 	},

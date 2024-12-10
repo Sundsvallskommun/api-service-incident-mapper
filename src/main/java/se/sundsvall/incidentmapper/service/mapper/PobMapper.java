@@ -9,22 +9,19 @@ import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang3.math.NumberUtils.toInt;
 
+import com.chavaillaz.client.jira.domain.Attachment;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import generated.se.sundsvall.pob.PobMemo;
+import generated.se.sundsvall.pob.PobPayload;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.safety.Safelist;
-
-import com.chavaillaz.client.jira.domain.Attachment;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import generated.se.sundsvall.pob.PobMemo;
-import generated.se.sundsvall.pob.PobPayload;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
 import se.sundsvall.incidentmapper.integration.pob.model.Mail;
 

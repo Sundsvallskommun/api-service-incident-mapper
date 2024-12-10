@@ -4,7 +4,9 @@
 		"url": "/pob/case/12345/attachments"
 	},
 	"response": {
-		"headers": {"Content-Type": "application/json; charset=utf-8"},
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8"
+		},
 		"body": "{\"Type\":\"Case\",\"Links\":[{\"Relation\":\"helloworld.txt\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628533\"},{\"Relation\":\"helloworld2.txt\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628534\"},{\"Relation\":\"cat.png\",\"Href\":\"pobg6/api/v20/case/12345/attachments/1628625\"}],\"Data\":{\"Id\":\"12345\"},\"Memo\":{}}",
 		"status": 200
 	},

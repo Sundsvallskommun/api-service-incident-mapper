@@ -1,11 +1,13 @@
 {
 	"request": {
 		"method": "POST",
-		"bodyPatterns": [{
-			"equalToJson": "{\r\n  \"token\" : \"the-token\",\r\n  \"channel\" : \"the-channel\",\r\n  \"message\" : \"${json-unit.any-string}\"\r\n}",
-			"ignoreExtraElements": true,
-			"ignoreArrayOrder": true
-		}],
+		"bodyPatterns": [
+			{
+				"equalToJson": "{\r\n  \"token\" : \"the-token\",\r\n  \"channel\" : \"the-channel\",\r\n  \"message\" : \"${json-unit.any-string}\"\r\n}",
+				"ignoreExtraElements": true,
+				"ignoreArrayOrder": true
+			}
+		],
 		"urlPath": "/messaging/2281/slack"
 	},
 	"response": {

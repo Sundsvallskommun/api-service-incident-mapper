@@ -26,11 +26,6 @@ import se.sundsvall.incidentmapper.service.scheduler.SynchronizerSchedulerServic
 @Validated
 @Tag(name = "Jobs", description = "Jobs resource")
 @RequestMapping("/{municipalityId}/jobs")
-@ApiResponse(responseCode = "204", description = "Successful operation", useReturnTypeSchema = true)
-@ApiResponse(responseCode = "400", description = "Bad request", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(oneOf = {
-	Problem.class, ConstraintViolationProblem.class
-})))
-@ApiResponse(responseCode = "500", description = "Internal Server error", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 class JobsResource {
 
 	private final SynchronizerSchedulerService synchronizerSchedulerService;
@@ -39,8 +34,14 @@ class JobsResource {
 		this.synchronizerSchedulerService = synchronizerSchedulerService;
 	}
 
-	@PostMapping(path = "/synchronizer", produces = APPLICATION_PROBLEM_JSON_VALUE)
-	@Operation(summary = "Runs synchonizer job.", description = "Runs synchonizer job.")
+	@PostMapping(path = "/synchronizer")
+	@Operation(summary = "Runs synchonizer job.", description = "Runs synchonizer job.", responses = {
+		@ApiResponse(responseCode = "204", description = "Successful operation", useReturnTypeSchema = true),
+		@ApiResponse(responseCode = "400", description = "Bad request", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(oneOf = {
+			Problem.class, ConstraintViolationProblem.class
+		}))),
+		@ApiResponse(responseCode = "500", description = "Internal Server error", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
+	})
 	ResponseEntity<Void> synchronizer(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @PathVariable("municipalityId") @ValidMunicipalityId final String municipalityId) {
 

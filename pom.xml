@@ -15,7 +15,7 @@
 	<properties>
 		<generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
 		<generated-sources-java-path>src/main/java</generated-sources-java-path>
-		<shedlock.version>6.0.2</shedlock.version>
+		<shedlock.version>6.2.0</shedlock.version>
 		<jsoup.version>1.18.3</jsoup.version>
 		<jira-client.version>2.2.4</jira-client.version>
 		<faux-pas.version>0.9.0</faux-pas.version>

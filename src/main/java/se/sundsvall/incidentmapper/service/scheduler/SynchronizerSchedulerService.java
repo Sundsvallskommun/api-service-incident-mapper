@@ -1,10 +1,9 @@
 package se.sundsvall.incidentmapper.service.scheduler;
 
-import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import se.sundsvall.dept44.scheduling.Dept44Scheduled;
 import se.sundsvall.incidentmapper.service.IncidentService;
 
 @Component
@@ -18,8 +17,11 @@ public class SynchronizerSchedulerService {
 		this.incidentService = incidentService;
 	}
 
-	@Scheduled(cron = "${scheduler.synchronizer.cron:-}")
-	@SchedulerLock(name = "synchronizer", lockAtMostFor = "${scheduler.synchronizer.shedlock-lock-at-most-for}")
+	@Dept44Scheduled(
+		cron = "${scheduler.synchronizer.cron:-}",
+		name = "${scheduler.synchronizer.name}",
+		lockAtMostFor = "${scheduler.synchronizer.shedlock-lock-at-most-for}",
+		maximumExecutionTime = "${scheduler.synchronizer.maximum-execution-time}")
 	public void execute() {
 
 		LOGGER.info("Start polling for Jira modifications");

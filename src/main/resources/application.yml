@@ -64,6 +64,8 @@ integration:
 #========================================
 scheduler:
   synchronizer:
+    name: synchronizer
     # Every 30 seconds
     cron: "0/30 * * * * *"
     shedlock-lock-at-most-for: PT10M
+    maximum-execution-time: PT10M

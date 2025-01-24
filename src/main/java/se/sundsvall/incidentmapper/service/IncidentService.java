@@ -355,10 +355,11 @@ public class IncidentService {
 						if (!attachmentFileName.contains(".") && nonNull(contentType)) {
 							// Attachment doesn't have a suffix, use contentType mime subtype instead.
 							attachmentFileName += "." + contentType.getSubtype();
-
-							// Remove Illegal characters.
-							attachmentFileName = formatFileName(attachmentFileName);
 						}
+
+						// Remove Illegal characters.
+						attachmentFileName = formatFileName(attachmentFileName);
+
 						final var file = new File(APPLICATION_TEMP_FOLDER_PATH_TEMPLATE.formatted(synchronizationProperties.tempFolder(), incidentEntity.getPobIssueKey(), attachmentFileName));
 						copyInputStreamToFile(attachmentResponse.getBody().getInputStream(), file);
 

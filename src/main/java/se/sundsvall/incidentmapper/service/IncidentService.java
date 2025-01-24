@@ -355,6 +355,9 @@ public class IncidentService {
 						if (!attachmentFileName.contains(".") && nonNull(contentType)) {
 							// Attachment doesn't have a suffix, use contentType mime subtype instead.
 							attachmentFileName += "." + contentType.getSubtype();
+
+							// Remove Illegal characters.
+							attachmentFileName = formatFileName(attachmentFileName);
 						}
 						final var file = new File(APPLICATION_TEMP_FOLDER_PATH_TEMPLATE.formatted(synchronizationProperties.tempFolder(), incidentEntity.getPobIssueKey(), attachmentFileName));
 						copyInputStreamToFile(attachmentResponse.getBody().getInputStream(), file);
@@ -368,6 +371,18 @@ public class IncidentService {
 				.filter(Objects::nonNull)
 				.toList())
 			.orElse(emptyList());
+	}
+
+	private String formatFileName(String originalFileName) {
+		return Optional.ofNullable(originalFileName)
+			.map(string -> string.replace('å', 'a'))
+			.map(string -> string.replace('ä', 'a'))
+			.map(string -> string.replace('ö', 'o'))
+			.map(string -> string.replace('Å', 'A'))
+			.map(string -> string.replace('Ä', 'A'))
+			.map(string -> string.replace('Ö', 'O'))
+			.map(string -> string.replaceAll("[^\\w.-]", "_"))
+			.orElse("FILE");
 	}
 
 	private List<Mail> getPobMails(final IncidentEntity incidentEntity) {

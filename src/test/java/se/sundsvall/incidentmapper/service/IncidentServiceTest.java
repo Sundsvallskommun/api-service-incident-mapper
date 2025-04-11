@@ -16,6 +16,7 @@ import static se.sundsvall.dept44.test.annotation.resource.Load.ResourceType.JSO
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.POB_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
+import static se.sundsvall.incidentmapper.service.IncidentService.JIRA_ISSUE_CREATED;
 
 import com.chavaillaz.client.jira.domain.Attachment;
 import com.chavaillaz.client.jira.domain.Attachments;
@@ -579,7 +580,7 @@ class IncidentServiceTest {
 		verify(pobClientMock).getAttachment(pobIssueKey, "1628120");
 		verify(pobClientMock).getReceivedMailIds(pobIssueKey);
 		verify(pobClientMock).getMail(mailId);
-		verify(slackServiceMock).sendToSlack(municipalityId, "A new Jira issue has been created for you: http:://jira-test.com/browse/JIR-12345");
+		verify(slackServiceMock).sendToSlack(municipalityId, JIRA_ISSUE_CREATED.formatted("This works!", "http:://jira-test.com", "JIR-12345"));
 
 		final var capturedIncidentEntity = incidentEntityCaptor.getValue();
 		assertThat(capturedIncidentEntity).isNotNull();

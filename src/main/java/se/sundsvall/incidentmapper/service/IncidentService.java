@@ -55,7 +55,8 @@ public class IncidentService {
 	private static final List<Status> OPEN_FOR_MODIFICATION_STATUS_LIST = asList(SYNCHRONIZED); // Status is only modifiable if current value is one of these.
 	private static final List<String> JIRA_CLOSED_STATUSES = List.of("Closed", "Done", "Review done", "Resolved", "Won't do");
 	private static final List<String> JIRA_ISSUE_LABELS = List.of("support-ticket");
-	private static final String JIRA_ISSUE_CREATED = "A new Jira issue has been created for you: %s/browse/%s";
+	static final String JIRA_ISSUE_CREATED = "A new Jira issue has been created\n%s\n%s/browse/%s";
+
 	private static final String JIRA_ISSUE_TYPE = "Bug";
 	private static final String JIRA_TODO_STATUS = "To Do";
 	private static final String JIRA_ISSUE_TITLE_TEMPLATE = "Supportärende %s (%s)";
@@ -274,7 +275,7 @@ public class IncidentService {
 				.withLastSynchronizedJira(now(systemDefault())));
 
 			// Send Slack notification.
-			slackService.sendToSlack(incidentEntity.getMunicipalityId(), JIRA_ISSUE_CREATED.formatted(jiraIncidentClient.getProperties().url(), jiraIssueKey));
+			slackService.sendToSlack(incidentEntity.getMunicipalityId(), JIRA_ISSUE_CREATED.formatted(summary, jiraIncidentClient.getProperties().url(), jiraIssueKey));
 		});
 	}
 

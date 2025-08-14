@@ -21,7 +21,7 @@ integration:
 spring:
   datasource:
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
-    url: jdbc:tc:mariadb:10.6.4:///ittest
+    url: jdbc:tc:mariadb:10.6:///ittest
   flyway:
     enabled: true
   jpa:

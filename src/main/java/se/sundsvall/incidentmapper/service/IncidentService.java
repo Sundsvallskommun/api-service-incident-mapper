@@ -7,7 +7,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
@@ -32,6 +31,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import org.apache.commons.lang3.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -115,7 +115,7 @@ public class IncidentService {
 			.filter(incidentEntity -> isNotBlank(incidentEntity.getJiraIssueKey()))
 			.forEach(incidentEntity -> jiraIncidentClient.getIssue(incidentEntity.getJiraIssueKey()).ifPresent(jiraIssue -> {
 				final var statusName = jiraIssue.getFields().getStatus().getName();
-				final var doCloseIssue = JIRA_CLOSED_STATUSES.stream().anyMatch(status -> equalsIgnoreCase(status, statusName));
+				final var doCloseIssue = JIRA_CLOSED_STATUSES.stream().anyMatch(status -> Strings.CI.equals(status, statusName));
 
 				LOGGER.info("Issue: '{}' has status: '{}'. Issue will be closed: '{}'", incidentEntity.getJiraIssueKey(), statusName, doCloseIssue);
 

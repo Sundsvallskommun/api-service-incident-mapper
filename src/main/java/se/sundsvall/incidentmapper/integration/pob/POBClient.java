@@ -36,7 +36,7 @@ public interface POBClient {
 	 * @return        The pobPayload
 	 */
 	@GetMapping(path = "case/{caseId}", produces = APPLICATION_JSON_VALUE)
-	Optional<PobPayload> getCase(@PathVariable("caseId") String caseId);
+	Optional<PobPayload> getCase(@PathVariable String caseId);
 
 	/**
 	 * Get problem memo (i.e. error description) for an existing case in POB.
@@ -45,7 +45,7 @@ public interface POBClient {
 	 * @return        The pobPayload
 	 */
 	@GetMapping(path = "case/{caseId}/memo?type=Problem&scope=all", produces = APPLICATION_JSON_VALUE)
-	Optional<PobPayload> getProblemMemo(@PathVariable("caseId") String caseId);
+	Optional<PobPayload> getProblemMemo(@PathVariable String caseId);
 
 	/**
 	 * Get case internal notes (i.e. internal notes) for an existing case in POB.
@@ -54,7 +54,7 @@ public interface POBClient {
 	 * @return        The pobPayload
 	 */
 	@GetMapping(path = "case/{caseId}/memo?type=CaseInternalNotesCustom&scope=all", produces = APPLICATION_JSON_VALUE)
-	Optional<PobPayload> getCaseInternalNotesCustom(@PathVariable("caseId") String caseId);
+	Optional<PobPayload> getCaseInternalNotesCustom(@PathVariable String caseId);
 
 	/**
 	 * Returns a list of all attachments for a case in POB.
@@ -62,7 +62,7 @@ public interface POBClient {
 	 * @return a payload with the attachments
 	 */
 	@GetMapping(path = "case/{caseId}/attachments", produces = APPLICATION_JSON_VALUE)
-	Optional<PobPayload> getAttachments(@PathVariable("caseId") String caseId);
+	Optional<PobPayload> getAttachments(@PathVariable String caseId);
 
 	/**
 	 * Returns an attachment for a case in POB.
@@ -72,7 +72,7 @@ public interface POBClient {
 	 * @return              the attachment
 	 */
 	@GetMapping(path = "case/{caseId}/attachments/{attachmentId}", produces = APPLICATION_JSON_VALUE)
-	ResponseEntity<InputStreamResource> getAttachment(@PathVariable("caseId") String caseId, @PathVariable("attachmentId") String attachmentId);
+	ResponseEntity<InputStreamResource> getAttachment(@PathVariable String caseId, @PathVariable String attachmentId);
 
 	/**
 	 * Creates an attachment for a case in POB.
@@ -81,7 +81,7 @@ public interface POBClient {
 	 * @param payload the object with the attachment to create.
 	 */
 	@PutMapping(path = "case/{caseId}/attachments", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
-	Void createAttachment(@PathVariable("caseId") String caseId, @RequestBody PobPayload payload);
+	Void createAttachment(@PathVariable String caseId, @RequestBody PobPayload payload);
 
 	/**
 	 * Returns a list of all received mails for a case (mailStatus=3).
@@ -92,7 +92,7 @@ public interface POBClient {
 	 * @return        a payload with the mail information.
 	 */
 	@GetMapping(path = "case/{caseId}/mails?Filter=MailStatus=3&Fields=Id", produces = APPLICATION_JSON_VALUE)
-	List<PobPayload> getReceivedMailIds(@PathVariable("caseId") String caseId);
+	List<PobPayload> getReceivedMailIds(@PathVariable String caseId);
 
 	/**
 	 * Fetch a mail by Id.
@@ -101,5 +101,5 @@ public interface POBClient {
 	 * @return        a payload with the mail data.
 	 */
 	@GetMapping(path = "mail/{mailId}", produces = APPLICATION_JSON_VALUE)
-	Optional<PobPayload> getMail(@PathVariable("mailId") String mailId);
+	Optional<PobPayload> getMail(@PathVariable String mailId);
 }

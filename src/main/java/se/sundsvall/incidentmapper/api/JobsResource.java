@@ -35,7 +35,7 @@ class JobsResource {
 	}
 
 	@PostMapping(path = "/synchronizer")
-	@Operation(summary = "Runs synchonizer job.", description = "Runs synchonizer job.", responses = {
+	@Operation(summary = "Runs synchronizer job.", description = "Runs synchonizer job.", responses = {
 		@ApiResponse(responseCode = "204", description = "Successful operation", useReturnTypeSchema = true),
 		@ApiResponse(responseCode = "400", description = "Bad request", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(oneOf = {
 			Problem.class, ConstraintViolationProblem.class

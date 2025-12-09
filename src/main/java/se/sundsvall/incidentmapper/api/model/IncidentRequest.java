@@ -9,7 +9,7 @@ import java.util.Objects;
 @Schema(description = "Incident request model")
 public class IncidentRequest {
 
-	@Schema(description = "The incident key", example = "INCIDENT-12345", requiredMode = REQUIRED)
+	@Schema(description = "The incident key", examples = "INCIDENT-12345", requiredMode = REQUIRED)
 
 	@NotBlank(message = "a valid value must be provided")
 	private String incidentKey;
@@ -38,15 +38,19 @@ public class IncidentRequest {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) { return true; }
-		if (!(obj instanceof final IncidentRequest other)) { return false; }
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof final IncidentRequest other)) {
+			return false;
+		}
 		return Objects.equals(incidentKey, other.incidentKey);
 	}
 
 	@Override
 	public String toString() {
-		final StringBuilder builder = new StringBuilder();
-		builder.append("IncidentRequest [incidentKey=").append(incidentKey).append("]");
-		return builder.toString();
+		return "IncidentRequest{" +
+			"incidentKey='" + incidentKey + '\'' +
+			'}';
 	}
 }

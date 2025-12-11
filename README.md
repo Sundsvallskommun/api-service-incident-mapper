@@ -6,7 +6,7 @@ _Automatically creates and manages Jira issues based on incoming incidents, main
 
 ### Prerequisites
 
-- **Java 21 or higher**
+- **Java 25 or higher**
 - **Maven**
 - **MariaDB**
 - **Git**

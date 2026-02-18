@@ -1,12 +1,12 @@
 package se.sundsvall.incidentmapper.integration.db.listener;
 
+import org.junit.jupiter.api.Test;
+import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
+
 import static java.time.OffsetDateTime.now;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
-
-import org.junit.jupiter.api.Test;
-import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
 
 class IncidentEntityListenerTest {
 

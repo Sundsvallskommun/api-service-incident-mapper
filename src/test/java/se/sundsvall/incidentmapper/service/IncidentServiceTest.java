@@ -1,23 +1,5 @@
 package se.sundsvall.incidentmapper.service;
 
-import static java.time.OffsetDateTime.now;
-import static java.time.temporal.ChronoUnit.SECONDS;
-import static java.util.Collections.emptyList;
-import static java.util.Optional.empty;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.within;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
-import static se.sundsvall.dept44.test.annotation.resource.Load.ResourceType.JSON;
-import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
-import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.POB_INITIATED_EVENT;
-import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
-import static se.sundsvall.incidentmapper.service.IncidentService.JIRA_ISSUE_CREATED;
-
 import com.chavaillaz.client.jira.domain.Attachment;
 import com.chavaillaz.client.jira.domain.Attachments;
 import com.chavaillaz.client.jira.domain.Comment;
@@ -59,6 +41,24 @@ import se.sundsvall.incidentmapper.integration.jira.configuration.JiraProperties
 import se.sundsvall.incidentmapper.integration.pob.POBClient;
 import se.sundsvall.incidentmapper.service.configuration.SynchronizationProperties;
 import se.sundsvall.incidentmapper.service.mapper.PobMapper;
+
+import static java.time.OffsetDateTime.now;
+import static java.time.temporal.ChronoUnit.SECONDS;
+import static java.util.Collections.emptyList;
+import static java.util.Optional.empty;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+import static se.sundsvall.dept44.test.annotation.resource.Load.ResourceType.JSON;
+import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
+import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.POB_INITIATED_EVENT;
+import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
+import static se.sundsvall.incidentmapper.service.IncidentService.JIRA_ISSUE_CREATED;
 
 @ExtendWith({
 	MockitoExtension.class, ResourceLoaderExtension.class

@@ -1,28 +1,5 @@
 package se.sundsvall.incidentmapper.service;
 
-import static java.time.OffsetDateTime.MIN;
-import static java.time.OffsetDateTime.now;
-import static java.time.ZoneId.systemDefault;
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Objects.nonNull;
-import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
-import static org.springframework.util.FileSystemUtils.deleteRecursively;
-import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
-import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.POB_INITIATED_EVENT;
-import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
-import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toAttachmentPayload;
-import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toCaseInternalNotesCustomMemo;
-import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toCaseInternalNotesCustomMemoPayload;
-import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toDescription;
-import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toFormattedMail;
-import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toProblemMemo;
-import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toProblemPayload;
-import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toResponsibleGroupPayload;
-
 import com.chavaillaz.client.jira.domain.Attachment;
 import com.chavaillaz.client.jira.domain.Issue;
 import generated.se.sundsvall.pob.PobPayload;
@@ -45,6 +22,29 @@ import se.sundsvall.incidentmapper.integration.pob.POBClient;
 import se.sundsvall.incidentmapper.integration.pob.model.Mail;
 import se.sundsvall.incidentmapper.service.configuration.SynchronizationProperties;
 import se.sundsvall.incidentmapper.service.mapper.PobMapper;
+
+import static java.time.OffsetDateTime.MIN;
+import static java.time.OffsetDateTime.now;
+import static java.time.ZoneId.systemDefault;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Objects.nonNull;
+import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.springframework.util.FileSystemUtils.deleteRecursively;
+import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
+import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.POB_INITIATED_EVENT;
+import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
+import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toAttachmentPayload;
+import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toCaseInternalNotesCustomMemo;
+import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toCaseInternalNotesCustomMemoPayload;
+import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toDescription;
+import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toFormattedMail;
+import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toProblemMemo;
+import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toProblemPayload;
+import static se.sundsvall.incidentmapper.service.mapper.PobMapper.toResponsibleGroupPayload;
 
 @Service
 @Transactional

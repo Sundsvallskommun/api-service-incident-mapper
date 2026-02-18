@@ -1,9 +1,5 @@
 package se.sundsvall.incidentmapper.integration.pob.configuration;
 
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.ALWAYS;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.RequestInterceptor;
 import feign.codec.Encoder;
@@ -17,6 +13,10 @@ import se.sundsvall.dept44.configuration.feign.FeignConfiguration;
 import se.sundsvall.dept44.configuration.feign.FeignMultiCustomizer;
 import se.sundsvall.dept44.configuration.feign.decoder.JsonPathErrorDecoder;
 import se.sundsvall.dept44.configuration.feign.decoder.JsonPathErrorDecoder.JsonPathSetup;
+
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.ALWAYS;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Import(FeignConfiguration.class)
 public class POBConfiguration {

@@ -1,12 +1,12 @@
 package se.sundsvall.incidentmapper.integration.db.listener;
 
-import static java.time.OffsetDateTime.now;
-import static java.time.ZoneId.systemDefault;
-import static java.time.temporal.ChronoUnit.MILLIS;
-
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
+
+import static java.time.OffsetDateTime.now;
+import static java.time.ZoneId.systemDefault;
+import static java.time.temporal.ChronoUnit.MILLIS;
 
 public class IncidentEntityListener {
 

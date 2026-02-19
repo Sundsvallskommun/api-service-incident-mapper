@@ -1,8 +1,5 @@
 package se.sundsvall.incidentmapper.integration.pob;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static se.sundsvall.incidentmapper.integration.pob.configuration.POBConfiguration.CLIENT_ID;
-
 import generated.se.sundsvall.pob.PobPayload;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.util.List;
@@ -16,6 +13,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import se.sundsvall.incidentmapper.integration.pob.configuration.POBConfiguration;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static se.sundsvall.incidentmapper.integration.pob.configuration.POBConfiguration.CLIENT_ID;
 
 @FeignClient(name = CLIENT_ID, url = "${integration.pob.url}", configuration = POBConfiguration.class, dismiss404 = true)
 @CircuitBreaker(name = CLIENT_ID)

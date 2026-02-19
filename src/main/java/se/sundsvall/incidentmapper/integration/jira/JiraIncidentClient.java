@@ -1,10 +1,5 @@
 package se.sundsvall.incidentmapper.integration.jira;
 
-import static java.util.Optional.empty;
-import static java.util.stream.Collectors.toMap;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.util.StringUtils.hasText;
-
 import com.chavaillaz.client.common.exception.ResponseException;
 import com.chavaillaz.client.jira.JiraClient;
 import com.chavaillaz.client.jira.domain.Comment;
@@ -20,6 +15,11 @@ import java.util.Optional;
 import java.util.function.Function;
 import org.springframework.stereotype.Component;
 import se.sundsvall.incidentmapper.integration.jira.configuration.JiraProperties;
+
+import static java.util.Optional.empty;
+import static java.util.stream.Collectors.toMap;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.util.StringUtils.hasText;
 
 @Component
 @CircuitBreaker(name = "jiraIntegration")

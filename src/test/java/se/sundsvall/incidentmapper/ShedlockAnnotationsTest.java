@@ -1,9 +1,5 @@
 package se.sundsvall.incidentmapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
-import static org.zalando.fauxpas.FauxPas.throwingFunction;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,6 +13,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.scheduling.annotation.Scheduled;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.zalando.fauxpas.FauxPas.throwingFunction;
 
 class ShedlockAnnotationsTest {
 

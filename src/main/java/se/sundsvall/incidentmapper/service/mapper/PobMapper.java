@@ -1,14 +1,5 @@
 package se.sundsvall.incidentmapper.service.mapper;
 
-import static com.google.gson.FieldNamingPolicy.UPPER_CAMEL_CASE;
-import static com.jayway.jsonpath.Configuration.defaultConfiguration;
-import static com.jayway.jsonpath.JsonPath.parse;
-import static com.jayway.jsonpath.Option.SUPPRESS_EXCEPTIONS;
-import static java.util.Collections.emptyList;
-import static java.util.Objects.nonNull;
-import static java.util.stream.Collectors.joining;
-import static org.apache.commons.lang3.math.NumberUtils.toInt;
-
 import com.chavaillaz.client.jira.domain.Attachment;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -24,6 +15,15 @@ import org.jsoup.nodes.Document;
 import org.jsoup.safety.Safelist;
 import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
 import se.sundsvall.incidentmapper.integration.pob.model.Mail;
+
+import static com.google.gson.FieldNamingPolicy.UPPER_CAMEL_CASE;
+import static com.jayway.jsonpath.Configuration.defaultConfiguration;
+import static com.jayway.jsonpath.JsonPath.parse;
+import static com.jayway.jsonpath.Option.SUPPRESS_EXCEPTIONS;
+import static java.util.Collections.emptyList;
+import static java.util.Objects.nonNull;
+import static java.util.stream.Collectors.joining;
+import static org.apache.commons.lang3.math.NumberUtils.toInt;
 
 public final class PobMapper {
 

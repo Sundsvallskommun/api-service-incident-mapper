@@ -18,9 +18,5 @@
 		"body": "{\n  \"messageId\" : \"3b6bc21e-51f1-4edd-946d-333c02a31221\",\n  \"deliveries\" : [ {\n    \"deliveryId\" : \"4aa5e085-7e9a-4e8d-9b9c-981f8a167333\",\n    \"messageType\" : \"SLACK\",\n    \"status\" : \"SENT\"\n  } ]\n}",
 		"status": 201
 	},
-	"name": "messaging_slack",
-	"id": "550cff1c-31db-48ac-84c2-07bad2e1ec6a",
-	"persistent": true,
-	"insertionIndex": 24,
-	"uuid": "550cff1c-31db-48ac-84c2-07bad2e1ec6a"
+	"name": "messaging_slack"
 }

@@ -12,9 +12,5 @@
 	},
 	"name": "pob_case_12345_attachments",
 	"requiredScenarioState": "scenario-1-pobg6-api-v20-case-12345-attachments-2",
-	"id": "e914161d-b4be-4750-af32-14df5043afc3",
-	"persistent": true,
-	"insertionIndex": 6,
-	"uuid": "e914161d-b4be-4750-af32-14df5043afc3",
 	"scenarioName": "scenario-1-pobg6-api-v20-case-12345-attachments"
 }

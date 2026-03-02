@@ -12,9 +12,5 @@
 	},
 	"name": "pob_case_12345_memo",
 	"requiredScenarioState": "scenario-2-pobg6-api-v20-case-12345-memo-2",
-	"id": "3b3892cf-5b93-4c75-875e-954d950ed3cb",
-	"persistent": true,
-	"insertionIndex": 8,
-	"uuid": "3b3892cf-5b93-4c75-875e-954d950ed3cb",
 	"scenarioName": "scenario-2-pobg6-api-v20-case-12345-memo"
 }

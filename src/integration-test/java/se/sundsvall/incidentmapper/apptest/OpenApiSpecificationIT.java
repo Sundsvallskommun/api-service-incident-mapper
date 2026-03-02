@@ -6,17 +6,19 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.web.util.UriComponentsBuilder.fromPath;
 import static se.sundsvall.dept44.util.ResourceUtils.asString;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.dataformat.yaml.YAMLMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.resttestclient.TestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ActiveProfiles;
 import se.sundsvall.incidentmapper.Application;
 
+@AutoConfigureTestRestTemplate
 @SpringBootTest(
 	webEnvironment = RANDOM_PORT,
 	classes = Application.class,
@@ -74,7 +76,7 @@ class OpenApiSpecificationIT {
 	private String toJson(final String yaml) {
 		try {
 			return YAML_MAPPER.readTree(yaml).toString();
-		} catch (final JsonProcessingException e) {
+		} catch (final JacksonException e) {
 			throw new IllegalStateException("Unable to convert YAML to JSON", e);
 		}
 	}

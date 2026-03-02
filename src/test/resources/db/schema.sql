@@ -8,7 +8,7 @@
         modified datetime(6),
         municipality_id varchar(255),
         pob_issue_key varchar(255),
-        status varchar(255),
+        status varchar(255) check ((status in ('SYNCHRONIZED','JIRA_INITIATED_EVENT','POB_INITIATED_EVENT'))),
         primary key (id)
     ) engine=InnoDB;
 

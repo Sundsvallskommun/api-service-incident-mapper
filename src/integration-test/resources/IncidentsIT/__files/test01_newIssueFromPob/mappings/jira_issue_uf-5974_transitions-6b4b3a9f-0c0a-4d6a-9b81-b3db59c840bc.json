@@ -16,9 +16,5 @@
 		},
 		"status": 204
 	},
-	"name": "rest_api_2_issue_uf-5974_transitions",
-	"id": "6b4b3a9f-0c0a-4d6a-9b81-b3db59c840bc",
-	"persistent": true,
-	"insertionIndex": 68,
-	"uuid": "6b4b3a9f-0c0a-4d6a-9b81-b3db59c840bc"
+	"name": "rest_api_2_issue_uf-5974_transitions"
 }

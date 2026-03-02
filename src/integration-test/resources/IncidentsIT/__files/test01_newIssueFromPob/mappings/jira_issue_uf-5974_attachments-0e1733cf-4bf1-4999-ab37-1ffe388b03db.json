@@ -18,9 +18,5 @@
 	},
 	"name": "jira_issue_uf-5974_attachments",
 	"requiredScenarioState": "Started",
-	"id": "0e1733cf-4bf1-4999-ab37-1ffe388b03db",
-	"persistent": true,
-	"insertionIndex": 3,
-	"uuid": "0e1733cf-4bf1-4999-ab37-1ffe388b03db",
 	"scenarioName": "scenario-1-rest-api-2-issue-UF-5974-attachments"
 }

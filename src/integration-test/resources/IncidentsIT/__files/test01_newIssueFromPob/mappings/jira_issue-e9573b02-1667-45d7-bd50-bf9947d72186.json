@@ -17,9 +17,5 @@
 		"body": "{\"id\":\"18301\",\"key\":\"UF-5974\",\"self\":\"https://jira.localhost/rest/api/2/issue/18301\"}",
 		"status": 201
 	},
-	"name": "jira_issue",
-	"id": "e9573b02-1667-45d7-bd50-bf9947d72186",
-	"persistent": true,
-	"insertionIndex": 8,
-	"uuid": "e9573b02-1667-45d7-bd50-bf9947d72186"
+	"name": "jira_issue"
 }

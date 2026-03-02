@@ -18,9 +18,5 @@
 	},
 	"name": "rest_api_2_issue_uf-5974_attachments",
 	"requiredScenarioState": "scenario-1-rest-api-2-issue-UF-5974-attachments-2",
-	"id": "d6d1bdf1-c6ff-4b07-99cd-c5482f64212b",
-	"persistent": true,
-	"insertionIndex": 11,
-	"uuid": "d6d1bdf1-c6ff-4b07-99cd-c5482f64212b",
 	"scenarioName": "scenario-1-rest-api-2-issue-UF-5974-attachments"
 }

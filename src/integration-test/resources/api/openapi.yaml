@@ -108,196 +108,28 @@ paths:
       x-wso2-mutual-ssl: Optional
 components:
   schemas:
-    Problem:
-      type: object
-      properties:
-        instance:
-          type: string
-          format: uri
-        type:
-          type: string
-          format: uri
-        parameters:
-          type: object
-          additionalProperties: { }
-        detail:
-          type: string
-        title:
-          type: string
-        status:
-          $ref: "#/components/schemas/StatusType"
-    StatusType:
-      type: object
-      properties:
-        statusCode:
-          type: integer
-          format: int32
-        reasonPhrase:
-          type: string
     ConstraintViolationProblem:
       type: object
       properties:
-        cause:
+        causeAsProblem:
           $ref: "#/components/schemas/ThrowableProblem"
-        stackTrace:
-          type: array
-          items:
-            type: object
-            properties:
-              classLoaderName:
-                type: string
-              moduleName:
-                type: string
-              moduleVersion:
-                type: string
-              methodName:
-                type: string
-              fileName:
-                type: string
-              lineNumber:
-                type: integer
-                format: int32
-              className:
-                type: string
-              nativeMethod:
-                type: boolean
-        type:
+        detail:
+          type: string
+        instance:
           type: string
           format: uri
         status:
-          $ref: "#/components/schemas/StatusType"
+          type: integer
+          format: int32
+        title:
+          type: string
+        type:
+          type: string
+          format: uri
         violations:
           type: array
           items:
             $ref: "#/components/schemas/Violation"
-        title:
-          type: string
-        message:
-          type: string
-        instance:
-          type: string
-          format: uri
-        parameters:
-          type: object
-          additionalProperties: { }
-        detail:
-          type: string
-        suppressed:
-          type: array
-          items:
-            type: object
-            properties:
-              stackTrace:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    classLoaderName:
-                      type: string
-                    moduleName:
-                      type: string
-                    moduleVersion:
-                      type: string
-                    methodName:
-                      type: string
-                    fileName:
-                      type: string
-                    lineNumber:
-                      type: integer
-                      format: int32
-                    className:
-                      type: string
-                    nativeMethod:
-                      type: boolean
-              message:
-                type: string
-              localizedMessage:
-                type: string
-        localizedMessage:
-          type: string
-    ThrowableProblem:
-      type: object
-      properties:
-        cause: { }
-        stackTrace:
-          type: array
-          items:
-            type: object
-            properties:
-              classLoaderName:
-                type: string
-              moduleName:
-                type: string
-              moduleVersion:
-                type: string
-              methodName:
-                type: string
-              fileName:
-                type: string
-              lineNumber:
-                type: integer
-                format: int32
-              className:
-                type: string
-              nativeMethod:
-                type: boolean
-        message:
-          type: string
-        instance:
-          type: string
-          format: uri
-        type:
-          type: string
-          format: uri
-        parameters:
-          type: object
-          additionalProperties: { }
-        detail:
-          type: string
-        title:
-          type: string
-        status:
-          $ref: "#/components/schemas/StatusType"
-        suppressed:
-          type: array
-          items:
-            type: object
-            properties:
-              stackTrace:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    classLoaderName:
-                      type: string
-                    moduleName:
-                      type: string
-                    moduleVersion:
-                      type: string
-                    methodName:
-                      type: string
-                    fileName:
-                      type: string
-                    lineNumber:
-                      type: integer
-                      format: int32
-                    className:
-                      type: string
-                    nativeMethod:
-                      type: boolean
-              message:
-                type: string
-              localizedMessage:
-                type: string
-        localizedMessage:
-          type: string
-    Violation:
-      type: object
-      properties:
-        field:
-          type: string
-        message:
-          type: string
     IncidentRequest:
       type: object
       description: Incident request model
@@ -307,7 +139,46 @@ components:
           description: The incident key
           examples:
             - INCIDENT-12345
-          minLength: 1
       required:
         - incidentKey
+    Problem:
+      type: object
+      properties:
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri
+        status:
+          type: integer
+          format: int32
+        title:
+          type: string
+        type:
+          type: string
+          format: uri
+    ThrowableProblem:
+      type: object
+      properties:
+        causeAsProblem: { }
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri
+        status:
+          type: integer
+          format: int32
+        title:
+          type: string
+        type:
+          type: string
+          format: uri
+    Violation:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
   securitySchemes: { }

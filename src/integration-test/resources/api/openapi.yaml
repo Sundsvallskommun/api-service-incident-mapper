@@ -137,6 +137,7 @@ components:
         incidentKey:
           type: string
           description: The incident key
+          minLength: 1
           examples:
             - INCIDENT-12345
       required:

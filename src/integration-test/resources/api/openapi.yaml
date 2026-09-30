@@ -161,7 +161,8 @@ components:
     ThrowableProblem:
       type: object
       properties:
-        causeAsProblem: { }
+        causeAsProblem:
+          $ref: "#/components/schemas/ThrowableProblem"
         detail:
           type: string
         instance:

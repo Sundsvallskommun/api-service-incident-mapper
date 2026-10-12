@@ -111,8 +111,6 @@ components:
     ConstraintViolationProblem:
       type: object
       properties:
-        causeAsProblem:
-          $ref: "#/components/schemas/ThrowableProblem"
         detail:
           type: string
         instance:
@@ -145,24 +143,6 @@ components:
     Problem:
       type: object
       properties:
-        detail:
-          type: string
-        instance:
-          type: string
-          format: uri
-        status:
-          type: integer
-          format: int32
-        title:
-          type: string
-        type:
-          type: string
-          format: uri
-    ThrowableProblem:
-      type: object
-      properties:
-        causeAsProblem:
-          $ref: "#/components/schemas/ThrowableProblem"
         detail:
           type: string
         instance:

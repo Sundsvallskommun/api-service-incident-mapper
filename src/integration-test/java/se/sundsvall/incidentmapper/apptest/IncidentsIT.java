@@ -1,5 +1,14 @@
 package se.sundsvall.incidentmapper.apptest;
 
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.jdbc.Sql;
+import se.sundsvall.dept44.test.AbstractAppTest;
+import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
+import se.sundsvall.incidentmapper.Application;
+import se.sundsvall.incidentmapper.integration.db.IncidentRepository;
+import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
+
 import static java.time.OffsetDateTime.now;
 import static java.time.ZoneId.systemDefault;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -8,16 +17,6 @@ import static org.springframework.http.HttpStatus.ACCEPTED;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.JIRA_INITIATED_EVENT;
 import static se.sundsvall.incidentmapper.integration.db.model.enums.Status.SYNCHRONIZED;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.jdbc.Sql;
-
-import se.sundsvall.dept44.test.AbstractAppTest;
-import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
-import se.sundsvall.incidentmapper.Application;
-import se.sundsvall.incidentmapper.integration.db.IncidentRepository;
-import se.sundsvall.incidentmapper.integration.db.model.IncidentEntity;
 
 @WireMockAppTestSuite(files = "classpath:/IncidentsIT/", classes = Application.class)
 @Sql({
